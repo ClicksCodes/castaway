@@ -26,5 +26,5 @@ def get(member, skill: Skills = None):  # If statement everything like YandereDe
         with open(f"data/{guild_id}.json") as data_file:  # Not sure what this does
             data = json.load(data_file)  # Or this
     except FileNotFoundError:
-        
+        return None
     return data["islanders"].get(member_id, {}).get("skills", {}).get(str(skill.value), 0) if skill else data["islanders"].get(member_id, {}).get("skills", 0)  # Or guess what? this.

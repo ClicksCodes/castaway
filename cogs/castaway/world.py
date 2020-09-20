@@ -51,7 +51,8 @@ class NaturalStructure:  # Froggie is actually french, that why 75% of the shit 
         return self.drops, damt  # Pokemon is a great franchise.
 
 class AdvancedNaturalStructure(NaturalStructure):
-    def __init__(self, size, resources)
+    def __init__(self, size, resources):
+        pass
 
 class Tree(NaturalStructure):  # So serious stuff here, these are trees. But what type? Oak? Jungle? Acasia? Birch?
     drop_amounts = [5, 10, 15]
@@ -59,13 +60,14 @@ class Tree(NaturalStructure):  # So serious stuff here, these are trees. But wha
         super().__init__(size, drops)  # Glory to Arstotzka, greatest country of all.
 
 class OreVein(NaturalStructure):
-    drop_amounrs = [2, 4, 6]  # Do not change it. Everyone loves a good old spelling mistake.
+    drop_amounts = [2, 4, 6]  # Do not change it. Everyone loves a good old spelling mistake.
     def __init__(self, size=Size.SMALL, drops=Ore()):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
         super().__init__(size, drops)
 
 class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
     resources = [Rock, OreVein]
-    def __init__(self, )
+    def __init__(self, thing):
+        pass
 
 # drops = [Tree(Size.SMALL), Tree(Size.MEDIUM), Tree(Size.LARGE)]  # Trees makes great paper. : Arstotzka likes paper. Paper please says Arstotzka -3665
 
@@ -82,9 +84,11 @@ class Biomes(enum.Enum):
     GRASS = 6
 
 
-class Biome:
-    def __init__(self, type: Biomes=Biomes.OCEAN, cooridinates: )  # Coordinates is a thing.
 
+
+class BiomeGen:
+    def __init__(self, biome_type: Biomes=Biomes.OCEAN):  # Coordinates is a thing.
+        pass
 
 
 """World Gen"""
@@ -92,17 +96,19 @@ class Biome:
 
 
 biomeRarity = {
-    "jungle":    25  # Lovely jungle.
-    "beach":     20  # Dont forget your sunscreen!
-    "cliff":     15  # cant write what i was gonna write.
+    "jungle":    25,  # Lovely jungle.
+    "beach":     20,  # Dont forget your sunscreen!
+    "cliff":     15,  # cant write what i was gonna write.
     "lake":      3  # ohno.
 }
 
 
 class World:
-    def __init__(self, size:tuple, rarity:dict = biomeRarity):  # i love minecraft, or mein kampf.
+    def __init__(self, size:tuple, rarity:dict = biomeRarity):  # i love minecraft, or <redacted>.
         chunks = []  # Chunks of biomes, what flavor is it?
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
-            curChunks = []
+            cur_chunks = []
             for h in range(size[1]):  # No clue what is happening here.
-                
+                cur_chunks.append(BiomeGen(Biomes(random.randint(1, 6))))
+                print(cur_chunks[h])
+            chunks.append(cur_chunks)

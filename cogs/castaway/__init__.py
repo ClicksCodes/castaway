@@ -26,7 +26,7 @@ class Castaway(commands.Cog):
         """Build structures"""
     
     @commands.group(aliases=["farms"], invoke_without_command=True)  #Farmin Simulatur
-    async def farm(self, ctx)
+    async def farm(self, ctx):
         """Manage your farms"""
     
     @farm.command(name="plant")  # You know, you gotta make some money planting some weed. My bad, it's quite useful to survive, eating and such.
