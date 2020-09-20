@@ -1,0 +1,16 @@
+{
+    "active": true,
+    "islanders": {
+        "user_id_here": {
+            "skills": {
+                "laziness": 5,
+                "impatience": 5,
+                "hubris": 5
+            },
+            "action": {
+                "start-time": "timestamp_here",
+                "action": "action_id_here"
+            }
+        }
+    }
+}
