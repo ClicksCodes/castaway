@@ -12,6 +12,8 @@ class Size(enum.Enum):
 """Resources"""  # It's dangerous to go alone, here take some reasources and craft yourself a bloody sword - Weird old man in a 8-bit cave.
 
 class Resource:
+    def __init__(self):
+        pass
     pass; 
 
 class BasicResource(Resource):  # Is nothing something?
@@ -35,6 +37,17 @@ class Ore(BasicResource):
 
 class Metal(ProcessedResource):
     pass;  # Most trees are not always the same size -TheCodedProf            
+
+
+"""Collectables"""
+
+class Collectable:
+    def __init__(self):
+        pass
+    pass
+
+class Treasure(Collectable):
+    pass
 
 """Natural Structures"""  # Everyone knows that Shipwrecks are very natural.
 
@@ -64,6 +77,9 @@ class OreVein(NaturalStructure):
     def __init__(self, size=Size.SMALL, drops=Ore()):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
         super().__init__(size, drops)
 
+class Beach(AdvancedNaturalStructure):
+    resources = [Sand, Treasure]
+
 class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
     resources = [Rock, OreVein]
     def __init__(self, thing):
@@ -77,17 +93,22 @@ class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
 class Biomes(enum.Enum):
     OCEAN = 0  
     JUNGLE = 1
-    BEACH = 2
-    CLIFF = 3
-    LAKE = 4
-    SAND = 5
-    GRASS = 6
-
-
+    CLIFF = 2
+    LAKE = 3
+    SAND = 4
+    GRASS = 5
 
 
 class BiomeGen:
     def __init__(self, biome_type: Biomes=Biomes.OCEAN):  # Coordinates is a thing.
+        resources = []
+        i = 0
+        while i < 100:
+            
+            i += 1
+            pass
+        
+
         pass
 
 
@@ -97,7 +118,6 @@ class BiomeGen:
 
 biomeRarity = {
     "jungle":    25,  # Lovely jungle.
-    "beach":     20,  # Dont forget your sunscreen!
     "cliff":     15,  # cant write what i was gonna write.
     "lake":      3  # ohno.
 }
@@ -109,6 +129,13 @@ class World:
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []
             for h in range(size[1]):  # No clue what is happening here.
-                cur_chunks.append(BiomeGen(Biomes(random.randint(1, 6))))
+                x = random.randint(1,100)
+                if x < 25:
+                    chosen = 1
+                elif x < 40:
+                    chosen = 2
+                elif x < 43:
+                    chosen = 3
+                cur_chunks.append(BiomeGen(Biomes(chosen)))
                 print(cur_chunks[h])
             chunks.append(cur_chunks)
