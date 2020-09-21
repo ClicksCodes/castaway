@@ -154,48 +154,49 @@ class Biomes(enum.Enum):  # I am writing this down to up so things might get wei
 biome_structures = {  # These are not worth commenting
     0: {  # Just look at them,
         Beach: 3,  # I really have no idea what to write here.
+        None: 97
     },  # Useless, only holding code together,
     1: {  # Doing nothing else,
         Tree: 50,  # I mean, there is plenty of space and all,
         Cave: 2,  # But you know, there isnt much we can write,
         OreVein: 4,  # We could talk about the oreVeins,
+        None: 44
     },  # just holdin'
     2: {  # and holdin'
         Tree: 10,  # Or the trees and how they'll gonna work,
         Cave: 2,  # But that is just plain boring,
         OreVein: 5,  # Actually, why is oreVeins twice here?
+        None: 83
     },  # Still doing the same job
     3: {  # and here too!
         Beach: 2,  # And beach?
+        None: 98
     },  # Guess what? here too.
     4: {  # aaaand here.
         Tree: 5,  # And trees?
         OreVein: 5,  # Must be normal, or is it?
+        None: 90
     },  # Minion love them.
     5: {  # here too.
         Tree: 15,  # AND SOME MORE TREES HERE!!
         OreVein: 4,  # I really dont understand why,
         Cave: 2,  # Maybe if i were to read the code...
+        None: 79
     },  # im not even bothered putting caps anymore.
 }  # like i am not paid for this, and for the best. : What if you were @slave? -TCP : That would be fantastic - slave : How much would you like? -TCP : 3 quid an hour is good enough really. - slave : It shall be done -TCP : Here is my paypal.me: https://paypal.me/thefroggie85/
 # hour 1 @slave, start working -TCP : ok 2nd in charge officer.
 
 class BiomeGen:  # Day 2: we have a generator.
     def __init__(self, biome_type: Biomes = Biomes.OCEAN):  # Coordinates is a thing.
-        structures = []  # Arrays.
-
+        self.biome = biome_type
+        self.structures = []  # Arrays.
         for i in range(5):  # i needs to go so much things, it's quite sad.
             cur_struct = []  # Structures are good, i think.
             for j in range(5):  # Whiles... love them.
                 val = biome_structures.get(biome_type.value, {})  # Biomes types are great, it wouldn't be a great game if there was only ocean. : LIES -3665 : What do you call Raft @slave -TCP : A Boat simulator 2nd in charge officer. - slave : Why are you not wrong -TCP
-                i = random.randint(0, 1)  # RANDOMS!
-                if i == 0: 
-                    ran = None  # Fact: Death Stranding is just a walking simulator for the enormous price of 60 quid. + Extra monster sponsoring.
-                else: 
-                    ran = random.choices(list(val.keys()), val.values())[0]  # I'm still wondering what I am doing here.
+                ran = random.choices(list(val.keys()), val.values())[0]  # I'm still wondering what I am doing here.
                 cur_struct.append(ran)  # Well at least i dont "annoy" anyone.
-                print(ran)
-            structures.append(cur_struct)
+            self.structures.append(cur_struct)
 
 """World Gen"""  # UwU
 
@@ -203,14 +204,14 @@ biome_rarity = {
     "ocean": 0,
     "jungle": 10,  # Lovely jungle.
     "cliff": 5,  # cant write what i was gonna write.
-    "lake": 5,  # ohno. owo
-    "sand": 7,
-    "grass": 7
+    "lake": 2,  # ohno. owo
+    "sand": 9,
+    "grass": 5
 }
 
 class World:
     def __init__(
-        self, size: tuple, rarity: dict = biome_rarity  # Someone is hijacking my comments with OwOs.
+        self, size: tuple, rarity: dict = biome_rarity, passes=3  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
         self.chunks = []  # Chunks of biomes, what flavour is it?
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
@@ -218,5 +219,6 @@ class World:
             for h in range(size[1]):  # No clue what is happening here.
                 chosen = random.choices(list(Biomes), rarity.values())[0]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
                 cur_chunks.append(BiomeGen(chosen))  # Biome, you are the chosen one!
-                print(cur_chunks[h])
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.
+
+        

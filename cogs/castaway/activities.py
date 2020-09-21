@@ -12,13 +12,25 @@ class Activities(enum.Enum):
     FARM_OBSERVE = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
     FETCH_WATER = 3  # Fetch some watur.
 
+def get_activity(member):
+    with open(f"data/{member.guild.id}.json") as data_file:
+        data = json.load(data_file)
+
+    data["islanders"][str(ctx.user.id)] = data["islanders"].get()
+
 def activity(activity_type: Activities):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665
     """A decorator that marks a command as starting an activity"""  # We love decorators. : @mini maybe take in a number to determine how long it should take? -TCP : not quite how activites will work coded -3665 : ok -TCP
     def predicate(ctx):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
         try:
-            requires_game().predicate(ctx):
+            requires_game().predicate(ctx)
         except errors.NoGame:
             return False
+        
+        with open(f"data/{ctx.guild.id}.json") as data_file:
+            data = json.load(data_file)
+
+        data["islanders"][str(ctx.user.id)]
+
         return True  # Truth. : Lies -TCP
 
     return commands.check(predicate)  # Predictable. : Assignable predictiality -TCP
