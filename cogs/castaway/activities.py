@@ -10,3 +10,6 @@ class Activities(enum.Enum):  # Fact: Neither Minion or I (froggie) has a girlfr
     FARM_OBSERVE = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
     FETCH_WATER = 3
 
+def activity():
+    
+    
