@@ -20,3 +20,8 @@ jobs:
         args: .
     - name: Create-pull-request
       uses: peter-evans/create-pull-request@v3
+      with:
+        commit-message: "Automated stylistic changes from black"
+        signoff: true
+        delete-branch: true
+        title: "Code style fixes"
