@@ -184,20 +184,18 @@ class BiomeGen:  # Day 2: we have a generator.
     def __init__(self, biome_type: Biomes = Biomes.OCEAN):  # Coordinates is a thing.
         structures = []  # Arrays.
 
-        i = 0  # And i too.
-        while i < 5:  # i needs to go so much things, it's quite sad.
+        for i in range(5):  # i needs to go so much things, it's quite sad.
             cur_struct = []  # Structures are good, i think.
-            x = 0  # X is always 0... that sound like bullying to me.
-            while x < 5:  # Whiles... love them.
-                val = Structures(biome_type)  # Biomes types are great, it wouldn't be a great game if there was only ocean. : LIES -3665 : What do you call Raft @slave -TCP : A Boat simulator 2nd in charge officer. - slave : Why are you not wrong -TCP
+            for j in range(5):  # Whiles... love them.
+                val = biome_structures.get(biome_type.value, {})  # Biomes types are great, it wouldn't be a great game if there was only ocean. : LIES -3665 : What do you call Raft @slave -TCP : A Boat simulator 2nd in charge officer. - slave : Why are you not wrong -TCP
                 i = random.randint(0, 1)  # RANDOMS!
-                if i == 0: ran = None  # Fact: Death Stranding is just a walking simulator for the enormous price of 60 quid. + Extra monster sponsoring.
-                else: ran = random.choices(val.keys(), val.values(), k=1)  # I'm still wondering what I am doing here.
+                if i == 0: 
+                    ran = None  # Fact: Death Stranding is just a walking simulator for the enormous price of 60 quid. + Extra monster sponsoring.
+                else: 
+                    ran = random.choices(list(val.keys()), val.values())[0]  # I'm still wondering what I am doing here.
                 cur_struct.append(ran)  # Well at least i dont "annoy" anyone.
-                x += 1
+                print(ran)
             structures.append(cur_struct)
-            i += 1
-
 
 """World Gen"""  # UwU
 
@@ -214,14 +212,11 @@ class World:
     def __init__(
         self, size: tuple, rarity: dict = biome_rarity  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
-        chunks = []  # Chunks of biomes, what flavour is it?
+        self.chunks = []  # Chunks of biomes, what flavour is it?
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []  # Chunks of meat.
             for h in range(size[1]):  # No clue what is happening here.
-                chosen = random.choices(Biomes, rarity, k=1)  # Need help, OwOs, UwUs and hewoo are annoying after some time.
-                cur_chunks.append(BiomeGen(Biomes(chosen)))  # Biome, you are the chosen one!
+                chosen = random.choices(list(Biomes), rarity.values())[0]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
+                cur_chunks.append(BiomeGen(chosen))  # Biome, you are the chosen one!
                 print(cur_chunks[h])
-            chunks.append(cur_chunks)  # Chunks of biomes, lovely.
-
-world = World(size=(5, 5))
-print(world.chunks)
+            self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.

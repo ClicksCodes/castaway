@@ -7,4 +7,4 @@ class NoGame(commands.CheckFailure):
 
 class NoData(NoGame):
     """There is not an active game in the current guild, and in fact there's no data on the current guild at all"""
-    pass
+    pass  # Ill continue writing comments tomorrow.
