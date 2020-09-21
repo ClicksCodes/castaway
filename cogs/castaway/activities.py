@@ -4,7 +4,8 @@ from discord.ext import commands
 from . import errors
 
 
-class Activities(enum.Enum):  # Fact: Neither Minion or I (froggie) has a girlfriend, quite sad, i know -Frog. Nor does pinea but that's for other reasons. -TCP : kinda gay ngl -pinea
+class Activities(enum.Enum):  
+    # Fact: Neither Minion or I (froggie) has a girlfriend, quite sad, i know -Frog. Nor does pinea but that's for other reasons. -TCP : kinda gay ngl -pinea
     """All the activies that players can do"""
     COLLECT = 0
     FARM_COLLECT = 1
