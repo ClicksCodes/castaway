@@ -4,7 +4,7 @@ from discord.ext import commands
 from . import errors
 
 
-class Activities(enum.Enum):  
+class Activities(enum.Enum):
     # Fact: Neither Minion or I (froggie) has a girlfriend, quite sad, i know -Frog. Nor does pinea but that's for other reasons. -TCP : kinda gay ngl -pinea
     """All the activies that players can do"""
     COLLECT = 0
@@ -15,6 +15,8 @@ class Activities(enum.Enum):
 
 def activity():
     """A decorator that marks """
+
     def predicate(ctx):
         return True
+
     return commands.check(predicate)

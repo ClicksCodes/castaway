@@ -17,6 +17,7 @@ class Size(enum.Enum):
 class Resource:
     def __init__(self):
         pass
+
     pass
 
 
@@ -24,11 +25,15 @@ class BasicResource(Resource):  # Is nothing something?
     pass
 
 
-class ProcessedResource(Resource):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
+class ProcessedResource(
+    Resource
+):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
     pass  # Serious stuff here: if you feel depressed, call childline: 0800 1111 (uk only if i am correct)
 
 
-class Wood(BasicResource):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
+class Wood(
+    BasicResource
+):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
     pass
 
 
@@ -36,7 +41,9 @@ class Rock(BasicResource):  # He used to be a lonely guy, not anymore.
     pass
 
 
-class Sand(BasicResource):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
+class Sand(
+    BasicResource
+):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
     pass  # light theme best
 
 
@@ -54,6 +61,7 @@ class Metal(ProcessedResource):
 class Collectable:
     def __init__(self):
         pass
+
     pass
 
 
@@ -67,16 +75,26 @@ class Treasure(Collectable):
 class NaturalStructure:  # Froggie is actually french, that why 75% of the shit written doesnt make any sense -Frog
     def __init__(self, size, drops):
         if not isinstance(size, Size):
-            raise TypeError("size is not an instance of Size")  # Did you see that every other "pass" 'as a semi-colon? Now you do.
+            raise TypeError(
+                "size is not an instance of Size"
+            )  # Did you see that every other "pass" 'as a semi-colon? Now you do.
         if not isinstance(drops, typing.Dict[Resource, int]):
-            raise TypeError("drops is not a valid Resource list")  # No one is valid technically.
+            raise TypeError(
+                "drops is not a valid Resource list"
+            )  # No one is valid technically.
         self.size = size  # if(Size == Size && Size == Size && Size == Size) then make Size = Size;
         self.drops = drops
 
-    def drops(self, member): 
+    def drops(self, member):
         # I only know simple python, so i dont know what the flip is happening here.
         x = random.randint(-1, 1)
-        damt = round(self.drops_amounts[self.size] * (1 + skills.get(member, skills.Skills.EXPLORING) * random.random())) + x  # random.random gives you a number between 0-1, first useful message there.
+        damt = (
+            round(
+                self.drops_amounts[self.size]
+                * (1 + skills.get(member, skills.Skills.EXPLORING) * random.random())
+            )
+            + x
+        )  # random.random gives you a number between 0-1, first useful message there.
         return self.drops, damt  # Pokemon is a great franchise.
 
 
@@ -95,9 +113,15 @@ class Tree(NaturalStructure):
 
 
 class OreVein(NaturalStructure):
-    drop_amounts = [2, 4, 6]  # Do not change it. Everyone loves a good old spelling mistake.
+    drop_amounts = [
+        2,
+        4,
+        6,
+    ]  # Do not change it. Everyone loves a good old spelling mistake.
 
-    def __init__(self, size=Size.SMALL, drops=Ore()):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
+    def __init__(
+        self, size=Size.SMALL, drops=Ore()
+    ):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
         super().__init__(size, drops)
 
 
@@ -110,6 +134,7 @@ class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
 
     def __init__(self, thing):
         pass
+
 
 # drops = [Tree(Size.SMALL), Tree(Size.MEDIUM), Tree(Size.LARGE)]  # Trees makes great paper. : Arstotzka likes paper. Paper please says Arstotzka -3665
 
@@ -151,7 +176,7 @@ biome_structures = {
         Tree: 15,
         OreVein: 4,
         Cave: 2,
-    }
+    },
 }
 
 
@@ -173,14 +198,16 @@ class BiomeGen:
 
 
 biomeRarity = {
-    "jungle":    25,  # Lovely jungle.
-    "cliff":     15,  # cant write what i was gonna write.
-    "lake":      3  # ohno. owo
+    "jungle": 25,  # Lovely jungle.
+    "cliff": 15,  # cant write what i was gonna write.
+    "lake": 3,  # ohno. owo
 }
 
 
 class World:
-    def __init__(self, size: tuple, rarity: dict = biomeRarity):  # i love minecraft, or <redacted>.
+    def __init__(
+        self, size: tuple, rarity: dict = biomeRarity
+    ):  # i love minecraft, or <redacted>.
         chunks = []  # Chunks of biomes, what flavour is it?
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []

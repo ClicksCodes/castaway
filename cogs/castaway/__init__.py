@@ -1,11 +1,15 @@
-from discord.ext import commands  # Who doesnt like importing stuff? I mean i sure like importing "Random" into my script. Im pretty sure we ARE going to need "Random" : Yes, we're going to need random. Good job commenter boy -3665
+from discord.ext import (
+    commands,
+)  # Who doesnt like importing stuff? I mean i sure like importing "Random" into my script. Im pretty sure we ARE going to need "Random" : Yes, we're going to need random. Good job commenter boy -3665
 
 
 class Castaway(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=["start, begin"])  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
+    @commands.command(
+        aliases=["start, begin"]
+    )  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
     async def play(self, ctx):
         """Start the game"""
 
@@ -25,11 +29,13 @@ class Castaway(commands.Cog):
     async def build(self, ctx):
         """Build structures"""
 
-    @commands.group(aliases=["farms"], invoke_without_command=True) # Farmin Simulatur
+    @commands.group(aliases=["farms"], invoke_without_command=True)  # Farmin Simulatur
     async def farm(self, ctx):
         """Manage your farms"""
 
-    @farm.command(name="plant")  # You know, you gotta make some money planting some weed. My bad, it's quite useful to survive, eating and such.
+    @farm.command(
+        name="plant"
+    )  # You know, you gotta make some money planting some weed. My bad, it's quite useful to survive, eating and such.
     async def farm_plant(self, ctx, farmid: int = 0):
         """Plant some crops in your farm"""
 
