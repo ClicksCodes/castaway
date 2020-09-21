@@ -18,10 +18,11 @@ def levelUp(member, skill):
     try:
         with open(f"data/{guild_id}.json", "w") as data_file:  # Here is a joke: two priests <redacted> : yes it's that bad -3665
             data = json.load(data_file)
+    except FileNotFoundError:
+        pass
 
 
-def get(member, skill: Skills = None):  
-    # If statement everything like YandereDev.
+def get(member, skill: Skills = None):  # If statement everything like YandereDev.
     guild_id = member.guild.id
     member_id = str(member.id)  # Members of parliment, no reason this is here.
     try:
