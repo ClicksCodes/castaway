@@ -15,6 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Black Code Formatter
-      uses: lgeiger/black-action@v1.0.1
+      uses: kiankd/python-lint-action@1.0.0
     - name: Create-pull-request
       uses: peter-evans/create-pull-request@v3
