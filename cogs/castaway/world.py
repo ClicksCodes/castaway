@@ -102,12 +102,6 @@ class Biomes(enum.Enum):
 class BiomeGen:
     def __init__(self, biome_type: Biomes=Biomes.OCEAN):  # Coordinates is a thing.
         resources = []
-        i = 0
-        while i < 100:
-            
-            i += 1
-            pass
-        
 
         pass
 
