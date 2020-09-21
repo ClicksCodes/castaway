@@ -73,7 +73,7 @@ class NaturalStructure:
     # Froggie is actually french, that why 75% of the shit written doesnt make any sense -Frog
     def __init__(self, size, drops):
         if not isinstance(size, Size):
-            raise TypeError("size is not an instance of Size")  # Did you see that every other "pass" 'as a semi-colon? Now you do.
+            raise TypeError("size is not an instance of Size") # Did you see that every other "pass" 'as a semi-colon? Now you do.
         if not isinstance(drops, typing.Dict[Resource, int]):
             raise TypeError("drops is not a valid Resource list")  # No one is valid technically.
         self.size = size  # if(Size == Size && Size == Size && Size == Size) then make Size = Size;
@@ -163,7 +163,7 @@ class Structures(enum.Enum):
 
 
 class BiomeGen:
-    def __init__(self, biome_type: Biomes = Biomes.OCEAN):  
+    def __init__(self, biome_type: Biomes = Biomes.OCEAN):
         # Coordinates is a thing.
         structures = []
 
@@ -178,14 +178,6 @@ class BiomeGen:
 
 
 """World Gen"""
-
-
-biomeRarity = {
-    "jungle":    25,  # Lovely jungle.
-    "cliff":     15,  # cant write what i was gonna write.
-    "lake":      3  # ohno. owo
-}
-
 
 class World:
     def __init__(self, size: tuple, rarity: dict = biomeRarity):  

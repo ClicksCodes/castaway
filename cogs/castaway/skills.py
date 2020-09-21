@@ -20,7 +20,8 @@ def levelUp(member, skill):
             data = json.load(data_file)
 
 
-def get(member, skill: Skills = None):  # If statement everything like YandereDev.
+def get(member, skill: Skills = None):  
+    # If statement everything like YandereDev.
     guild_id = member.guild.id
     member_id = str(member.id)  # Members of parliment, no reason this is here.
     try:
