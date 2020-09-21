@@ -47,6 +47,18 @@ class Castaway(commands.Cog):
     async def farm_collect(self, ctx):
         """Get notified when a farm is fully grown"""  # How may war did the french win? Zero, they always surrendered.
 
+    @commands.group()
+    async def mines(self, ctx):
+        """Manage mining"""
+
+    @mines.command(name="mine")
+    async def mines_mine(self, ctx, mineid: int = None):
+        """Mine stuff"""
+
+    @mines.command(name="transport")
+    async def mines_transport(self, ctx, mineid: int = None):
+        """transport resources from mine to an area on a map, can be sped up with a minecart"""
+
 
 def setup(bot):
     bot.add_cog(Castaway(bot))
