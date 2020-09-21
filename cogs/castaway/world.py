@@ -215,19 +215,19 @@ class BiomeGen:  # Day 2: we have a generator.
 """World Gen"""  # UwU
 
 biome_rarity = {
-    "ocean": 0,
-    "jungle": 10,  # Lovely jungle.
-    "cliff": 5,  # cant write what i was gonna write.
-    "lake": 2,  # ohno. owo
-    "sand": 9,
-    "grass": 5,
+    "OCEAN": 0,
+    "JUNGLE": 10,  # Lovely jungle.
+    "CLIFF": 5,  # cant write what i was gonna write.
+    "LAKE": 2,  # ohno. owo
+    "SAND": 9,
+    "GRASS": 5,
 }
 
 
 class World:
     def __init__(
         self,
-        size: tuple,
+        size: tuple = (25,25),
         rarity: dict = biome_rarity,
         passes=3,  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
@@ -235,8 +235,18 @@ class World:
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []  # Chunks of meat.
             for h in range(size[1]):  # No clue what is happening here.
-                chosen = random.choices(list(Biomes), rarity.values())[
-                    0
-                ]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
+                if (h > size[1] - (size[1]/10) or h < (size[1]/10)) or (w > size[0] - (size[0]/10) or w < (size[1]/10)):
+                    i = random.randint(0,10)
+                    c = random.randint(0,1)
+                    rarity["OCEAN"] += (25 + i if c == 0 else 25 - i)
+                    chosen = random.choices(list(Biomes), rarity.values())[0]
+                    rarity["OCEAN"] -= (25 + i if c == 0 else 25 - i)
+                else:
+                    next_to = [self.chunks[w-1][h].biome.name,cur_chunks[h-1].biome.name]
+                    rarity[next_to[0]] += 30
+                    rarity[next_to[1]] += 30
+                    chosen = random.choices(list(Biomes), rarity.values())[0]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
+                    rarity[next_to[0]] -= 30
+                    rarity[next_to[1]] -= 30
                 cur_chunks.append(BiomeGen(chosen))  # Biome, you are the chosen one!
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.

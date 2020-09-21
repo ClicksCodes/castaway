@@ -2,9 +2,16 @@ from cogs.castaway import world
 from PIL import Image, ImageDraw
 import numpy as np
 
-dimensions = (1000, 1000)
-mapsize = (10, 10)
+mapsize = (50, 50)
 
+if mapsize[0] > mapsize[1]:
+    mult = 1000 / mapsize[0]
+elif mapsize[1] > mapsize[0]:
+    mult = 1000 / mapsize[1]
+else:
+    mult = 1000 / mapsize[1]
+
+dimensions = (mapsize[1]*int(mult), mapsize[0]*int(mult))
 
 def hex_to_rgb(value):
     lv = len(value)
@@ -21,7 +28,7 @@ colors = {
 }
 
 game = world.World(mapsize)
-
+"""
 for chunkRow in game.chunks:
     for chunk in chunkRow:
         for structRow in chunk.structures:
@@ -31,7 +38,7 @@ for chunkRow in game.chunks:
                 except:
                     stype = None
                 print(f"{stype} in chunk {chunk.biome.name}")
-
+"""
 curMap = []
 
 for chunkRow in game.chunks:
@@ -39,9 +46,7 @@ for chunkRow in game.chunks:
     for chunk in chunkRow:
         curRow.append(colors[chunk.biome.name])
     curMap.append(curRow)
-print(curMap)
 
 im = Image.fromarray(np.uint8(curMap), mode="RGB")
-print(im)
 im = im.resize(dimensions, 4)  # 0 4
 im.show()
