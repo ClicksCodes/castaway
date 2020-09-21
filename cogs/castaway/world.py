@@ -126,32 +126,33 @@ class Biomes(enum.Enum):
     GRASS = 5
 
 
-class Structures(enum.Enum):
-    0 = {
+biome_structures = {
+    0: {
         Beach: 3,
-    }
-    1 = {
+    },
+    1: {
         Tree: 50,
         Cave: 2,
         OreVein: 4,
-    }
-    2 = {
+    },
+    2: {
         Tree: 10,
         Cave: 2,
         OreVein: 5,
-    }
-    3 = {
+    },
+    3: {
         Beach: 2,
-    }
-    4 = {
+    },
+    4: {
         Tree: 5,
         OreVein: 5,
-    }
-    5 = {
+    },
+    5: {
         Tree: 15,
         OreVein: 4,
         Cave: 2,
     }
+}
 
 
 class BiomeGen:
