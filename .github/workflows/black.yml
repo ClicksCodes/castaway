@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Black Code Formatter
-      uses: lgeiger/black-action@1.0.1
+      uses: lgeiger/black-action@v1.0.1
       with:
         args: .
     - name: Create-pull-request
