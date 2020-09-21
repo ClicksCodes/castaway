@@ -6,6 +6,7 @@ class Skills(enum.Enum):
     SCAVENGING = 4  # Slave's work.
     FISHING = 5  # Sponge bob remembered that.
 
+
 def get_data_for(member):
     with open(f"data/{member.guild.id}.json") as data_file:
         data = json.load(data_file)
@@ -13,15 +14,8 @@ def get_data_for(member):
     data["islanders"][str(member.id)] = data["islanders"].get(
         str(member.id),
         {
-            "skills": {
-                random.choice(list(Skills)): 3
-            },
+            "skills": {random.choice(list(Skills)): 3},
             "action": None,
-            "inventory": {
-                "slots": 8,
-                "stack_size": 32,
-                "items": {
-                }
-            }
-        }
+            "inventory": {"slots": 8, "stack_size": 32, "items": {}},
+        },
     )

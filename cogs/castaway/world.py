@@ -16,13 +16,13 @@ class Size(enum.Enum):  # So if enums are not for coroutines, what are they for?
 
 class Resource:  # So enums if "set of options"?
     def __init__(self):  # i have no clue what it is for.
-        pass  # It is quite depressing.. 
+        pass  # It is quite depressing..
 
     pass  # I'll PASS on that.
 
 
 class BasicResource(Resource):  # Is nothing something?
-    pass # I'll PASS on that. (the same shit joke in a row, what a pitty).
+    pass  # I'll PASS on that. (the same shit joke in a row, what a pitty).
 
 
 class ProcessedResource(  # I was asked to comments each and every line of codes.
@@ -31,7 +31,7 @@ class ProcessedResource(  # I was asked to comments each and every line of codes
     pass  # Serious stuff here: if you feel depressed, call childline: 0800 1111 (uk only if i am correct)
 
 
-class Wood(  # 
+class Wood(  #
     BasicResource
 ):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
     pass
@@ -59,8 +59,10 @@ class Metal(ProcessedResource):
 
 
 class Collectable:
-    def __init__(self):  # isnt this script a bit too long? like it really feels like YandereDev code but looks nicer and all but
-        pass    # Extremely long, wouldnt it impact on performance?
+    def __init__(
+        self,
+    ):  # isnt this script a bit too long? like it really feels like YandereDev code but looks nicer and all but
+        pass  # Extremely long, wouldnt it impact on performance?
 
     pass
 
@@ -91,7 +93,9 @@ class NaturalStructure:  # Froggie is actually french, that why 75% of the shit 
         damt = (
             round(
                 self.drops_amounts[self.size]
-                * (1 + skills.get(member, skills.Skills.EXPLORING) * random.random())  # In reality, I am a slave and a test player... or not.
+                * (
+                    1 + skills.get(member, skills.Skills.EXPLORING) * random.random()
+                )  # In reality, I am a slave and a test player... or not.
             )
             + x
         )  # random.random gives you a number between 0-1, first useful message there.
@@ -99,7 +103,9 @@ class NaturalStructure:  # Froggie is actually french, that why 75% of the shit 
 
 
 class AdvancedNaturalStructure(NaturalStructure):
-    def __init__(self, size, resources):  # If this is going to be PayToWin, im taking 50% of the 
+    def __init__(
+        self, size, resources
+    ):  # If this is going to be PayToWin, im taking 50% of the
         pass
 
 
@@ -130,7 +136,10 @@ class Beach(AdvancedNaturalStructure):  # oh structures?
 
 
 class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
-    resources = [Rock, OreVein]  # Veins are everywhere, deep inside the earth to inside your body -- blood veins.
+    resources = [
+        Rock,
+        OreVein,
+    ]  # Veins are everywhere, deep inside the earth to inside your body -- blood veins.
 
     def __init__(self, thing):  # stuff working by itself?
         pass  # Pass it on.
@@ -142,8 +151,10 @@ class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
 """Biomes"""  # Ive lost hope in hooman being.
 
 
-class Biomes(enum.Enum):  # I am writing this down to up so things might get weird, sentence wise.
-    OCEAN = 0  # Anything after this is going or is already unreadable as it doesnt make sense: 
+class Biomes(
+    enum.Enum
+):  # I am writing this down to up so things might get weird, sentence wise.
+    OCEAN = 0  # Anything after this is going or is already unreadable as it doesnt make sense:
     JUNGLE = 1  # Never been into a jungle but, after reading the jungle book, it doesnt really change any opinions on if you would go into a jungle.
     CLIFF = 2  # Cliffs are also nice, you can see a lot.
     LAKE = 3  # On the other hand, lakes. Best thing ever. you dont get dirty, +10 if it as pebbles.
@@ -154,37 +165,35 @@ class Biomes(enum.Enum):  # I am writing this down to up so things might get wei
 biome_structures = {  # These are not worth commenting
     0: {  # Just look at them,
         Beach: 3,  # I really have no idea what to write here.
-        None: 97
+        None: 97,
     },  # Useless, only holding code together,
     1: {  # Doing nothing else,
         Tree: 50,  # I mean, there is plenty of space and all,
         Cave: 2,  # But you know, there isnt much we can write,
         OreVein: 4,  # We could talk about the oreVeins,
-        None: 44
+        None: 44,
     },  # just holdin'
     2: {  # and holdin'
         Tree: 10,  # Or the trees and how they'll gonna work,
         Cave: 2,  # But that is just plain boring,
         OreVein: 5,  # Actually, why is oreVeins twice here?
-        None: 83
+        None: 83,
     },  # Still doing the same job
-    3: {  # and here too!
-        Beach: 2,  # And beach?
-        None: 98
-    },  # Guess what? here too.
+    3: {Beach: 2, None: 98},  # and here too!  # And beach?  # Guess what? here too.
     4: {  # aaaand here.
         Tree: 5,  # And trees?
         OreVein: 5,  # Must be normal, or is it?
-        None: 90
+        None: 90,
     },  # Minion love them.
     5: {  # here too.
         Tree: 15,  # AND SOME MORE TREES HERE!!
         OreVein: 4,  # I really dont understand why,
         Cave: 2,  # Maybe if i were to read the code...
-        None: 79
+        None: 79,
     },  # im not even bothered putting caps anymore.
 }  # like i am not paid for this, and for the best. : What if you were @slave? -TCP : That would be fantastic - slave : How much would you like? -TCP : 3 quid an hour is good enough really. - slave : It shall be done -TCP : Here is my paypal.me: https://paypal.me/thefroggie85/
 # hour 1 @slave, start working -TCP : ok 2nd in charge officer.
+
 
 class BiomeGen:  # Day 2: we have a generator.
     def __init__(self, biome_type: Biomes = Biomes.OCEAN):  # Coordinates is a thing.
@@ -193,10 +202,15 @@ class BiomeGen:  # Day 2: we have a generator.
         for i in range(5):  # i needs to go so much things, it's quite sad.
             cur_struct = []  # Structures are good, i think.
             for j in range(5):  # Whiles... love them.
-                val = biome_structures.get(biome_type.value, {})  # Biomes types are great, it wouldn't be a great game if there was only ocean. : LIES -3665 : What do you call Raft @slave -TCP : A Boat simulator 2nd in charge officer. - slave : Why are you not wrong -TCP
-                ran = random.choices(list(val.keys()), val.values())[0]  # I'm still wondering what I am doing here.
+                val = biome_structures.get(
+                    biome_type.value, {}
+                )  # Biomes types are great, it wouldn't be a great game if there was only ocean. : LIES -3665 : What do you call Raft @slave -TCP : A Boat simulator 2nd in charge officer. - slave : Why are you not wrong -TCP
+                ran = random.choices(list(val.keys()), val.values())[
+                    0
+                ]  # I'm still wondering what I am doing here.
                 cur_struct.append(ran)  # Well at least i dont "annoy" anyone.
             self.structures.append(cur_struct)
+
 
 """World Gen"""  # UwU
 
@@ -206,19 +220,23 @@ biome_rarity = {
     "cliff": 5,  # cant write what i was gonna write.
     "lake": 2,  # ohno. owo
     "sand": 9,
-    "grass": 5
+    "grass": 5,
 }
+
 
 class World:
     def __init__(
-        self, size: tuple, rarity: dict = biome_rarity, passes=3  # Someone is hijacking my comments with OwOs.
+        self,
+        size: tuple,
+        rarity: dict = biome_rarity,
+        passes=3,  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
         self.chunks = []  # Chunks of biomes, what flavour is it?
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []  # Chunks of meat.
             for h in range(size[1]):  # No clue what is happening here.
-                chosen = random.choices(list(Biomes), rarity.values())[0]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
+                chosen = random.choices(list(Biomes), rarity.values())[
+                    0
+                ]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
                 cur_chunks.append(BiomeGen(chosen))  # Biome, you are the chosen one!
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.
-
-        
