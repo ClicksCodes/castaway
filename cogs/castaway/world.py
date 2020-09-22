@@ -100,30 +100,26 @@ class Ore(BasicResource):
         self.ore_type: OreType = oretype
 
 
-class Copper(ProcessedResource):
+class Copper(SmeltedResource):
     def __init__(self):
-        self.process_type = ProcessTypes.SMELTABLE
         self.carriable = True
         self.stack_size = 10
 
 
-class Bronze(ProcessedResource):
+class Bronze(SmeltedResource):
     def __init__(self):
-        self.process_type = ProcessTypes.SMELTABLE
         self.carriable = True
         self.stack_size = 10
 
 
-class Iron(ProcessedResource):
+class Iron(SmeltedResource):
     def __init__(self):
-        self.process_type = ProcessTypes.SMELTABLE
         self.carriable = True
         self.stack_size = 5
 
 
-class Gold(ProcessedResource):
+class Gold(SmeltedResource):
     def __init__(self):
-        self.process_type = ProcessTypes.SMELTABLE
         self.carriable = True
         self.stack_size = 5
 
