@@ -12,13 +12,14 @@
                 "action": "action_id_here"
             }
             "inventory": {
-                "size": 500,
-                "items": {
-                    "computer": 5,
-                    "knowledge": 0,
-                    "believed_knowledge": 1000,
-                    "will_to_live": 0
-                }
+                "slots": 8,
+                "stack_size": "32",
+                "items": [
+                    ["computer", 5],
+                    ["knowledge", 0],
+                    ["believed_knowledge", 1000],
+                    ["will_to_live", 0]
+                ]
             }
         }
     }

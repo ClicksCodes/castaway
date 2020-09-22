@@ -37,21 +37,23 @@ class BasicResource(Resource):  # Is nothing something?
 
 
 class ProcessedResource(Resource):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
-    def __init__(self):
+    def __init__(self, type):
         self.process_type: ProcessTypes | None
     # Serious stuff here: if you feel depressed, call childline: 0800 1111 (uk only if i am correct)
 
 
 class CraftedResource(ProcessedResource):
     def __init__(self):
-        self.process_type = ProcessTypes.CRAFTABLE
-        self.recipe: list = []
-        self.gives:int = 0
+        super().__init__(process_type = ProcessTypes.CRAFTABLE)
 
 
 class SmeltedResource(ProcessedResource):
     def __init__(self):
-        self.process_type = ProcessTypes.SMELTABLE
+        super().__init__(process_type = ProcessTypes.SMELTABLE)
+
+
+"""Basic Resources"""
+
 
 class Wood(BasicResource):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
     def __init__(self):
@@ -71,25 +73,9 @@ class Sand(BasicResource):  # Minion is not as good as you might think; he uses 
         self.carriable = False
 
 
-class stick(BasicResource):
+class Stick(BasicResource):
     def __init__(self):
         self.gives = 1
-
-
-"""Craftables"""
-
-
-class CStick(CraftedResource):
-    def __init__(self):
-        self.recipe = [Wood]
-        self.gives = 2
-
-
-class Pickaxe(CraftedResource):
-    def __init__(self):
-        pass
-
-
 
 """Metal"""
 
@@ -98,30 +84,6 @@ class Ore(BasicResource):
         self.stack_size = 5
         self.carriable = True
         self.ore_type: OreType = oretype
-
-
-class Copper(SmeltedResource):
-    def __init__(self):
-        self.carriable = True
-        self.stack_size = 10
-
-
-class Bronze(SmeltedResource):
-    def __init__(self):
-        self.carriable = True
-        self.stack_size = 10
-
-
-class Iron(SmeltedResource):
-    def __init__(self):
-        self.carriable = True
-        self.stack_size = 5
-
-
-class Gold(SmeltedResource):
-    def __init__(self):
-        self.carriable = True
-        self.stack_size = 5
 
 
 """Collectables"""
@@ -253,10 +215,11 @@ biome_structures = {  # These are not worth commenting
 # hour 1 @slave, start working -TCP : ok 2nd in charge officer.
 
 
-class BiomeGen:  # Day 2: we have a generator.
+class Biome:  # Day 2: we have a generator.
     def __init__(self, biome_type: Biomes = Biomes.OCEAN):  # Coordinates is a thing.
-        self.biome = biome_type
+        self.name = biome_type.name
         self.structures = []  # Arrays.
+        self.ordered_structures = []
         for i in range(5):  # i needs to go so much things, it's quite sad.
             cur_struct = []  # Structures are good, i think.
             for j in range(5):  # Whiles... love them.
@@ -267,7 +230,8 @@ class BiomeGen:  # Day 2: we have a generator.
                     0
                 ]  # I'm still wondering what I am doing here.
                 cur_struct.append(ran)  # Well at least i dont "annoy" anyone.
-            self.structures.append(cur_struct)
+                self.structures.append(ran)
+            self.ordered_structures.append(cur_struct)
 
 
 """World Gen"""  # UwU
@@ -287,7 +251,7 @@ class World:
         self,
         size: tuple = (25,25),
         rarity: dict = biome_rarity,
-        passes=3,  # Someone is hijacking my comments with OwOs.
+        passes: int = 4,  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
         self.chunks = []  # Chunks of biomes, what flavour is it?
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
@@ -305,11 +269,51 @@ class World:
                     chosen = random.choices(list(Biomes), rarity.values())[0]
                     rarity["OCEAN"] -= (25 + ((size[1]/10) * (size[0]/10)))
                 else:
-                    next_to = [self.chunks[w-1][h].biome.name,cur_chunks[h-1].biome.name]
+                    next_to = [self.chunks[w-1][h].name,cur_chunks[h-1].name]
                     rarity[next_to[0]] += 30
                     rarity[next_to[1]] += 30
                     chosen = random.choices(list(Biomes), rarity.values())[0]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
                     rarity[next_to[0]] -= 30
                     rarity[next_to[1]] -= 30
-                cur_chunks.append(BiomeGen(chosen))  # Biome, you are the chosen one!
+                cur_chunks.append(Biome(chosen))  # Biome, you are the chosen one!
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.
+        for _ in range(passes):
+            for y in range(len(self.chunks)):
+                for x in range(len(self.chunks[y])):
+                    try: up =       self.chunks[y-1][x]
+                    except: up =    Biome(Biomes.OCEAN)
+                    try: left =     self.chunks[y][x-1]
+                    except: left =  Biome(Biomes.OCEAN)
+                    try: down =     self.chunks[y+1][x]
+                    except: down =  Biomes(Biomes.OCEAN)
+                    try: right =    self.chunks[y][x+1]
+                    except: right = Biome(Biomes.OCEAN)
+                    try: cent =     self.chunks[y][x]
+                    except: cent =  Biome(Biomes.OCEAN)
+
+                    ns = [up, down, left, right, cent]
+                    chosen = random.choice(ns)
+                    
+                    if self.chunks[y][x].name == "OCEAN": chosen = Biome(Biomes.OCEAN)
+                    if "LAKE" == cent.name and "OCEAN" in [b.name for b in ns]: chosen = Biome(Biomes.SAND)
+                    self.chunks[y][x] = chosen
+
+class MiniWorld:
+    def __init__(
+        self,
+        size: tuple = (25,25),
+        rarity: dict = biome_rarity,
+        biome_size: int = 3,
+        *_
+    ):
+        assert min(size) < 2  # The size must be at least (2, 2)
+
+        x_biome_coords = random.sample(list(range(size[0] - 2)), (size[0] - 2) / 3)
+        y_biome_coords = random.sample(list(range(size[1] - 2)), (size[1] - 2) / 3)
+
+        orig_chunks = [[Biome()] * size] + [[Biome()] + [None] * (size[0] - 2) + [Biome()]] * (size[1] - 2) + [[Biome()] * size]
+
+        for x, y in zip(x_biome_coords, y_biome_coords):
+            self.chunks[x + 1][y + 1] = None
+
+        self.chunks = []

@@ -4,23 +4,33 @@ from discord.ext import (
     commands,
 )  # Commands are good too, you can use commands with this.
 from . import errors  # Errors are good.
+from . import islanders
 
 
 class Activities(enum.Enum):
     # Fact: Neither Minion or I (froggie) has a girlfriend, quite sad, i know -Frog. Nor does pinea but that's for other reasons. -TCP : kinda gay ngl -pinea
     """All the activies that players can do"""  # Activities. yes.
-    COLLECT = 0  # Collectin' stuff.
-    FARM_COLLECT = 1  # Farmin' stuff.
-    FARM_OBSERVE = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
-    FETCH_WATER = 3  # Fetch some watur.
+    COLLECTING = 0  # Collectin' stuff.
+    FARMING = 1  # Farmin' stuff.
+    FARM_WATCHING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
+    FETCHING_WATER = 3  # Fetch some watur.
 
+def calculate_returns_for(member, activity):
+    return []
 
 def get_activity(member):
-    with open(f"data/{member.guild.id}.json") as data_file:
-        data = json.load(data_file)
+    return islanders.get_data_for(member)["activity"]
 
-    data["islanders"][str(ctx.user.id)] = data["islanders"].get()
-
+def stop_activity(member):
+    data = islanders.get_data_for(member)
+    activity = data["activity"]
+    if activity is None:
+        return
+    returns = calculate_returns_for(member, activity)
+    for item in returns:
+        data["inventory"] = islanders.inventory_add(data["inventory"], *item)
+    data["activity"] = None
+    islanders.write_data_for(member, data)
 
 def activity(
     activity_type: Activities,
@@ -30,15 +40,14 @@ def activity(
     def predicate(
         ctx,
     ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
+        commands.guild_only().predicate(ctx)
         try:
             requires_game().predicate(ctx)
         except errors.NoGame:
             return False
 
-        with open(f"data/{ctx.guild.id}.json") as data_file:
-            data = json.load(data_file)
-
-        data["islanders"][str(ctx.user.id)]
+        if get_activity(ctx.member) is not None:
+            stop_activity(ctx.member)
 
         return True  # Truth. : Lies -TCP
 
