@@ -159,6 +159,7 @@ class Sail(world.CraftedResource):
 
     name = "sail"  # of will you fame
 
+
 """Buildings"""
 
 

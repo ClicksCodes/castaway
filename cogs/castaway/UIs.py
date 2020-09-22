@@ -12,16 +12,15 @@ class Inventory:
 
         user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
 
-        backn = '\n'
+        backn = "\n"
 
         embed = discord.Embed(
             title=f"{ctx.author.name}'s inventory",
             description=f"{[f'{item} : {amount}{backn}' for item, amount in user_inv]}",
-            color=0x71AFE5
+            color=0x71AFE5,
         )
         return await ctx.send(embed=embed)
-    
-    
+
     @staticmethod
     async def craft(ctx):
 
@@ -41,7 +40,7 @@ class Inventory:
         inv_items = {}
 
         for item, amount in user_inv:
-            inv_items[item] = inv_items.get(item, 0) + amount 
+            inv_items[item] = inv_items.get(item, 0) + amount
 
         craftable = []
 
@@ -51,7 +50,6 @@ class Inventory:
                     break
             else:
                 craftable.append(item)
-        
 
 
 class Crafting:
