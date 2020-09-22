@@ -153,6 +153,25 @@ class BundledLogs(world.CraftedResource):
         world.Wood: 5
     }
 
+class String(world.CraftedResource):
+    recipe = {
+        world.PlantFiber: 5
+    }
+
+class Rope(world.CraftedResource):
+    recipe = {
+        String:  25
+    }
+
+
+"""End Game resources"""
+
+class Sail(world.CraftedResource):
+    recipe = {
+        String: 50,
+        Rope: 10
+    }
+
 
 """Buildings"""
 
@@ -220,7 +239,7 @@ class Hut(world.CraftedResource):
 class UpgradedHut(world.CraftedResource):
     recipe = {
         BundledLogs: 25,
-        world.Iron: 10,
+        smeltables.Iron: 10,
         world.Rock: 25,
         smeltables.Glass: 10,
         LargeStorage: 1
@@ -265,7 +284,7 @@ class Trap(world.CraftedResource):
     recipe = {
         world.Leaves: 25,
         world.Wood: 10,
-        world.String: 25
+        String: 25
     }
 
     def __init__(self):

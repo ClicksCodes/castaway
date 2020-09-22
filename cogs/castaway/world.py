@@ -77,6 +77,17 @@ class Stick(BasicResource):
     def __init__(self):
         self.gives = 1
 
+
+class PlantFiber(BasicResource):
+    def __init__(self):
+        self.gives = 1
+
+
+class Leaves(BasicResource):
+    def __init__(self):
+        self.gives = 1
+
+
 """Metal"""
 
 class Ore(BasicResource):

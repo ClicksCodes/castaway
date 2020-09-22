@@ -6,7 +6,10 @@ with open("config.json") as config_file:
     config = json.load(config_file)
 
 bot = commands.Bot(
-    command_prefix=commands.when_mentioned_or(["]"], ["¯\_(ツ)_/¯"])
+    command_prefix=commands.when_mentioned_or("]", "¯\_(ツ)_/¯"),
+    allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False),
+    status=discord.Status.dnd,
+    activity=discord.Activity(type=discord.ActivityType.watching, name="discord go by.")
 )  # You know, the prefix, the thing you put before the command, like "!"
 
 cogs = [
@@ -18,8 +21,9 @@ cogs = [
 @bot.event
 async def on_ready():
     print(
-        "Connected to discord as {bot.user}, ready to go!"
+        f"Connected to discord as {bot.user}, ready to go!"
     )  # A lot of people thought that Zelda was the main character in "the ledgend of zelda" it's actually Link.
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.listening, name=f"@{bot.user.name} help and being the god of Castaway Island"))
 
 
 loaded = 0
@@ -29,10 +33,11 @@ for cog in cogs:  # Coggin' it
         bot.load_extension(
             cog
         )  # anyone reading this is gonna have a great time, please vote for our game, not for the game but for the comments.
+        loaded += 1
         print(f"Loaded cog {cog}, {loaded}/{total}")
     except Exception as e:  # Pet russian, I have gift for you: https://www.youtube.com/watch?v=p5L9-k0uV2A
         print(f"Failed to load cog {cog} : {e}")
 
 bot.run(
     config["token"]
-)  # Anyone reading this, this project might become a time capsule, cause you know, all the shit inside will tell a lot later on in history, ou thoughts, ethics, ect...
+)  # Anyone reading this, this project might become a time capsule, cause you know, all the shit inside will tell a lot later on in history, ou thoughts, ethics, ect... : not on the arctic code vault though :shrug: -3665
