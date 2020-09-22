@@ -9,7 +9,9 @@ bot = commands.Bot(
     command_prefix=commands.when_mentioned_or("]", "¯\_(ツ)_/¯"),
     allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False),
     status=discord.Status.dnd,
-    activity=discord.Activity(type=discord.ActivityType.watching, name="discord go by.")
+    activity=discord.Activity(
+        type=discord.ActivityType.watching, name="discord go by."
+    ),
 )  # You know, the prefix, the thing you put before the command, like "!"
 
 cogs = [
@@ -23,7 +25,13 @@ async def on_ready():
     print(
         f"Connected to discord as {bot.user}, ready to go!"
     )  # A lot of people thought that Zelda was the main character in "the ledgend of zelda" it's actually Link.
-    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.listening, name=f"@{bot.user.name} help and being the god of Castaway Island"))
+    await bot.change_presence(
+        status=discord.Status.idle,
+        activity=discord.Activity(
+            type=discord.ActivityType.listening,
+            name=f"@{bot.user.name} help and being the god of Castaway Island",
+        ),
+    )
 
 
 loaded = 0

@@ -1,10 +1,8 @@
 from . import world
 
-class Copper(world.SmeltedResource):
-    recipe = {
-        world.Ore(world.OreType.COPPER): 1
-    }
 
+class Copper(world.SmeltedResource):
+    recipe = {world.Ore(world.OreType.COPPER): 1}
 
     def __init__(self):
         self.carriable = True
@@ -12,20 +10,15 @@ class Copper(world.SmeltedResource):
 
 
 class Bronze(world.SmeltedResource):
-    recipe = {
-        world.Ore(world.OreType.BRONZE): 1
-    }
+    recipe = {world.Ore(world.OreType.BRONZE): 1}
 
-    
     def __init__(self):
         self.carriable = True
         self.stack_size = 10
 
 
 class Iron(world.SmeltedResource):
-    recipe = {
-        world.Ore(world.OreType.IRON): 1
-    }
+    recipe = {world.Ore(world.OreType.IRON): 1}
 
     def __init__(self):
         self.carriable = True
@@ -33,6 +26,4 @@ class Iron(world.SmeltedResource):
 
 
 class Glass(world.SmeltedResource):
-    recipe = {
-        world.Sand: 5
-    }
+    recipe = {world.Sand: 5}
