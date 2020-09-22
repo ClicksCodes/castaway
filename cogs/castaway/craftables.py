@@ -1,0 +1,230 @@
+from . import world
+from . import smeltables
+
+
+"""Wood Tools"""
+
+
+class WoodAxe(world.CraftedResource):
+    recipe = {world.Stick: 2, world.Wood: 3}
+
+    def __init__(self):
+        self.durability = 25
+
+
+class WoodPickaxe(world.CraftedResource):
+    recipe = {world.Stick: 2, world.Wood: 3}
+
+    def __init__(self):
+        self.durability = 25
+
+
+class WoodShovel(world.CraftedResource):
+    recipe = {world.Stick: 2, world.Wood: 1}
+
+    def __init__(self):
+        self.durability = 25
+
+
+class WoodHoe(world.CraftedResource):
+    recipe = {world.Stick: 2, world.Wood: 2}
+
+    def __init__(self):
+        self.durability = 25
+
+
+class WoodScythe(world.CraftedResource):
+    recipe = {world.Stick: 3, world.Wood: 1}
+
+    def __init__(self):
+        self.durability = 25
+
+
+"""Copper Tools"""
+
+
+class CopperAxe(world.CraftedResource):
+    recipe = {smeltables.Copper: 3, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 50
+
+
+class CopperPickaxe(world.CraftedResource):
+    recipe = {smeltables.Copper: 3, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 50
+
+
+class CopperShovel(world.CraftedResource):
+    recipe = {smeltables.Copper: 1, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 50
+
+
+class CopperHoe(world.CraftedResource):
+    recipe = {smeltables.Copper: 2, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 50
+
+
+class CopperScythe(world.CraftedResource):
+    recipe = {smeltables.Copper: 1, world.Stick: 3}
+
+    def __init__(self):
+        self.durability = 50
+
+
+"""Iron Tools"""
+
+
+class IronAxe(world.CraftedResource):
+    recipe = {smeltables.Iron: 3, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 100
+
+
+class IronPickaxe(world.CraftedResource):
+    recipe = {smeltables.Iron: 3, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 100
+
+
+class IronShovel(world.CraftedResource):
+    recipe = {smeltables.Iron: 1, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 100
+
+
+class IronHoe(world.CraftedResource):
+    recipe = {smeltables.Iron: 2, world.Stick: 2}
+
+    def __init__(self):
+        self.durability = 100
+
+
+class IronScythe(world.CraftedResource):
+    recipe = {smeltables.Iron: 1, world.Stick: 3}
+
+    def __init__(self):
+        self.durability = 100
+
+
+"""Advanced Basic resources"""
+
+
+class BundledLogs(world.CraftedResource):
+    recipe = {world.Wood: 5}
+
+
+class String(world.CraftedResource):
+    recipe = {world.PlantFiber: 5}
+
+
+class Rope(world.CraftedResource):
+    recipe = {String: 25}
+
+
+"""End Game resources"""
+
+
+class Sail(world.CraftedResource):
+    recipe = {String: 50, Rope: 10}
+
+
+"""Buildings"""
+
+
+class Workbench(world.CraftedResource):
+    """Speeds up crafting for most tools and unlocks crafting late game items"""
+
+    recipe = {world.Wood: 2}
+
+    def __init__(self):
+        pass
+
+
+class ToolBench(world.CraftedResource):
+    recipe = {Workbench: 1, smeltables.Bronze: 8}
+
+
+class Storage(world.CraftedResource):
+    recipe = {world.Wood: 25}
+
+    def __init__(self):
+        pass
+
+
+class LargeStorage(world.CraftedResource):
+    recipe = {BundledLogs: 25, smeltables.Copper: 10}
+
+    def __init__(self):
+        pass
+
+
+class OreOven(world.CraftedResource):
+    recipe = {world.Rock: 20}
+
+    def __init__(self):
+        pass
+
+
+class WaterPurifier(world.CraftedResource):
+    recipe = {world.Rock: 2, BundledLogs: 3, smeltables.Copper: 10}
+
+    def __init__(self):
+        pass
+
+
+class Hut(world.CraftedResource):
+    recipe = {world.Wood: 25, Rope: 10, world.Leaves: 10, BundledLogs: 5, Storage: 1}
+
+    def __init__(self):
+        pass
+
+
+class UpgradedHut(world.CraftedResource):
+    recipe = {
+        BundledLogs: 25,
+        smeltables.Iron: 10,
+        world.Rock: 25,
+        smeltables.Glass: 10,
+        LargeStorage: 1,
+    }
+
+    def __init__(self):
+        pass
+
+
+class Firepit(world.CraftedResource):
+    recipe = {world.Wood: 10, BundledLogs: 3, world.Leaves: 5}
+
+    def __init__(self):
+        pass
+
+
+class Boat(world.CraftedResource):
+    recipe = {BundledLogs: 250, world.Wood: 250, Sail: 5, smeltables.Iron: 50}
+
+    def __init__(self):
+        pass
+
+
+class Farm(world.CraftedResource):
+    recipe = {world.Leaves: 25, world.Wood: 25, BundledLogs: 10, String: 25}
+
+    def __init__(self):
+        pass
+
+
+class Trap(world.CraftedResource):
+    recipe = {world.Leaves: 25, world.Wood: 10, String: 25}
+
+    def __init__(self):
+        pass

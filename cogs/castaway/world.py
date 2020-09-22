@@ -13,10 +13,12 @@ class Size(enum.Enum):  # So if enums are not for coroutines, what are they for?
 
 """Resources"""  # It's dangerous to go alone, here take some reasources and craft yourself a bloody sword - Weird old man in a 8-bit cave.
 
+
 class ProcessTypes(enum.Enum):
     SMELTABLE = 0
     COOKABLE = 1
     CRAFTABLE = 2
+
 
 class OreType(enum.Enum):
     COPPER = 0
@@ -24,7 +26,9 @@ class OreType(enum.Enum):
     IRON = 2
     GOLD = 3
 
+
 """Resource types"""
+
 
 class Resource:  # So enums if "set of options"?
     def __init__(self):  # i have no clue what it is for.
@@ -33,29 +37,34 @@ class Resource:  # So enums if "set of options"?
 
 
 class BasicResource(Resource):  # Is nothing something?
-    pass  # I'll PASS on that. 
+    pass  # I'll PASS on that.
 
 
-class ProcessedResource(Resource):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
+class ProcessedResource(
+    Resource
+):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
     def __init__(self, type):
         self.process_type: ProcessTypes | None
+
     # Serious stuff here: if you feel depressed, call childline: 0800 1111 (uk only if i am correct)
 
 
 class CraftedResource(ProcessedResource):
     def __init__(self):
-        super().__init__(process_type = ProcessTypes.CRAFTABLE)
+        super().__init__(process_type=ProcessTypes.CRAFTABLE)
 
 
 class SmeltedResource(ProcessedResource):
     def __init__(self):
-        super().__init__(process_type = ProcessTypes.SMELTABLE)
+        super().__init__(process_type=ProcessTypes.SMELTABLE)
 
 
 """Basic Resources"""
 
 
-class Wood(BasicResource):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
+class Wood(
+    BasicResource
+):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
     def __init__(self):
         self.stack_size = 50
         self.carriable = True
@@ -67,7 +76,9 @@ class Rock(BasicResource):  # He used to be a lonely guy, not anymore.
         self.carriable = True
 
 
-class Sand(BasicResource):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
+class Sand(
+    BasicResource
+):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
     def __init(self):  # light theme best : aint no way that's true -TCP
         self.stack_size = 10
         self.carriable = False
@@ -77,7 +88,19 @@ class Stick(BasicResource):
     def __init__(self):
         self.gives = 1
 
+
+class PlantFiber(BasicResource):
+    def __init__(self):
+        self.gives = 1
+
+
+class Leaves(BasicResource):
+    def __init__(self):
+        self.gives = 1
+
+
 """Metal"""
+
 
 class Ore(BasicResource):
     def __init__(self, oretype):
@@ -94,7 +117,6 @@ class Collectable:
         self,
     ):  # isnt this script a bit too long? like it really feels like YandereDev code but looks nicer and all but
         pass  # Extremely long, wouldnt it impact on performance?
-
 
 
 class Treasure(Collectable):  # Im gonna have fun when this is going to be finished.
@@ -133,11 +155,13 @@ class NaturalStructure:  # Froggie is actually french, that why 75% of the shit 
 
 
 class AdvancedNaturalStructure(NaturalStructure):
-    def __init__(self, size, resources):  # If this is going to be PayToWin, im taking 50% of the
+    def __init__(
+        self, size, resources
+    ):  # If this is going to be PayToWin, im taking 50% of the
         pass
 
 
-class Tree(NaturalStructure): # Most trees are not always the same size -TCP
+class Tree(NaturalStructure):  # Most trees are not always the same size -TCP
     # So serious stuff here, these are trees. But what type? Oak? Jungle? Acasia? Birch? : They're of the tree variety -TCP
     drop_amounts = [5, 10, 15]
 
@@ -147,9 +171,15 @@ class Tree(NaturalStructure): # Most trees are not always the same size -TCP
 
 
 class OreVein(NaturalStructure):
-    drop_amounts = [2, 4, 6]  # Do not change it. Everyone loves a good old spelling mistake.
+    drop_amounts = [
+        2,
+        4,
+        6,
+    ]  # Do not change it. Everyone loves a good old spelling mistake.
 
-    def __init__(self, size=Size.SMALL, drops=Ore(OreType.COPPER)):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
+    def __init__(
+        self, size=Size.SMALL, drops=Ore(OreType.COPPER)
+    ):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
         super().__init__(size, drops)
 
 
@@ -173,7 +203,9 @@ class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
 """Biomes"""  # Ive lost hope in hooman being.
 
 
-class Biomes(enum.Enum):  # I am writing this down to up so things might get weird, sentence wise.
+class Biomes(
+    enum.Enum
+):  # I am writing this down to up so things might get weird, sentence wise.
     OCEAN = 0  # Anything after this is going or is already unreadable as it doesnt make sense:
     JUNGLE = 1  # Never been into a jungle but, after reading the jungle book, it doesnt really change any opinions on if you would go into a jungle.
     CLIFF = 2  # Cliffs are also nice, you can see a lot.
@@ -249,7 +281,7 @@ biome_rarity = {
 class World:
     def __init__(
         self,
-        size: tuple = (25,25),
+        size: tuple = (25, 25),
         rarity: dict = biome_rarity,
         passes: int = 4,  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
@@ -264,15 +296,19 @@ class World:
                     orar = 100
                 print(orar)
                 """
-                if (h > size[1] - (size[1]/10) or h < (size[1]/10)) or (w > size[0] - (size[0]/10) or w < (size[1]/10)):
-                    rarity["OCEAN"] += (25 + ((size[1]/10) * (size[0]/10)))
+                if (h > size[1] - (size[1] / 10) or h < (size[1] / 10)) or (
+                    w > size[0] - (size[0] / 10) or w < (size[1] / 10)
+                ):
+                    rarity["OCEAN"] += 25 + ((size[1] / 10) * (size[0] / 10))
                     chosen = random.choices(list(Biomes), rarity.values())[0]
-                    rarity["OCEAN"] -= (25 + ((size[1]/10) * (size[0]/10)))
+                    rarity["OCEAN"] -= 25 + ((size[1] / 10) * (size[0] / 10))
                 else:
-                    next_to = [self.chunks[w-1][h].name,cur_chunks[h-1].name]
+                    next_to = [self.chunks[w - 1][h].name, cur_chunks[h - 1].name]
                     rarity[next_to[0]] += 30
                     rarity[next_to[1]] += 30
-                    chosen = random.choices(list(Biomes), rarity.values())[0]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
+                    chosen = random.choices(list(Biomes), rarity.values())[
+                        0
+                    ]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
                     rarity[next_to[0]] -= 30
                     rarity[next_to[1]] -= 30
                 cur_chunks.append(Biome(chosen))  # Biome, you are the chosen one!
@@ -280,28 +316,41 @@ class World:
         for _ in range(passes):
             for y in range(len(self.chunks)):
                 for x in range(len(self.chunks[y])):
-                    try: up =       self.chunks[y-1][x]
-                    except: up =    Biome(Biomes.OCEAN)
-                    try: left =     self.chunks[y][x-1]
-                    except: left =  Biome(Biomes.OCEAN)
-                    try: down =     self.chunks[y+1][x]
-                    except: down =  Biomes(Biomes.OCEAN)
-                    try: right =    self.chunks[y][x+1]
-                    except: right = Biome(Biomes.OCEAN)
-                    try: cent =     self.chunks[y][x]
-                    except: cent =  Biome(Biomes.OCEAN)
+                    try:
+                        up = self.chunks[y - 1][x]
+                    except:
+                        up = Biome(Biomes.OCEAN)
+                    try:
+                        left = self.chunks[y][x - 1]
+                    except:
+                        left = Biome(Biomes.OCEAN)
+                    try:
+                        down = self.chunks[y + 1][x]
+                    except:
+                        down = Biomes(Biomes.OCEAN)
+                    try:
+                        right = self.chunks[y][x + 1]
+                    except:
+                        right = Biome(Biomes.OCEAN)
+                    try:
+                        cent = self.chunks[y][x]
+                    except:
+                        cent = Biome(Biomes.OCEAN)
 
                     ns = [up, down, left, right, cent]
                     chosen = random.choice(ns)
-                    
-                    if self.chunks[y][x].name == "OCEAN": chosen = Biome(Biomes.OCEAN)
-                    if "LAKE" == cent.name and "OCEAN" in [b.name for b in ns]: chosen = Biome(Biomes.SAND)
+
+                    if self.chunks[y][x].name == "OCEAN":
+                        chosen = Biome(Biomes.OCEAN)
+                    if "LAKE" == cent.name and "OCEAN" in [b.name for b in ns]:
+                        chosen = Biome(Biomes.SAND)
                     self.chunks[y][x] = chosen
+
 
 class MiniWorld:
     def __init__(
         self,
-        size: tuple = (25,25),
+        size: tuple = (25, 25),
         rarity: dict = biome_rarity,
         biome_size: int = 3,
         *_
@@ -311,7 +360,11 @@ class MiniWorld:
         x_biome_coords = random.sample(list(range(size[0] - 2)), (size[0] - 2) / 3)
         y_biome_coords = random.sample(list(range(size[1] - 2)), (size[1] - 2) / 3)
 
-        orig_chunks = [[Biome()] * size] + [[Biome()] + [None] * (size[0] - 2) + [Biome()]] * (size[1] - 2) + [[Biome()] * size]
+        orig_chunks = (
+            [[Biome()] * size]
+            + [[Biome()] + [None] * (size[0] - 2) + [Biome()]] * (size[1] - 2)
+            + [[Biome()] * size]
+        )
 
         for x, y in zip(x_biome_coords, y_biome_coords):
             self.chunks[x + 1][y + 1] = None

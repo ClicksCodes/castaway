@@ -1,6 +1,7 @@
 from discord.ext import (
     commands,
 )  # Who doesnt like importing stuff? I mean i sure like importing "Random" into my script. Im pretty sure we ARE going to need "Random" : Yes, we're going to need random. Good job commenter boy -3665
+from . import UIs
 
 
 class Castaway(commands.Cog):
@@ -58,6 +59,16 @@ class Castaway(commands.Cog):
     @mines.command(name="transport")
     async def mines_transport(self, ctx, mineid: int = None):
         """transport resources from mine to an area on a map, can be sped up with a minecart"""
+
+    """inventory commands"""
+
+    @commands.group(aliases=["inv"], invoke_without_command=True)
+    async def inventory(self, ctx):
+        """manage inv"""
+
+    @inventory.command(name="craft")
+    async def craft(self, ctx):
+        UIs.Inventory.craft(self, ctx=ctx)
 
 
 def setup(bot):
