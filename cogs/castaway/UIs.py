@@ -4,6 +4,8 @@ from . import craftables
 from . import smeltables
 from . import islanders
 from discord.ext import menus
+from . import world
+
 
 class Inventory(menus.Menu):
     """
@@ -23,9 +25,9 @@ class Inventory(menus.Menu):
         return await ctx.send(embed=embed)
     """
     #@menus.button()
-    async def craft(self, ctx):
+    def craft(self, ctx):
 
-        self.user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
+        self.user_inv = [[world.Wood, 20],[world.Stick, 20]]#islanders.get_data_for(ctx.author)["inventory"]["items"]
 
         possible = [craftables.WoodAxe, craftables.WoodHoe, craftables.WoodPickaxe,craftables.WoodShovel, craftables.WoodScythe, craftables.Workbench, craftables.BundledLogs, craftables.Firepit]
 
