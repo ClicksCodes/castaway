@@ -65,6 +65,9 @@ class SmeltedResource(ProcessedResource):
 class Wood(
     BasicResource
 ):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
+
+    name = "wood"
+
     def __init__(self):
         self.stack_size = 50
         self.carriable = True
@@ -85,6 +88,9 @@ class Sand(
 
 
 class Stick(BasicResource):
+
+    name = "stick"
+
     def __init__(self):
         self.gives = 1
 

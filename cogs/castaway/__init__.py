@@ -65,10 +65,11 @@ class Castaway(commands.Cog):
     @commands.group(aliases=["inv"], invoke_without_command=True)
     async def inventory(self, ctx):
         """manage inv"""
+        await UIs.Inventory.send(ctx)
 
     @inventory.command(name="craft")
     async def craft(self, ctx):
-        UIs.Inventory.craft(self, ctx=ctx)
+        await UIs.Inventory.craft(ctx)
 
 
 def setup(bot):

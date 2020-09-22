@@ -8,12 +8,16 @@ from . import smeltables
 class WoodAxe(world.CraftedResource):
     recipe = {world.Stick: 2, world.Wood: 3}
 
+    name = "wood axe"
+
     def __init__(self):
         self.durability = 25
 
 
 class WoodPickaxe(world.CraftedResource):
     recipe = {world.Stick: 2, world.Wood: 3}
+
+    name = "wood pickaxe"
 
     def __init__(self):
         self.durability = 25
@@ -22,6 +26,8 @@ class WoodPickaxe(world.CraftedResource):
 class WoodShovel(world.CraftedResource):
     recipe = {world.Stick: 2, world.Wood: 1}
 
+    name = "wood shovel"
+
     def __init__(self):
         self.durability = 25
 
@@ -29,12 +35,16 @@ class WoodShovel(world.CraftedResource):
 class WoodHoe(world.CraftedResource):
     recipe = {world.Stick: 2, world.Wood: 2}
 
+    name = "wood hoe"
+
     def __init__(self):
         self.durability = 25
 
 
 class WoodScythe(world.CraftedResource):
     recipe = {world.Stick: 3, world.Wood: 1}
+
+    name = "wood scythe"
 
     def __init__(self):
         self.durability = 25
@@ -46,12 +56,16 @@ class WoodScythe(world.CraftedResource):
 class CopperAxe(world.CraftedResource):
     recipe = {smeltables.Copper: 3, world.Stick: 2}
 
+    name = "copper axe"
+
     def __init__(self):
         self.durability = 50
 
 
 class CopperPickaxe(world.CraftedResource):
     recipe = {smeltables.Copper: 3, world.Stick: 2}
+
+    name = "copper pickaxe"
 
     def __init__(self):
         self.durability = 50
@@ -122,13 +136,19 @@ class IronScythe(world.CraftedResource):
 class BundledLogs(world.CraftedResource):
     recipe = {world.Wood: 5}
 
+    name = "bundled logs"
+
 
 class String(world.CraftedResource):
     recipe = {world.PlantFiber: 5}
 
+    name = "string"
+
 
 class Rope(world.CraftedResource):
     recipe = {String: 25}
+
+    name = "rope"
 
 
 """End Game resources"""
@@ -137,6 +157,7 @@ class Rope(world.CraftedResource):
 class Sail(world.CraftedResource):
     recipe = {String: 50, Rope: 10}
 
+    name = "sail"  # of will you fame
 
 """Buildings"""
 
@@ -145,6 +166,8 @@ class Workbench(world.CraftedResource):
     """Speeds up crafting for most tools and unlocks crafting late game items"""
 
     recipe = {world.Wood: 2}
+
+    name = "workbench"
 
     def __init__(self):
         pass
@@ -204,6 +227,8 @@ class UpgradedHut(world.CraftedResource):
 
 class Firepit(world.CraftedResource):
     recipe = {world.Wood: 10, BundledLogs: 3, world.Leaves: 5}
+
+    name = "fire pit"
 
     def __init__(self):
         pass
