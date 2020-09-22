@@ -13,46 +13,119 @@ class Size(enum.Enum):  # So if enums are not for coroutines, what are they for?
 
 """Resources"""  # It's dangerous to go alone, here take some reasources and craft yourself a bloody sword - Weird old man in a 8-bit cave.
 
+class ProcessTypes(enum.Enum):
+    SMELTABLE = 0
+    COOKABLE = 1
+    CRAFTABLE = 2
+
+class OreType(enum.Enum):
+    COPPER = 0
+    BRONZE = 1
+    IRON = 2
+    GOLD = 3
+
+"""Resource types"""
 
 class Resource:  # So enums if "set of options"?
     def __init__(self):  # i have no clue what it is for.
-        pass  # It is quite depressing..
-
-    pass  # I'll PASS on that.
+        self.carriable: bool
+        self.stack_size: int
 
 
 class BasicResource(Resource):  # Is nothing something?
-    pass  # I'll PASS on that. (the same shit joke in a row, what a pitty).
+    pass  # I'll PASS on that. 
 
 
-class ProcessedResource(  # I was asked to comments each and every line of codes.
-    Resource  # So yep, im commenting all the lines with code in it.
-):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
-    pass  # Serious stuff here: if you feel depressed, call childline: 0800 1111 (uk only if i am correct)
+class ProcessedResource(Resource):  # I swear Minion never seen that video: https://www.youtube.com/watch?v=y566MWHAV3Y
+    def __init__(self):
+        self.process_type: ProcessTypes | None
+    # Serious stuff here: if you feel depressed, call childline: 0800 1111 (uk only if i am correct)
 
 
-class Wood(  #
-    BasicResource
-):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
-    pass
+class CraftedResource(ProcessedResource):
+    def __init__(self):
+        self.process_type = ProcessTypes.CRAFTABLE
+        self.recipe: list = []
+        self.gives:int = 0
+
+
+class SmeltedResource(ProcessedResource):
+    def __init__(self):
+        self.process_type = ProcessTypes.SMELTABLE
+
+class Wood(BasicResource):  # We are the world, we are the people, we are the one making a better place so let's start giving. Great music.
+    def __init__(self):
+        self.stack_size = 50
+        self.carriable = True
 
 
 class Rock(BasicResource):  # He used to be a lonely guy, not anymore.
-    pass
+    def __init__(self):
+        self.stack_size = 10
+        self.carriable = True
 
 
-class Sand(
-    BasicResource
-):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
-    pass  # light theme best
+class Sand(BasicResource):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
+    def __init(self):  # light theme best : aint no way that's true -TCP
+        self.stack_size = 10
+        self.carriable = False
 
+
+class stick(BasicResource):
+    def __init__(self):
+        self.gives = 1
+
+
+"""Craftables"""
+
+
+class CStick(CraftedResource):
+    def __init__(self):
+        self.recipe = [Wood]
+        self.gives = 2
+
+
+class Pickaxe(CraftedResource):
+    def __init__(self):
+        pass
+
+
+
+"""Metal"""
 
 class Ore(BasicResource):
-    pass
+    def __init__(self, oretype):
+        self.stack_size = 5
+        self.carriable = True
+        self.ore_type: OreType = oretype
 
 
-class Metal(ProcessedResource):
-    pass  # Most trees are not always the same size -TCP
+class Copper(ProcessedResource):
+    def __init__(self):
+        self.process_type = ProcessTypes.SMELTABLE
+        self.carriable = True
+        self.stack_size = 10
+
+
+class Bronze(ProcessedResource):
+    def __init__(self):
+        self.process_type = ProcessTypes.SMELTABLE
+        self.carriable = True
+        self.stack_size = 10
+
+
+class Iron(ProcessedResource):
+    def __init__(self):
+        self.process_type = ProcessTypes.SMELTABLE
+        self.carriable = True
+        self.stack_size = 5
+
+
+class Gold(ProcessedResource):
+    def __init__(self):
+        self.process_type = ProcessTypes.SMELTABLE
+        self.carriable = True
+        self.stack_size = 5
 
 
 """Collectables"""
@@ -64,7 +137,6 @@ class Collectable:
     ):  # isnt this script a bit too long? like it really feels like YandereDev code but looks nicer and all but
         pass  # Extremely long, wouldnt it impact on performance?
 
-    pass
 
 
 class Treasure(Collectable):  # Im gonna have fun when this is going to be finished.
@@ -87,7 +159,7 @@ class NaturalStructure:  # Froggie is actually french, that why 75% of the shit 
         self.size = size  # if(Size == Size && Size == Size && Size == Size) then make Size = Size;
         self.drops = drops
 
-    def drops(self, member):
+    def drop(self, member):
         # I only know simple python, so i dont know what the flip is happening here.
         x = random.randint(-1, 1)
         damt = (
@@ -103,14 +175,12 @@ class NaturalStructure:  # Froggie is actually french, that why 75% of the shit 
 
 
 class AdvancedNaturalStructure(NaturalStructure):
-    def __init__(
-        self, size, resources
-    ):  # If this is going to be PayToWin, im taking 50% of the
+    def __init__(self, size, resources):  # If this is going to be PayToWin, im taking 50% of the
         pass
 
 
-class Tree(NaturalStructure):
-    # So serious stuff here, these are trees. But what type? Oak? Jungle? Acasia? Birch?
+class Tree(NaturalStructure): # Most trees are not always the same size -TCP
+    # So serious stuff here, these are trees. But what type? Oak? Jungle? Acasia? Birch? : They're of the tree variety -TCP
     drop_amounts = [5, 10, 15]
 
     def __init__(self, size=Size.MEDIUM, drops=Wood):
@@ -119,15 +189,9 @@ class Tree(NaturalStructure):
 
 
 class OreVein(NaturalStructure):
-    drop_amounts = [
-        2,
-        4,
-        6,
-    ]  # Do not change it. Everyone loves a good old spelling mistake.
+    drop_amounts = [2, 4, 6]  # Do not change it. Everyone loves a good old spelling mistake.
 
-    def __init__(
-        self, size=Size.SMALL, drops=Ore()
-    ):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
+    def __init__(self, size=Size.SMALL, drops=Ore(OreType.COPPER)):  # Arstotzka loves ores, ores are now Arstotzka's second favorite object.
         super().__init__(size, drops)
 
 
@@ -151,9 +215,7 @@ class Cave(AdvancedNaturalStructure):  # Caves, lots of them.
 """Biomes"""  # Ive lost hope in hooman being.
 
 
-class Biomes(
-    enum.Enum
-):  # I am writing this down to up so things might get weird, sentence wise.
+class Biomes(enum.Enum):  # I am writing this down to up so things might get weird, sentence wise.
     OCEAN = 0  # Anything after this is going or is already unreadable as it doesnt make sense:
     JUNGLE = 1  # Never been into a jungle but, after reading the jungle book, it doesnt really change any opinions on if you would go into a jungle.
     CLIFF = 2  # Cliffs are also nice, you can see a lot.
@@ -235,12 +297,17 @@ class World:
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []  # Chunks of meat.
             for h in range(size[1]):  # No clue what is happening here.
+                """
+                try:
+                    orar = ((h*w)/(size[0]) + (w*h)/(size[1])) + ((size[0])/(w*h) + (size[1])/(w*h))
+                except:
+                    orar = 100
+                print(orar)
+                """
                 if (h > size[1] - (size[1]/10) or h < (size[1]/10)) or (w > size[0] - (size[0]/10) or w < (size[1]/10)):
-                    i = random.randint(0,10)
-                    c = random.randint(0,1)
-                    rarity["OCEAN"] += (25 + i if c == 0 else 25 - i)
+                    rarity["OCEAN"] += (25 + ((size[1]/10) * (size[0]/10)))
                     chosen = random.choices(list(Biomes), rarity.values())[0]
-                    rarity["OCEAN"] -= (25 + i if c == 0 else 25 - i)
+                    rarity["OCEAN"] -= (25 + ((size[1]/10) * (size[0]/10)))
                 else:
                     next_to = [self.chunks[w-1][h].biome.name,cur_chunks[h-1].biome.name]
                     rarity[next_to[0]] += 30

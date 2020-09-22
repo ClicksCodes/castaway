@@ -2,7 +2,7 @@ from cogs.castaway import world
 from PIL import Image, ImageDraw
 import numpy as np
 
-mapsize = (50, 50)
+mapsize = (100, 100)
 
 if mapsize[0] > mapsize[1]:
     mult = 1000 / mapsize[0]
@@ -39,6 +39,7 @@ for chunkRow in game.chunks:
                     stype = None
                 print(f"{stype} in chunk {chunk.biome.name}")
 """
+
 curMap = []
 
 for chunkRow in game.chunks:
