@@ -18,18 +18,31 @@ class Inventory(menus.Menu):
         embed = discord.Embed(
             title=f"{ctx.author.name}'s inventory"
             description=f"{[
-                f'{item} : {amount}{backn}' for item, amount in user_inv 
+                f'{item} : {amount}{backn}' for item, amount in user_inv
             ]}"
             color=0x71AFE5
         )
         return await ctx.send(embed=embed)
     """
-    #@menus.button()
+
+    # @menus.button()
     def craft(self, ctx):
 
-        self.user_inv = [[world.Wood, 20],[world.Stick, 20]]#islanders.get_data_for(ctx.author)["inventory"]["items"]
+        self.user_inv = [
+            [world.Wood, 20],
+            [world.Stick, 20],
+        ]  # islanders.get_data_for(ctx.author)["inventory"]["items"]
 
-        possible = [craftables.WoodAxe, craftables.WoodHoe, craftables.WoodPickaxe,craftables.WoodShovel, craftables.WoodScythe, craftables.Workbench, craftables.BundledLogs, craftables.Firepit]
+        possible = [
+            craftables.WoodAxe,
+            craftables.WoodHoe,
+            craftables.WoodPickaxe,
+            craftables.WoodShovel,
+            craftables.WoodScythe,
+            craftables.Workbench,
+            craftables.BundledLogs,
+            craftables.Firepit,
+        ]
 
         inv_items = [item[0] for item in self.user_inv]
         craftable = []
@@ -42,21 +55,11 @@ class Inventory(menus.Menu):
                     craftable += key
                     print("added to craftable")
 
+
 class Crafting:
     def __init__(self):
         self.menu = {
-            "Basic":{
-                "Tools":[
-                    craftables.WoodAxe.recipe
-                ],
-                "Buildings":[
-
-                ]
-            },
-            "Stone":{
-
-            },
-            "Metal":{
-                "Tools"
-            }
+            "Basic": {"Tools": [craftables.WoodAxe.recipe], "Buildings": []},
+            "Stone": {},
+            "Metal": {"Tools"},
         }
