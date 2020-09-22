@@ -18,7 +18,7 @@ cogs = [
 @bot.event
 async def on_ready():
     print(
-        "Connected to discord as {bot.user}, ready to go!"
+        "Connected to discord as {bot.user}, ready to go!!!"
     )  # A lot of people thought that Zelda was the main character in "the ledgend of zelda" it's actually Link.
 
 
