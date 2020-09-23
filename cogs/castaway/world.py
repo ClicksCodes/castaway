@@ -109,10 +109,10 @@ class Leaves(BasicResource):
 
 
 class Ore(BasicResource):
-    def __init__(self, oretype):
+    def __init__(self, oretype: OreType = OreType.COPPER):
         self.stack_size = 5
         self.carriable = True
-        self.ore_type: OreType = oretypegit pui
+        self.ore_type = oretype
 
 
 """Collectables"""
@@ -320,6 +320,7 @@ class World:
                 cur_chunks.append(Biome(chosen))  # Biome, you are the chosen one!
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.
         for _ in range(passes):
+            currentPass = self.chunks
             for y in range(len(self.chunks)):
                 for x in range(len(self.chunks[y])):
                     try:
@@ -350,8 +351,35 @@ class World:
                         chosen = Biome(Biomes.OCEAN)
                     if "LAKE" == cent.name and "OCEAN" in [b.name for b in ns]:
                         chosen = Biome(Biomes.SAND)
-                    self.chunks[y][x] = chosen
+                    currentPass[y][x] = chosen
+            self.chunks = currentPass
+        for y in range(len(self.chunks)):
+            for x in range(len(self.chunks[y])):
+                try:
+                    up = self.chunks[y - 1][x]
+                except:
+                    continue
+                try:
+                    left = self.chunks[y][x - 1]
+                except:
+                    continue
+                try:
+                    down = self.chunks[y + 1][x]
+                except:
+                    continue
+                try:
+                    right = self.chunks[y][x + 1]
+                except:
+                    continue
+                try:
+                    cent = self.chunks[y][x]
+                except:
+                    continue
 
+                ns = [up, down, left, right, cent]
+
+                if "LAKE" == cent.name and "OCEAN" in [b.name for b in ns]:
+                    self.chunks[y][x] = Biome(Biomes.SAND)
 
 class MiniWorld:
     def __init__(
