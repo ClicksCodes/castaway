@@ -14,50 +14,39 @@ class Castaway(commands.Cog):
     async def play(self, ctx):
         """When this command is sent, the game will start. \nAliases: play, start, begin, s"""
 
-    @commands.command(
-        aliases=["c", "col"]
-    )
+    @commands.command(aliases=["c", "col"])
     async def collect(self, ctx):
         """When this command is sent and a game is currently happening, you will start collecting some items- you'll need them. \nAliases: collect, c, col"""  # Minecraft.
 
-    @commands.command(
-        aliases=["ex", "expl"]
-    )
+    @commands.command(aliases=["ex", "expl"])
     async def explore(self, ctx):
         """When this command is sent and a game is currently happening, your character will start looking around maybe finding new key place on the map. \nAliases: explore, ex, expl"""  # No shit shelock, I dont think im gonna play with my eyes closed.
 
-    @commands.command(
-        aliases=["cr"]
-    )
+    @commands.command(aliases=["cr"])
     async def craft(self, ctx):
         """When this command is sent and a game is currently happening, your character will have the choice to craft some items to help throughout his journey. \nIt's not an old man from a cave that is going to give you a sword! \nAliases: craft, cr"""  # Minecraft -- for some reason, minecraft always come back...
 
-    @commands.command(
-        aliases=["bl", "b"]
-    )
+    @commands.command(aliases=["bl", "b"])
     async def build(self, ctx):
         """When this command is sent and a game is currently happening, your character will have the choice to build some structures around the predifined map. \nAliases: build, bl, b"""
 
-    @commands.group(aliases=["farms", "fa"], invoke_without_command=True)  # Farmin Simulatur
+    @commands.group(
+        aliases=["farms", "fa"], invoke_without_command=True
+    )  # Farmin Simulatur
     async def farm(self, ctx):
         """When this command is sent and a game is currently happening, you will be able to manage your farms if you have any- they can be built from the build command. \nAliases: farm, farms, fa"""
 
     @farm.command(
-        name="plant",
-        aliases=["pl"]
+        name="plant", aliases=["pl"]
     )  # You know, you gotta make some money planting some weed. My bad, it's quite useful to survive, eating and such.
     async def farm_plant(self, ctx, farmid: int = 0):
         """When this command is sent and a game is currently happening, you will be able to plant some plant in your farm, only works if you have a farm built! \nAliases: plant, pl"""
 
-    @farm.command(
-        name="collect"
-    )
+    @farm.command(name="collect")
     async def farm_collect(self, ctx, farmid: int = 0):
         """Collect all crops in a farm"""  # Slaves love this -- Slave remembered that.
 
-    @farm.command(
-        name="watch"
-    )
+    @farm.command(name="watch")
     async def farm_collect(self, ctx):
         """Get notified when a farm is fully grown"""  # How may war did the french win? Zero, they always surrendered.
 
