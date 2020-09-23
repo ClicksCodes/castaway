@@ -43,7 +43,7 @@ class Castaway(commands.Cog):
         """When this command is sent and a game is currently happening, you will be able to manage your farms if you have any- they can be built from the build command. \nAliases: farm, farms, fa"""
 
     @farm.command(
-        name="plant"
+        name="plant",
         aliases=["pl"]
     )  # You know, you gotta make some money planting some weed. My bad, it's quite useful to survive, eating and such.
     async def farm_plant(self, ctx, farmid: int = 0):
