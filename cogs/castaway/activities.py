@@ -15,11 +15,14 @@ class Activities(enum.Enum):
     FARM_WATCHING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
     FETCHING_WATER = 3  # Fetch some watur.
 
+
 def calculate_returns_for(member, activity):
     return []
 
+
 def get_activity(member):
     return islanders.get_data_for(member)["activity"]
+
 
 def stop_activity(member):
     data = islanders.get_data_for(member)
@@ -31,6 +34,7 @@ def stop_activity(member):
         data["inventory"] = islanders.inventory_add(data["inventory"], *item)
     data["activity"] = None
     islanders.write_data_for(member, data)
+
 
 def activity(
     activity_type: Activities,
