@@ -33,7 +33,7 @@ class Castaway(commands.Cog):
         """When this command is sent and a game is currently happening, your character will have the choice to craft some items to help throughout his journey. \nIt's not an old man from a cave that is going to give you a sword! \nAliases: craft, cr"""  # Minecraft -- for some reason, minecraft always come back...
 
     @commands.command(
-        aliases:["bl", "b"]
+        aliases=["bl", "b"]
     )
     async def build(self, ctx):
         """When this command is sent and a game is currently happening, your character will have the choice to build some structures around the predifined map. \nAliases: build, bl, b"""
