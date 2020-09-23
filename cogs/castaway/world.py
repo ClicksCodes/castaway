@@ -83,7 +83,7 @@ class Ore(BasicResource):
     def __init__(self, oretype):
         self.stack_size = 5
         self.carriable = True
-        self.ore_type: OreType = oretype
+        self.ore_type: OreType = oretypegit pui
 
 
 """Collectables"""
