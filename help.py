@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-class Help(HelpCommand):
+class Help(commands.DefaultHelpCommand):
     """The implementation of the default help command.
     This inherits from :class:`HelpCommand`.
     It extends it with the following attributes.
