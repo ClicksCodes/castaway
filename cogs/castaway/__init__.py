@@ -99,13 +99,13 @@ class Castaway(commands.Cog):
 
     @commands.command(name="test")
     async def test(self, ctx):
-        # await creation.sendEmbed(ctx=ctx,cr_type="inv")
-        craftable = creation.Inventory.canMake(ctx=ctx)
-        embed = discord.Embed(
-            title="Craftable items:",
-            description="\n".join([item.capitalize() for item in craftable])
-        )
-        await ctx.send(embed=embed)
+        await creation.sendEmbed(ctx=ctx,cr_type="inv")
+        # craftable = creation.Inventory.canMake(ctx=ctx)
+        # embed = discord.Embed(
+        #     title="Craftable items:",
+        #     description="\n".join([item.capitalize() for item in craftable])
+        # )
+        # await ctx.send(embed=embed)
 
     # @commands.command(name="info")
     # async def info(self, ctx):

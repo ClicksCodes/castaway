@@ -5,34 +5,6 @@ from . import islanders
 from . import world
 import discord
 
-def flatten(obj):
-    flattened = []
-
-    for k, v in obj.items():
-        if isinstance(v, dict):
-            for item in flatten(v):
-                flattened.append(item)
-        else:
-            for item in v:
-                flattened.append(item)
-
-    return flattened
-
-def find(obj, thing):
-
-    path = []
-
-
-    for key, value in obj.items():
-        if isinstance(value, list) and thing in value:
-            path.append(key)
-        elif isinstance(value, dict) and (p := find(value, thing)):
-            path += p
-        elif thing == getattr(value, "name", None):
-            path.append(thing)
-    print(path)
-    return path
-
 
 class Inventory:
 
@@ -56,16 +28,19 @@ class Inventory:
     @classmethod
     def canMake(cls, ctx):
 
-        user_inv = [["wood", 15],["stick", 10],["plantfiber", 20]]#islanders.get_data_for(ctx.author)["inventory"]["items"]
+        user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"] #[["wood", 15],["stick", 10],["plantfiber", 20]]#
+
+        inv_items = {}
+        for item, amount in user_inv:
+            inv_items[item] = inv_items.get(item, 0) + amount
 
         craftable = cls.menu.copy()
-        
-        for craft_type in craftable:
-            for item in craft_type:
+        for _, craftables in craftable.items():
+            for item in craftables:
                 for key, value in item.recipe.items():
                     if inv_items.get(key.name, 0) < int(value):
-                        del craft_type[key]
-        print(craftable)
+                        craftables.remove(item)
+                        break
         return craftable
 
 
@@ -84,23 +59,18 @@ class Crafting:
     def canMake(cls, ctx):
         user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
 
-        flattened = flatten(cls.menu)
-
         inv_items = {}
         
         for item, amount in user_inv:
             inv_items[item] = inv_items.get(item, 0) + amount
 
-        craftable = []
-
-        for item in flattened:
-            for key, value in item.recipe.items():
-                print(inv_items.get(key.name, 0))
-                if inv_items.get(key.name, 0) < int(value):
-                    break
-            else:
-                craftable.append(item)
-
+        craftable = cls.menu.copy()
+        for _, craftables in craftable.items():
+            for item in craftables:
+                for key, value in item.recipe.items():
+                    if inv_items.get(key.name, 0) < int(value):
+                        craftables.remove(item)
+                        break
         return craftable
 
 
@@ -114,23 +84,18 @@ class Smelting:
     def canMake(cls, ctx):
         user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
 
-        flattened = flatten(cls.menu)
-
         inv_items = {}
         
         for item, amount in user_inv:
             inv_items[item] = inv_items.get(item, 0) + amount
 
-        craftable = []
-
-        for item in flattened:
-            for key, value in item.recipe.items():
-                print(inv_items.get(key.name, 0))
-                if inv_items.get(key.name, 0) < int(value):
-                    break
-            else:
-                craftable.append(item)
-
+        craftable = cls.menu.copy()
+        for _, craftables in craftable.items():
+            for item in craftables:
+                for key, value in item.recipe.items():
+                    if inv_items.get(key.name, 0) < int(value):
+                        craftables.remove(item)
+                        break
         return craftable
 
 class ToolSmith:
@@ -144,24 +109,18 @@ class ToolSmith:
     def canMake(cls, ctx):
         user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
 
-        flattened = flatten(cls.menu)
-
         inv_items = {}
         
         for item, amount in user_inv:
             inv_items[item] = inv_items.get(item, 0) + amount
 
-
-        craftable = []
-
-        for item in flattened:
-            for key, value in item.recipe.items():
-                print(inv_items.get(key.name, 0))
-                if inv_items.get(key.name, 0) < int(value):
-                    break
-            else:
-                craftable.append(item)
-
+        craftable = cls.menu.copy()
+        for _, craftables in craftable.items():
+            for item in craftables:
+                for key, value in item.recipe.items():
+                    if inv_items.get(key.name, 0) < int(value):
+                        craftables.remove(item)
+                        break
         return craftable
 
 async def sendEmbed(ctx, cr_type):
@@ -176,7 +135,11 @@ async def sendEmbed(ctx, cr_type):
     else:
         raise TypeError
 
-    e = discord.Embed(title="Yes")
+    e = discord.Embed(
+        title="Craftables:",
+        description="\n\n".join([(f"__**{key.upper()}**__:\n" + "\n".join([value.name.capitalize() for value in values])) for key, values in d.items()]),
+        color=0x71afe5
+    )
 
 
-    await ctx.send(f"{items}")
+    return await ctx.send(embed=e)

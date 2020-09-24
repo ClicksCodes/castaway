@@ -103,6 +103,9 @@ class PlantFiber(BasicResource):
 
 
 class Leaves(BasicResource):
+    
+    name = "leaves"
+
     def __init__(self):
         self.gives = 1
 
