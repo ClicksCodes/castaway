@@ -58,29 +58,13 @@ class Inventory:
 
         user_inv = [["wood", 15],["stick", 10],["plantfiber", 20]]#islanders.get_data_for(ctx.author)["inventory"]["items"]
 
-        inv_items = {}
-                        # ["tools","wood"]
-        craftable = {} # {"tools":{"wood":[blah]} // craftable["tools"]["wood"] = [blah]
-
-
-        for item, amount in user_inv:
-            inv_items[item] = inv_items.get(item, 0) + amount
-
-        flattened = flatten(cls.menu)
-
-        for item in flattened:
-            for key, value in item.recipe.items():
-                if inv_items.get(key.name, 0) < int(value):
-                    break
-            else:
-                p = find(cls.menu, item)
-                setting = craftable
-                for i in p[-1:]:
-                    print(i)
-                    setting[i] = setting.get(i, {})
-                    setting = setting[i]
-                backn = '\n'
-                setting[p[-1]] = f"{item}{backn}"
+        craftable = cls.menu.copy()
+        
+        for craft_type in craftable:
+            for item in craft_type:
+                for key, value in item.recipe.items():
+                    if inv_items.get(key.name, 0) < int(value):
+                        del craft_type[key]
         print(craftable)
         return craftable
 
