@@ -5,6 +5,9 @@ from discord.ext import (
 )  # Commands are good too, you can use commands with this.
 from . import errors  # Errors are good.
 from . import islanders
+from . import world
+import datetime
+import random
 
 
 class Activities(enum.Enum):
@@ -12,12 +15,31 @@ class Activities(enum.Enum):
     """All the activies that players can do"""  # Activities. yes.
     COLLECTING = 0  # Collectin' stuff.
     FARMING = 1  # Farmin' stuff.
-    FARM_WATCHING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
-    FETCHING_WATER = 3  # Fetch some watur.
+    # FARM_WATCHING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
+    # FETCHING_WATER = 3  # Fetch some watur.
 
+
+def _repeating_sample(population, k):
+    assert len(sample) > 0  # There has to be something in the sample
+    assert k >= 0  # We can't have negative sizes of k
+    sample = []
+    for i in range(k):
+        sample.append(random.choice(population))
+    return sample
+
+
+activity_returns = (
+    ((world.Wood, world.PlantFiber, world.Leaves), 1024),
+    ((world.Wood, world.PlantFiber, world.Leaves), 256),
+    None,
+    None,
+)
 
 def calculate_returns_for(member, activity):
-    return []
+    activity = Activities(activity)
+    minutes = 100
+    return _repeating_sample(((item, 1) for item in activity_returns[activity][0]), round((minutes*256) / (minutes+activity_returns[activity][1])))
+
 
 
 def get_activity(member):
@@ -35,7 +57,14 @@ def stop_activity(member):
     data["activity"] = None
     islanders.write_data_for(member, data)
 
-
+def start_activity(member, activity):
+    data = islanders.get_data_for(member)
+    data["activity"] == {
+        "start_time": datetime.datetime.now().timestamp(),
+        "activity": activity.value
+    }
+    islanders.write_data_for(member, data)
+#how await message? nani? __init__.py line 98
 def activity(
     activity_type: Activities,
 ):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665
@@ -52,6 +81,8 @@ def activity(
 
         if get_activity(ctx.member) is not None:
             stop_activity(ctx.member)
+
+        start_activity(ctx.member, activity_type)
 
         return True  # Truth. : Lies -TCP
 

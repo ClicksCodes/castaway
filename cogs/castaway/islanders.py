@@ -44,16 +44,16 @@ def inventory_add(previous, item, amount):
     #     ]
     # }
     stack_size = previous["stack_size"]
-    for slot, item in enumerate(previous["items"]):
-        if item[0] == item:
-            amount_to_transfer = min(stack_size - item[1], amount)
-            previous["items"][slot][1] = item[1] + amount_to_transfer
+    for slot, i in enumerate(previous["items"]):
+        if item.name == i:
+            amount_to_transfer = min(stack_size - i[1], amount)
+            previous["items"][slot][1] = i[1] + amount_to_transfer
             amount = amount - amount_to_transfer
         if amount <= 0:
             break
     else:
         while amount > 0 and len(previous["items"]) < previous["slots"]:
             amount_to_transfer = min(stack_size, amount)
-            previous["items"].append((item, amount_to_transfer))
+            previous["items"].append((item.name, amount_to_transfer))
             amount -= amount_to_transfer
     return previous

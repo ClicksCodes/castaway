@@ -6,6 +6,8 @@ from . import world
 import discord
 
 
+
+
 class Inventory:
 
     menu = {
@@ -123,7 +125,21 @@ class ToolSmith:
                         break
         return craftable
 
-async def sendEmbed(ctx, cr_type):
+def flatten(obj):
+    flattened = []
+
+    for k, v in obj.items():
+        if isinstance(v, dict):
+            for item in flatten(v):
+                flattened.append(item)
+        else:
+            for item in v:
+                flattened.append(item)
+
+    return flattened
+
+
+def sendEmbed(ctx, cr_type):
     if cr_type == "inv":
         d = Inventory.canMake(ctx=ctx)
     elif cr_type == "craft":
@@ -142,4 +158,4 @@ async def sendEmbed(ctx, cr_type):
     )
 
 
-    return await ctx.send(embed=e)
+    return (e,flatten(d))

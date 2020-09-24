@@ -95,17 +95,14 @@ class Castaway(commands.Cog):
         name="craft"
         )
     async def craft(self, ctx):
-        await creation.Inventory.craft(ctx)
+        data = creation.sendEmbed(ctx=ctx,cr_type="inv")
+        await ctx.send(data[0])
+        def check(msg):
+            return (msg.content in data[1]) and (ctx.author == msg.author)
+        msg = await self.bot.wait_for('message', check=check)
+        newe = discord.Embed(title="Item Crafted", description=f"You have successfully crafted {msg.content}")
+        await ctx.send(embed=newe)
 
-    @commands.command(name="test")
-    async def test(self, ctx):
-        await creation.sendEmbed(ctx=ctx,cr_type="inv")
-        # craftable = creation.Inventory.canMake(ctx=ctx)
-        # embed = discord.Embed(
-        #     title="Craftable items:",
-        #     description="\n".join([item.capitalize() for item in craftable])
-        # )
-        # await ctx.send(embed=embed)
 
     # @commands.command(name="info")
     # async def info(self, ctx):
