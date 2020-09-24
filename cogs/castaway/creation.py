@@ -22,47 +22,66 @@ def find(obj, thing):
 
     path = []
 
+
     for key, value in obj.items():
-        if thing == value:
-            path.append(thing)
+        if isinstance(value, list) and thing in value:
+            path.append(key)
         elif isinstance(value, dict) and (p := find(value, thing)):
             path += p
-
+        elif thing == getattr(value, "name", None):
+            path.append(thing)
+    print(path)
     return path
-
 
 
 class Inventory:
 
-    possible = [
+    menu = {
+        "tools":[
             craftables.WoodAxe,
             craftables.WoodHoe,
             craftables.WoodPickaxe,
             craftables.WoodShovel,
-            craftables.WoodScythe,
+            craftables.WoodScythe
+        ],
+        "buildings":[
             craftables.Workbench,
-            craftables.BundledLogs,
-            craftables.Firepit,
-    ]
+            craftables.Firepit
+        ],
+        "resources": [
+            craftables.BundledLogs
+        ]
+    }
+
     @classmethod
     def canMake(cls, ctx):
 
         user_inv = [["wood", 15],["stick", 10],["plantfiber", 20]]#islanders.get_data_for(ctx.author)["inventory"]["items"]
 
         inv_items = {}
+                        # ["tools","wood"]
+        craftable = {} # {"tools":{"wood":[blah]} // craftable["tools"]["wood"] = [blah]
+
 
         for item, amount in user_inv:
             inv_items[item] = inv_items.get(item, 0) + amount
 
-        craftable = []
+        flattened = flatten(cls.menu)
 
-        for item in cls.possible:
+        for item in flattened:
             for key, value in item.recipe.items():
                 if inv_items.get(key.name, 0) < int(value):
                     break
             else:
-                craftable.append(item)
-
+                p = find(cls.menu, item)
+                setting = craftable
+                for i in p[-1:]:
+                    print(i)
+                    setting[i] = setting.get(i, {})
+                    setting = setting[i]
+                backn = '\n'
+                setting[p[-1]] = f"{item}{backn}"
+        print(craftable)
         return craftable
 
 
@@ -173,9 +192,7 @@ async def sendEmbed(ctx, cr_type):
     else:
         raise TypeError
 
-    items = [item.name for item in d]
-    print(items)
-    #e = discord.Embed(title="Yes")
+    e = discord.Embed(title="Yes")
 
 
     await ctx.send(f"{items}")

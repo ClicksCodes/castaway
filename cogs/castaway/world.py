@@ -260,6 +260,7 @@ class Biome:  # Day 2: we have a generator.
         self.name = biome_type.name
         self.structures = []  # Arrays.
         self.ordered_structures = []
+        self.discovered = False
         for i in range(5):  # i needs to go so much things, it's quite sad.
             cur_struct = []  # Structures are good, i think.
             for j in range(5):  # Whiles... love them.

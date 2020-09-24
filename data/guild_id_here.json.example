@@ -2,6 +2,8 @@
     "active": true,
     "islanders": {
         "user_id_here": {
+            "level": 4
+            "experience": 0
             "skills": {
                 "laziness": 5,
                 "impatience": 5,

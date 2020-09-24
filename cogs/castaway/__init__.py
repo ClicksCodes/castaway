@@ -2,7 +2,7 @@ from discord.ext import (
     commands,
 )  # Who doesnt like importing stuff? I mean i sure like importing "Random" into my script. Im pretty sure we ARE going to need "Random" : Yes, we're going to need random. Good job commenter boy -3665
 from . import creation
-
+import discord
 
 class Castaway(commands.Cog):
     def __init__(self, bot):
@@ -99,7 +99,21 @@ class Castaway(commands.Cog):
 
     @commands.command(name="test")
     async def test(self, ctx):
-        await creation.sendEmbed(ctx=ctx,cr_type="inv")
+        # await creation.sendEmbed(ctx=ctx,cr_type="inv")
+        craftable = creation.Inventory.canMake(ctx=ctx)
+        embed = discord.Embed(
+            title="Craftable items:",
+            description="\n".join([item.capitalize() for item in craftable])
+        )
+        await ctx.send(embed=embed)
+
+    # @commands.command(name="info")
+    # async def info(self, ctx):
+    #     embed = discord.Embed(
+    #         title=f"{ctx.author.name}'s stats: Level {}"
+    #     )
+
+    #     await ctx.send(embed=embed)
 
 
 def setup(bot):

@@ -24,6 +24,7 @@ def generateMap(mapsize=(50, 50), passes=None):
         "LAKE": hex_to_rgb("78ECF2"),
         "SAND": hex_to_rgb("E6DC71"),
         "GRASS": hex_to_rgb("A1CC65"),
+        "UNKNOWN": hex_to_rgb("000000")
     }
 
     if passes == None: passes = int((math.sqrt(min((mapsize[0], mapsize[1])))) - 1)
@@ -34,7 +35,10 @@ def generateMap(mapsize=(50, 50), passes=None):
     for chunkRow in game.chunks:
         curRow = []
         for chunk in chunkRow:
-            curRow.append(colors[chunk.name])
+            if chunk.discovered == False and chunk.name == "OCEAN":
+                curRow.append(colors[chunk.name])
+            else:
+                curRow.append(colors["UNKNOWN"])
         curMap.append(curRow)
 
     im = Image.fromarray(np.uint8(curMap), mode="RGB")
@@ -42,4 +46,4 @@ def generateMap(mapsize=(50, 50), passes=None):
     im.save(f'{time.time()}.png')
 
 
-generateMap(mapsize=(1000,1000))
+generateMap(mapsize=(50,50))
