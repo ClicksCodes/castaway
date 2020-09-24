@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-import help_command
 import json
+from help import Help
 
 with open("config.json") as config_file:
     config = json.load(config_file)
@@ -13,7 +13,7 @@ bot = commands.Bot(
     activity=discord.Activity(
         type=discord.ActivityType.watching, name="discord go by."
     ),
-    help_command=help_command.Help
+    help_command=Help
 )  # You know, the prefix, the thing you put before the command, like "!"
 
 cogs = [

@@ -4,7 +4,7 @@ from . import craftables
 from . import smeltables
 from . import islanders
 from . import world
-
+import discord
 
 class Inventory:
     @staticmethod
