@@ -7,26 +7,8 @@ from . import world
 import discord
 
 class Inventory:
-    @staticmethod
-    async def send(ctx):
 
-        user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
-
-        backn = "\n"
-
-        embed = discord.Embed(
-            title=f"{ctx.author.name}'s inventory",
-            description=f"{[f'{item} : {amount}{backn}' for item, amount in user_inv]}",
-            color=0x71AFE5,
-        )
-        return await ctx.send(embed=embed)
-
-    @staticmethod
-    async def craft(ctx):
-
-        user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
-
-        possible = [
+    possible = [
             craftables.WoodAxe,
             craftables.WoodHoe,
             craftables.WoodPickaxe,
@@ -35,7 +17,11 @@ class Inventory:
             craftables.Workbench,
             craftables.BundledLogs,
             craftables.Firepit,
-        ]
+    ]
+
+    def canMake(self, ctx):
+
+        user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
 
         inv_items = {}
 
@@ -44,18 +30,45 @@ class Inventory:
 
         craftable = []
 
-        for item in possible:
+        for item in self.possible:
             for key, value in item.recipe.items():
                 if inv_items.get(key.name, 0) < int(value):
                     break
             else:
                 craftable.append(item)
 
+        return craftable
+
 
 class Crafting:
+    menu = {
+        "tools": {
+            "wood":[craftables.WoodAxe, craftables.WoodHoe, craftables.WoodPickaxe, craftables.WoodShovel, craftables.WoodScythe],
+            "copper":[craftables.CopperAxe,craftables.CopperHoe,craftables.CopperPickaxe,craftables.CopperShovel,craftables.CopperScythe]
+        },
+        "resources": [craftables.BundledLogs, craftables.String, craftables.Rope],
+        "buildings": [craftables.Workbench, craftables.OreOven, craftables.ToolBench, craftables.Hut, craftables.Storage, craftables.LargeStorage, craftables.Firepit, craftables.UpgradedHut],
+        "endgame": [craftables.Sail,craftables.Boat]
+    }
+
+    def canMake(self, ctx):
+        user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
+
+        flatten = [k,v for k,v in self.menu.items()]
+
+
+
+class Smelting:
     def __init__(self):
-        self.menu = {
-            "Basic": {"Tools": [craftables.WoodAxe.recipe], "Buildings": []},
-            "Stone": {},
-            "Metal": {"Tools"},
+        menu = {
+            "ores": [smeltables.Copper,smeltables.Bronze,smeltables.Iron],
+            "other": [smeltables.Glass]
+        }
+
+class ToolSmith:
+    def __init__(self):
+        menu = {
+            "wood": [craftables.WoodAxe, craftables.WoodHoe, craftables.WoodPickaxe, craftables.WoodShovel, craftables.WoodScythe],
+            "copper": [craftables.CopperAxe,craftables.CopperHoe,craftables.CopperPickaxe,craftables.CopperShovel,craftables.CopperScythe],
+            "iron": [craftables.IronAxe, craftables.IronHoe, craftables.IronPickaxe, craftables.IronShovel, craftables.IronScythe]
         }

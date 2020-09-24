@@ -198,13 +198,13 @@ class OreOven(world.CraftedResource):
     def __init__(self):
         pass
 
-
+"""
 class WaterPurifier(world.CraftedResource):
     recipe = {world.Rock: 2, BundledLogs: 3, smeltables.Copper: 10}
 
     def __init__(self):
         pass
-
+"""
 
 class Hut(world.CraftedResource):
     recipe = {world.Wood: 25, Rope: 10, world.Leaves: 10, BundledLogs: 5, Storage: 1}
@@ -241,7 +241,7 @@ class Boat(world.CraftedResource):
     def __init__(self):
         pass
 
-
+"""
 class Farm(world.CraftedResource):
     recipe = {world.Leaves: 25, world.Wood: 25, BundledLogs: 10, String: 25}
 
@@ -254,3 +254,4 @@ class Trap(world.CraftedResource):
 
     def __init__(self):
         pass
+"""

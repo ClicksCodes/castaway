@@ -74,6 +74,7 @@ class Wood(
 
 
 class Rock(BasicResource):  # He used to be a lonely guy, not anymore.
+    name = "rock"
     def __init__(self):
         self.stack_size = 10
         self.carriable = True
@@ -96,6 +97,7 @@ class Stick(BasicResource):
 
 
 class PlantFiber(BasicResource):
+    name = "plantfiber"
     def __init__(self):
         self.gives = 1
 

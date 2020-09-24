@@ -1,19 +1,16 @@
 import discord
 from discord.ext import commands
-import json
-from help import Help
-
-with open("config.json") as config_file:
-    config = json.load(config_file)
+from custom_help import Help
+import config
 
 bot = commands.Bot(
-    command_prefix=commands.when_mentioned_or("]", "¯\_(ツ)_/¯"),
+    command_prefix=commands.when_mentioned_or(*config.prefixes),
     allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False),
     status=discord.Status.dnd,
     activity=discord.Activity(
         type=discord.ActivityType.watching, name="discord go by."
     ),
-    help_command=Help
+    help_command=Help()
 )  # You know, the prefix, the thing you put before the command, like "!"
 
 cogs = [
@@ -49,5 +46,5 @@ for cog in cogs:  # Coggin' it
         print(f"Failed to load cog {cog} : {e}")
 
 bot.run(
-    config["token"]
+    config.token
 )  # Anyone reading this, this project might become a time capsule, cause you know, all the shit inside will tell a lot later on in history, ou thoughts, ethics, ect... : not on the arctic code vault though :shrug: -3665
