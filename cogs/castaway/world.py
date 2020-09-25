@@ -75,6 +75,7 @@ class Wood(
 
 class Rock(BasicResource):  # He used to be a lonely guy, not anymore.
     name = "rock"
+
     def __init__(self):
         self.stack_size = 10
         self.carriable = True
@@ -98,12 +99,13 @@ class Stick(BasicResource):
 
 class PlantFiber(BasicResource):
     name = "plantfiber"
+
     def __init__(self):
         self.gives = 1
 
 
 class Leaves(BasicResource):
-    
+
     name = "leaves"
 
     def __init__(self):
@@ -386,6 +388,7 @@ class World:
 
                 if "LAKE" == cent.name and "OCEAN" in [b.name for b in ns]:
                     self.chunks[y][x] = Biome(Biomes.SAND)
+
 
 class MiniWorld:
     def __init__(

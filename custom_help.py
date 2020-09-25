@@ -1,17 +1,22 @@
 from discord.ext import commands
 
+
 class Help(commands.DefaultHelpCommand):
     def shorten_text(self, text):
         """:class:`str`: Shortens text to fit into the :attr:`width`."""
         if len(text) > self.width:
-            return text[:self.width - 3] + '...'
+            return text[: self.width - 3] + "..."
         return text
 
     def get_ending_note(self):
         """:class:`str`: Returns help command's ending note. This is mainly useful to override for i18n purposes."""
         command_name = self.invoked_with
-        return "Type {0}{1} command for more info on a command.\n" \
-               "You can also type {0}{1} category for more info on a category.".format(self.clean_prefix, command_name)
+        return (
+            "Type {0}{1} command for more info on a command.\n"
+            "You can also type {0}{1} category for more info on a category.".format(
+                self.clean_prefix, command_name
+            )
+        )
 
     def add_indented_commands(self, commands, *, heading, max_size=None):
         """Indents a list of commands after the specified heading.
@@ -43,7 +48,9 @@ class Help(commands.DefaultHelpCommand):
         for command in commands:
             name = command.name
             width = max_size - (get_width(name) - len(name))
-            entry = '{0}{1:<{width}} {2}'.format(self.indent * ' ', name, command.short_doc, width=width)
+            entry = "{0}{1:<{width}} {2}".format(
+                self.indent * " ", name, command.short_doc, width=width
+            )
             self.paginator.add_line(self.shorten_text(entry))
 
     async def send_pages(self):
@@ -95,10 +102,11 @@ class Help(commands.DefaultHelpCommand):
             # <description> portion
             self.paginator.add_line(bot.description, empty=True)
 
-        no_category = '\u200b{0.no_category}:'.format(self)
+        no_category = "\u200b{0.no_category}:".format(self)
+
         def get_category(command, *, no_category=no_category):
             cog = command.cog
-            return cog.qualified_name + ':' if cog is not None else no_category
+            return cog.qualified_name + ":" if cog is not None else no_category
 
         filtered = await self.filter_commands(bot.commands, sort=True, key=get_category)
         max_size = self.get_max_size(filtered)
@@ -106,7 +114,11 @@ class Help(commands.DefaultHelpCommand):
 
         # Now we can add the commands to the page.
         for category, commands in to_iterate:
-            commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
+            commands = (
+                sorted(commands, key=lambda c: c.name)
+                if self.sort_commands
+                else list(commands)
+            )
             self.add_indented_commands(commands, heading=category, max_size=max_size)
 
         note = self.get_ending_note()
@@ -139,7 +151,9 @@ class Help(commands.DefaultHelpCommand):
         if cog.description:
             self.paginator.add_line(cog.description, empty=True)
 
-        filtered = await self.filter_commands(cog.get_commands(), sort=self.sort_commands)
+        filtered = await self.filter_commands(
+            cog.get_commands(), sort=self.sort_commands
+        )
         self.add_indented_commands(filtered, heading=self.commands_heading)
 
         note = self.get_ending_note()

@@ -35,11 +35,14 @@ activity_returns = (
     None,
 )
 
+
 def calculate_returns_for(member, activity):
     activity = Activities(activity)
     minutes = 100
-    return _repeating_sample(((item, 1) for item in activity_returns[activity][0]), round((minutes*256) / (minutes+activity_returns[activity][1])))
-
+    return _repeating_sample(
+        ((item, 1) for item in activity_returns[activity][0]),
+        round((minutes * 256) / (minutes + activity_returns[activity][1])),
+    )
 
 
 def get_activity(member):
@@ -57,14 +60,17 @@ def stop_activity(member):
     data["activity"] = None
     islanders.write_data_for(member, data)
 
+
 def start_activity(member, activity):
     data = islanders.get_data_for(member)
     data["activity"] == {
         "start_time": datetime.datetime.now().timestamp(),
-        "activity": activity.value
+        "activity": activity.value,
     }
     islanders.write_data_for(member, data)
-#how await message? nani? __init__.py line 98
+
+
+# how await message? nani? __init__.py line 98
 def activity(
     activity_type: Activities,
 ):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665

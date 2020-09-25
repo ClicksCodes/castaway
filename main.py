@@ -10,7 +10,7 @@ bot = commands.Bot(
     activity=discord.Activity(
         type=discord.ActivityType.watching, name="discord go by."
     ),
-    help_command=Help()
+    help_command=Help(),
 )  # You know, the prefix, the thing you put before the command, like "!"
 
 cogs = [
