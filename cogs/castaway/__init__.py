@@ -16,7 +16,7 @@ class Castaway(commands.Cog):
     )  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
     @commands.has_permissions(manage_guild=True)
     async def play(self, ctx):
-        """When this command is sent, the game will start. \nAliases: play, start, begin, s"""
+        """When this command is sent, the game will start."""
         try:
             with open(f"data/{ctx.guild.id}.json") as data_file:
                 if json.load(data_file)["active"]:
@@ -36,36 +36,36 @@ class Castaway(commands.Cog):
     @commands.command(aliases=["c", "col"])
     @activities.activity(activities.Activities.COLLECTING)
     async def collect(self, ctx):
-        """When this command is sent and a game is currently happening, you will start collecting some items- you'll need them. \nAliases: collect, c, col"""  # Minecraft.
+        """This command will make you start collecting some items- you'll need them."""  # Minecraft.
 
     @commands.command(aliases=["ex", "expl"])
     async def explore(self, ctx):
-        """When this command is sent and a game is currently happening, your character will start looking around maybe finding new key place on the map. \nAliases: explore, ex, expl"""  # No shit shelock, I dont think im gonna play with my eyes closed.
+        """This command will make your character look around maybe finding new key place on the map."""  # No shit shelock, I dont think im gonna play with my eyes closed.
 
     @commands.command(aliases=["cr"])
     async def craft(self, ctx):
-        """When this command is sent and a game is currently happening, your character will have the choice to craft some items to help throughout his journey. \nIt's not an old man from a cave that is going to give you a sword! \nAliases: craft, cr"""  # Minecraft -- for some reason, minecraft always come back...
+        """This command will let to craft some items to help throughout his journey. \nIt's not an old man from a cave that is going to give you a sword!"""  # Minecraft -- for some reason, minecraft always come back...
 
     @commands.command(aliases=["bl", "b"])
     async def build(self, ctx):
-        """When this command is sent and a game is currently happening, your character will have the choice to build some structures around the predifined map. \nAliases: build, bl, b"""
+        """This command will let you build some structures around the predifined map."""
 
     @commands.group(aliases=["farms"], invoke_without_command=True)  # Farmin Simulatur
     async def farm(self, ctx):
-        """Manage farming. \nAliases: farm, farms"""
+        """This command will let you manage your farms."""
 
     @farm.command(
         name="plant", aliases=["pl"]
     )  # You know, you gotta make some money planting some weed. My bad, it's quite useful to survive, eating and such.
     async def farm_plant(self, ctx, farmid: int = 0):
-        """When this command is sent and a game is currently happening, you will be able to plant some plant in your farm, only works if you have a farm built! \nAliases: plant, pl"""
+        """This command will plant some culture in your farm(s), only works if you have a farm built!"""
 
     @farm.command(
         name="collect", aliases=["col", "c"]
     )  # How may war did the french win? Zero, they always surrendered. : to add context- the_froggie is french. I'm not 100% sure why he's saying this but I'm going to allow it -mini
     @activities.activity(activities.Activities.FARMING)
     async def farm_collect(self, ctx, farmid: int = 0):
-        """When this command is sent and a game is currently happening, you will be able to collect all crops in a farm."""  # Slaves love this -- Slave remembered that.
+        """This command will make you able to collect all crops in a farm."""  # Slaves love this -- Slave remembered that.
         pass
 
     ##  Might remove that one (?)
@@ -73,23 +73,24 @@ class Castaway(commands.Cog):
     #async def farm_collect(self, ctx):
     #    """Get notified when a farm is fully grown"""
 
+
     @commands.group(aliases=["mine"])
     async def mines(self, ctx):
-        """Manage mining. \nAliases: mines, mine"""
+        """This command will let you manage your mining."""
 
     @mines.command(name="mine", aliases=["m", "mi"])
     async def mines_mine(self, ctx, mineid: int = None):
-        """When this command is sent and a game is currently happening, you will be able to mine some ores, requires a tool. \nAliases: mine, m, mi"""
+        """This command will make you mine some ores, requires a tool."""
 
     @mines.command(name="transport", aliases=["tr", "t"])
     async def mines_transport(self, ctx, mineid: int = None):
-        """When this command is sent and a game is currently happening, you will be able to transport resources from mine to an area on a map, which can be sped up with a minecart. \nAliases: transport, tr, t"""
+        """This command will make you able to transport resources from mine to an area on a map, which can be sped up with a minecart."""
 
     """inventory commands"""
 
     @commands.group(aliases=["inv"], invoke_without_command=True)
     async def inventory(self, ctx):
-        """When this command is sent and a game is currently happening, you will be able to check your inventory, when in your inventory, you will be able to craft. \nAliases: inventory, inv"""
+        """This command will open your inventory."""
         await creation.Inventory.send(ctx=ctx)
 
     @inventory.command(name="craft")
