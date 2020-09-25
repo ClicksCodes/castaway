@@ -20,10 +20,10 @@ class Activities(enum.Enum):
 
 
 def _repeating_sample(population, k):
-    assert len(sample) > 0  # There has to be something in the sample
+    assert len(population) > 0  # There has to be something in the sample
     assert k >= 0  # We can't have negative sizes of k
     sample = []
-    for i in range(k):
+    for _ in range(k):
         sample.append(random.choice(population))
     return sample
 
@@ -76,23 +76,18 @@ def activity(
 ):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665
     """A decorator that marks a command as starting an activity"""  # We love decorators. : @mini maybe take in a number to determine how long it should take? -TCP : not quite how activites will work coded -3665 : ok -TCP
 
-    def predicate(
+    async def predicate(
         ctx,
     ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
-        commands.guild_only().predicate(ctx)
-        try:
-            requires_game().predicate(ctx)
-        except errors.NoGame:
-            return False
 
-        if get_activity(ctx.member) is not None:
-            stop_activity(ctx.member)
+        if get_activity(ctx.author) is not None:
+            stop_activity(ctx.author)
 
-        start_activity(ctx.member, activity_type)
+        start_activity(ctx.author, activity_type)
 
         return True  # Truth. : Lies -TCP
 
-    return commands.check(predicate)  # Predictable. : Assignable predictiality -TCP
+    return commands.guild_only(commands.before_invoke(predicate))  # Predictable. : Assignable predictiality -TCP
 
 
 def requires_game():
@@ -107,5 +102,17 @@ def requires_game():
         if not data["active"]:
             raise errors.NoGame("There is not a game in {ctx.guild.id}")
         return True
+
+    return commands.check(predicate)
+
+def requires_no_game():
+    """A decorator that requires no active game to pass"""
+
+    def predicate(ctx):
+        try:
+            requires_game().predicate(ctx)
+            return False
+        except (errors.NoGame, errors.NoData):
+            return True
 
     return commands.check(predicate)

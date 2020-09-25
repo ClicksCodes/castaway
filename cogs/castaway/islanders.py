@@ -20,7 +20,7 @@ def get_data_for(member):
         str(member.id),
         {
             "skills": {random.choice(list(Skills)): 3},
-            "action": None,
+            "activity": None,
             "inventory": {"slots": 8, "stack_size": 32, "items": []},
         },
     )
@@ -28,7 +28,7 @@ def get_data_for(member):
 
 
 def write_data_for(member, data):
-    with open(f"data/{member.guild.id}.json") as data_file:
+    with open(f"data/{member.guild.id}.json", "w") as data_file:
         json.dump(data, data_file)
 
 

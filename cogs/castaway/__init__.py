@@ -2,7 +2,9 @@ from discord.ext import (
     commands,
 )  # Who doesnt like importing stuff? I mean i sure like importing "Random" into my script. Im pretty sure we ARE going to need "Random" : Yes, we're going to need random. Good job commenter boy -3665
 from . import creation
+from . import activities
 import discord
+import json
 
 
 class Castaway(commands.Cog):
@@ -10,12 +12,29 @@ class Castaway(commands.Cog):
         self.bot = bot
 
     @commands.command(
-        aliases=["start, begin", "s"]
+        aliases=["start", "begin", "s"]
     )  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
+    @commands.has_permissions(manage_guild=True)
     async def play(self, ctx):
         """When this command is sent, the game will start. \nAliases: play, start, begin, s"""
+        try:
+            with open(f"data/{ctx.guild.id}.json") as data_file:
+                if json.load(data_file)["active"]:
+                    return await ctx.send("There is already a game in this server. Please wait for it to finish before starting a new one.")
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        with open(f"data/{ctx.guild.id}.json", "w") as data_file:
+            json.dump(
+                {
+                    "active": True,
+                    "islanders": {}
+                },
+                data_file
+            )
+        return await ctx.send("I've started a game in your server. Good luck!")
 
     @commands.command(aliases=["c", "col"])
+    @activities.activity(activities.Activities.COLLECTING)
     async def collect(self, ctx):
         """When this command is sent and a game is currently happening, you will start collecting some items- you'll need them. \nAliases: collect, c, col"""  # Minecraft.
 
@@ -43,15 +62,16 @@ class Castaway(commands.Cog):
 
     @farm.command(
         name="collect", aliases=["col", "c"]
-    )  # How may war did the french win? Zero, they always surrendered.
+    )  # How may war did the french win? Zero, they always surrendered. : to add context- the_froggie is french. I'm not 100% sure why he's saying this but I'm going to allow it -mini
+    @activities.activity(activities.Activities.FARMING)
     async def farm_collect(self, ctx, farmid: int = 0):
         """When this command is sent and a game is currently happening, you will be able to collect all crops in a farm."""  # Slaves love this -- Slave remembered that.
         pass
 
-    #  Might remove that one (?)
-    @farm.command(name="watch")
-    async def farm_collect(self, ctx):
-        """Get notified when a farm is fully grown"""
+    ##  Might remove that one (?)
+    #@farm.command(name="watch")
+    #async def farm_collect(self, ctx):
+    #    """Get notified when a farm is fully grown"""
 
     @commands.group(aliases=["mine"])
     async def mines(self, ctx):
