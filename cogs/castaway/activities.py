@@ -75,29 +75,30 @@ def activity(
     activity_type: Activities,
 ):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665
     """A decorator that marks a command as starting an activity"""  # We love decorators. : @mini maybe take in a number to determine how long it should take? -TCP : not quite how activites will work coded -3665 : ok -TCP
+    def inner(func):
+        async def predicate(
+            ctx,
+        ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
 
-    async def predicate(
-        ctx,
-    ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
+            if get_activity(ctx.author) is not None:
+                stop_activity(ctx.author)
 
-        if get_activity(ctx.author) is not None:
-            stop_activity(ctx.author)
+            start_activity(ctx.author, activity_type)
 
-        start_activity(ctx.author, activity_type)
-
-        return True  # Truth. : Lies -TCP
-
-    return commands.guild_only(commands.before_invoke(predicate))  # Predictable. : Assignable predictiality -TCP
+            return True  # Truth. : Lies -TCP
+        return commands.before_invoke(predicate)(requires_game()(func))  # Predictable. : Assignable predictiality -TCP
+    return inner
 
 
 def requires_game():
     """A decorator that requires a game to be active to pass"""
 
-    def predicate(ctx):
+    async def predicate(ctx):
+        await commands.guild_only().predicate(ctx)
         try:
             with open(f"data/{ctx.guild.id}.json") as data_file:
                 data = json.load(data_file)
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError):
             raise errors.NoData("There is not a game in {ctx.guild.id}")
         if not data["active"]:
             raise errors.NoGame("There is not a game in {ctx.guild.id}")
@@ -108,9 +109,9 @@ def requires_game():
 def requires_no_game():
     """A decorator that requires no active game to pass"""
 
-    def predicate(ctx):
+    async def predicate(ctx):
         try:
-            requires_game().predicate(ctx)
+            await requires_game().predicate(ctx)
             return False
         except (errors.NoGame, errors.NoData):
             return True

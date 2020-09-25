@@ -15,14 +15,9 @@ class Castaway(commands.Cog):
         aliases=["start", "begin", "s"]
     )  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
     @commands.has_permissions(manage_guild=True)
+    @activities.requires_no_game()
     async def play(self, ctx):
         """When this command is sent, the game will start."""
-        try:
-            with open(f"data/{ctx.guild.id}.json") as data_file:
-                if json.load(data_file)["active"]:
-                    return await ctx.send("There is already a game in this server. Please wait for it to finish before starting a new one.")
-        except (FileNotFoundError, json.JSONDecodeError):
-            pass
         with open(f"data/{ctx.guild.id}.json", "w") as data_file:
             json.dump(
                 {
