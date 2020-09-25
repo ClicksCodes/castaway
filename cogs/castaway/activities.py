@@ -37,10 +37,11 @@ activity_returns = (
 
 
 def calculate_returns_for(member, activity):
-    activity = Activities(activity)
-    minutes = 100
+    time = activity['start_time']
+    activity = activity['activity']
+    minutes = (datetime.datetime.now() - datetime.datetime.fromtimestamp(time)).seconds // 60
     return _repeating_sample(
-        ((item, 1) for item in activity_returns[activity][0]),
+        list(((item, 1) for item in activity_returns[activity][0])),
         round((minutes * 256) / (minutes + activity_returns[activity][1])),
     )
 
@@ -63,7 +64,7 @@ def stop_activity(member):
 
 def start_activity(member, activity):
     data = islanders.get_data_for(member)
-    data["activity"] == {
+    data["activity"] = {
         "start_time": datetime.datetime.now().timestamp(),
         "activity": activity.value,
     }
@@ -77,6 +78,7 @@ def activity(
     """A decorator that marks a command as starting an activity"""  # We love decorators. : @mini maybe take in a number to determine how long it should take? -TCP : not quite how activites will work coded -3665 : ok -TCP
     def inner(func):
         async def predicate(
+            _cog,
             ctx,
         ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
 

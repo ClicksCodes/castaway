@@ -21,11 +21,51 @@ class Inventory:
     }
 
     @classmethod
+    def sendCraftables(cls, ctx, cr_type):
+        if cr_type == "inv":
+            d = cls.canMake(ctx=ctx)
+        elif cr_type == "craft":
+            d = Crafting.canMake(ctx=ctx)
+        elif cr_type == "smelt":
+            d = Smelting.canMake(ctx=ctx)
+        elif cr_type == "tool":
+            d = ToolSmith.canMake(ctx=ctx)
+        else:
+            raise TypeError
+
+        e = discord.Embed(
+            title="Craftables:",
+            description="\n\n".join(
+                [
+                    (
+                        f"__**{key.upper()}**__:\n"
+                        + "\n".join([value.name.capitalize() for value in values])
+                    )
+                    for key, values in d.items()
+                ]
+            ),
+            color=0x71AFE5,
+        )
+
+        return (e, flatten(d))
+
+    @staticmethod
+    async def send(ctx):
+        e = discord.Embed(
+            title="Inventory:",
+            description="\n".join(
+                f"{item}: {amount}" for item, amount in islanders.get_data_for(ctx.author)["inventory"]["items"]
+            ),
+            color=0x71AFE5,
+        )
+        return await ctx.send(
+            embed=e
+        )
+
+    @classmethod
     def canMake(cls, ctx):
 
-        user_inv = islanders.get_data_for(ctx.author)["inventory"][
-            "items"
-        ]  # [["wood", 15],["stick", 10],["plantfiber", 20]]#
+        user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
 
         inv_items = {}
         for item, amount in user_inv:
@@ -173,32 +213,3 @@ def flatten(obj):
                 flattened.append(item)
 
     return flattened
-
-
-def sendEmbed(ctx, cr_type):
-    if cr_type == "inv":
-        d = Inventory.canMake(ctx=ctx)
-    elif cr_type == "craft":
-        d = Crafting.canMake(ctx=ctx)
-    elif cr_type == "smelt":
-        d = Smelting.canMake(ctx=ctx)
-    elif cr_type == "tool":
-        d = ToolSmith.canMake(ctx=ctx)
-    else:
-        raise TypeError
-
-    e = discord.Embed(
-        title="Craftables:",
-        description="\n\n".join(
-            [
-                (
-                    f"__**{key.upper()}**__:\n"
-                    + "\n".join([value.name.capitalize() for value in values])
-                )
-                for key, values in d.items()
-            ]
-        ),
-        color=0x71AFE5,
-    )
-
-    return (e, flatten(d))

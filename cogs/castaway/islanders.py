@@ -19,7 +19,7 @@ def get_data_for(member):
     data["islanders"][str(member.id)] = data["islanders"].get(
         str(member.id),
         {
-            "skills": {random.choice(list(Skills)): 3},
+            "skills": {random.choice(list(Skills)).value: 3},
             "activity": None,
             "inventory": {"slots": 8, "stack_size": 32, "items": []},
         },
@@ -28,8 +28,11 @@ def get_data_for(member):
 
 
 def write_data_for(member, data):
+    with open(f"data/{member.guild.id}.json") as data_file:
+        old = json.load(data_file)
+        old['islanders'][str(member.id)] = data
     with open(f"data/{member.guild.id}.json", "w") as data_file:
-        json.dump(data, data_file)
+        json.dump(old, data_file)
 
 
 def inventory_add(previous, item, amount):
@@ -45,7 +48,7 @@ def inventory_add(previous, item, amount):
     # }
     stack_size = previous["stack_size"]
     for slot, i in enumerate(previous["items"]):
-        if item.name == i:
+        if item.name == i[0]:
             amount_to_transfer = min(stack_size - i[1], amount)
             previous["items"][slot][1] = i[1] + amount_to_transfer
             amount = amount - amount_to_transfer
@@ -54,6 +57,6 @@ def inventory_add(previous, item, amount):
     else:
         while amount > 0 and len(previous["items"]) < previous["slots"]:
             amount_to_transfer = min(stack_size, amount)
-            previous["items"].append((item.name, amount_to_transfer))
+            previous["items"].append([item.name, amount_to_transfer])
             amount -= amount_to_transfer
     return previous
