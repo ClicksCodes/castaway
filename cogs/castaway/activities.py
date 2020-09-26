@@ -29,17 +29,32 @@ def _repeating_sample(population, k):
 
 
 activity_returns = (
-    ((world.Wood, world.PlantFiber, world.Leaves, world.Stick, world.Rock), 1024),  # collecting
-    ((world.Stick, world.PlantFiber, world.Leaves), 256),   # farming
-    ((world.Ore(), world.Ore(world.OreType.IRON), world.Ore(world.OreType.BRONZE), world.Rock, world.Rock, world.Rock), 512),  # mining
+    (
+        (world.Wood, world.PlantFiber, world.Leaves, world.Stick, world.Rock),
+        1024,
+    ),  # collecting
+    ((world.Stick, world.PlantFiber, world.Leaves), 256),  # farming
+    (
+        (
+            world.Ore(),
+            world.Ore(world.OreType.IRON),
+            world.Ore(world.OreType.BRONZE),
+            world.Rock,
+            world.Rock,
+            world.Rock,
+        ),
+        512,
+    ),  # mining
     None,
 )
 
 
 def calculate_returns_for(member, activity):
-    time = activity['start_time']
-    activity = activity['activity']
-    minutes = (datetime.datetime.now() - datetime.datetime.fromtimestamp(time)).seconds // 60
+    time = activity["start_time"]
+    activity = activity["activity"]
+    minutes = (
+        datetime.datetime.now() - datetime.datetime.fromtimestamp(time)
+    ).seconds // 60
     return _repeating_sample(
         list(((item, 1) for item in activity_returns[activity][0])),
         round((minutes * 256) / (minutes + activity_returns[activity][1])),
@@ -80,6 +95,7 @@ def activity(
     activity_type: Activities,
 ):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665
     """A decorator that marks a command as starting an activity"""  # We love decorators. : @mini maybe take in a number to determine how long it should take? -TCP : not quite how activites will work coded -3665 : ok -TCP
+
     def inner(func):
         async def predicate(
             _cog,
@@ -92,7 +108,11 @@ def activity(
             start_activity(ctx.author, activity_type)
 
             return True  # Truth. : Lies -TCP
-        return commands.before_invoke(predicate)(requires_game()(func))  # Predictable. : Assignable predictiality -TCP
+
+        return commands.before_invoke(predicate)(
+            requires_game()(func)
+        )  # Predictable. : Assignable predictiality -TCP
+
     return inner
 
 
@@ -111,6 +131,7 @@ def requires_game():
         return True
 
     return commands.check(predicate)
+
 
 def requires_no_game():
     """A decorator that requires no active game to pass"""

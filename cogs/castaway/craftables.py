@@ -166,6 +166,7 @@ class Rope(world.CraftedResource):
 
     name = "rope"
 
+
 class Stick(world.CraftedResource):
     recipe = {world.Wood: 3}
 
@@ -199,6 +200,7 @@ class ToolBench(world.CraftedResource):
     recipe = {Workbench: 1, smeltables.Bronze: 8}
 
     name = "tool bench"
+
 
 class Storage(world.CraftedResource):
     # recipe = {world.Wood: 25}
@@ -297,6 +299,7 @@ class Farm(world.CraftedResource):
 
     def __init__(self):
         pass
+
 
 """
 class Trap(world.CraftedResource):

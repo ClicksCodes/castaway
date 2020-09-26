@@ -5,12 +5,12 @@ from . import islanders
 from . import world
 import discord, copy
 
+
 class CanCraft:
     @classmethod
     def canMake(cls, ctx, suffix=False):
 
         user_inv = islanders.get_data_for(ctx.author)["inventory"]["items"]
-
 
         inv_items = {}
         for item, amount in user_inv:
@@ -26,7 +26,11 @@ class CanCraft:
 
                         break
 
-        return {k + f" (at {cls.location})": v for k, v in craftable.items()} if suffix else craftable
+        return (
+            {k + f" (at {cls.location})": v for k, v in craftable.items()}
+            if suffix
+            else craftable
+        )
 
     @classmethod
     def canMakeAll(cls, ctx, suffix=False):
@@ -37,7 +41,11 @@ class CanCraft:
         for item, amount in user_inv:
             inv_items[item] = inv_items.get(item, 0) + amount
 
-        return {k + f" (at {cls.location})": v for k, v in cls.menu.items()} if suffix else cls.menu
+        return (
+            {k + f" (at {cls.location})": v for k, v in cls.menu.items()}
+            if suffix
+            else cls.menu
+        )
 
 
 class Inventory(CanCraft):
@@ -60,19 +68,19 @@ class Inventory(CanCraft):
             builds = json.load(data_file)["structures"]
 
         d = dict(
-            cls.canMake(ctx=ctx), 
+            cls.canMake(ctx=ctx),
             **(Crafting.canMake(ctx=ctx, suffix=True) if "workbench" in builds else {}),
             **(Smelting.canMake(ctx=ctx, suffix=True) if "ore oven" in builds else {}),
-            **(ToolSmith.canMake(ctx=ctx, suffix=True) if "tool bench" in builds else {}),
+            **(
+                ToolSmith.canMake(ctx=ctx, suffix=True)
+                if "tool bench" in builds
+                else {}
+            ),
         )
 
         x = 0
 
-        e = discord.Embed(
-            title="Craftables:",
-            color=0x71AFE5
-        )
-
+        e = discord.Embed(title="Craftables:", color=0x71AFE5)
 
         for key, values in d.items():
             if not len(values):
@@ -80,11 +88,17 @@ class Inventory(CanCraft):
             desc = ""
             for value in values:
                 x += 1
-                rec = ", ".join([f"{v}x{k.name.capitalize()}" for k, v in value.recipe.items()])
+                rec = ", ".join(
+                    [f"{v}x{k.name.capitalize()}" for k, v in value.recipe.items()]
+                )
                 desc += f"[{x}] {value.name.capitalize()} - {rec}\n"
             e.add_field(name=key.upper(), value=desc)
 
-        e.description = "*You can't craft anything, collect some items first*" if not len(e.fields) else ""
+        e.description = (
+            "*You can't craft anything, collect some items first*"
+            if not len(e.fields)
+            else ""
+        )
 
         return (e, flatten(d))
 
@@ -100,20 +114,16 @@ class Inventory(CanCraft):
             d = ToolSmith.canMakeAll(ctx=ctx)
         else:
             d = dict(
-                cls.canMakeAll(ctx=ctx, suffix=True), 
-                **Crafting.canMakeAll(ctx=ctx, suffix=True), 
-                **Smelting.canMakeAll(ctx=ctx, suffix=True), 
-                **ToolSmith.canMakeAll(ctx=ctx, suffix=True)
+                cls.canMakeAll(ctx=ctx, suffix=True),
+                **Crafting.canMakeAll(ctx=ctx, suffix=True),
+                **Smelting.canMakeAll(ctx=ctx, suffix=True),
+                **ToolSmith.canMakeAll(ctx=ctx, suffix=True),
             )
 
         desc = ""
         x = 0
-        
-        e = discord.Embed(
-            title="All Craftables:",
-            color=0x71AFE5
-        )
 
+        e = discord.Embed(title="All Craftables:", color=0x71AFE5)
 
         for key, values in d.items():
             if not len(values):
@@ -121,7 +131,9 @@ class Inventory(CanCraft):
             desc = ""
             for value in values:
                 x += 1
-                rec = ", ".join([f"{v}x{k.name.capitalize()}" for k, v in value.recipe.items()])
+                rec = ", ".join(
+                    [f"{v}x{k.name.capitalize()}" for k, v in value.recipe.items()]
+                )
                 desc += f"[{x}] {value.name.capitalize()} - {rec}\n"
             e.add_field(name=key.upper(), value=desc)
 
@@ -132,13 +144,15 @@ class Inventory(CanCraft):
         e = discord.Embed(
             title="Inventory:",
             description="\n".join(
-                f"{item}: {amount}" for item, amount in islanders.get_data_for(ctx.author)["inventory"]["items"]
-            ) or "*No items*",
+                f"{item}: {amount}"
+                for item, amount in islanders.get_data_for(ctx.author)["inventory"][
+                    "items"
+                ]
+            )
+            or "*No items*",
             color=0x71AFE5,
         )
-        return await ctx.send(
-            embed=e
-        )
+        return await ctx.send(embed=e)
 
 
 class Crafting(CanCraft):
@@ -162,11 +176,11 @@ class Crafting(CanCraft):
             craftables.OreOven,
             craftables.ToolBench,
             craftables.Hut,
-            #craftables.Storage,
-            #craftables.LargeStorage,
+            # craftables.Storage,
+            # craftables.LargeStorage,
             craftables.Firepit,
             craftables.UpgradedHut,
-            craftables.Farm
+            craftables.Farm,
         ],
         "endgame": [craftables.Sail, craftables.Boat],
     }
@@ -205,7 +219,6 @@ class ToolSmith(CanCraft):
             craftables.IronScythe,
         ],
     }
-
 
 
 def flatten(obj):

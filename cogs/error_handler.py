@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+
 class Handler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,10 +18,14 @@ class Handler(commands.Cog):
         pass
 
     async def NoPrivateMessage(self, ctx, error):
-        await ctx.send("You can't run this command in DMs, it simply must be in a server")
+        await ctx.send(
+            "You can't run this command in DMs, it simply must be in a server"
+        )
 
     async def BadArgument(self, ctx, error):
-        await ctx.send("Those arguments don't seem quite right... check help and try again")
+        await ctx.send(
+            "Those arguments don't seem quite right... check help and try again"
+        )
 
     async def BadUnionArgument(self, *args, **kwargs):
         return await self.BadArgument(*args, **kwargs)
@@ -39,9 +44,13 @@ class Handler(commands.Cog):
 
     async def MaxConcurrencyReached(self, ctx, error):
         if error.per in [commands.BucketType.user, commands.BucketType.member]:
-            await ctx.send(f"You're already running this command {str(error.number) + ' time' if error.number != 1 else 'once'}")
+            await ctx.send(
+                f"You're already running this command {str(error.number) + ' time' if error.number != 1 else 'once'}"
+            )
         else:
-            await ctx.send(f"This command is already being run {str(error.number) + ' time' if error.number != 1 else 'once'} in this {error.per.name}")
+            await ctx.send(
+                f"This command is already being run {str(error.number) + ' time' if error.number != 1 else 'once'} in this {error.per.name}"
+            )
 
     async def NoGame(self, ctx, error):
         await ctx.send("There's not a game in this server")

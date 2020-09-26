@@ -85,16 +85,18 @@ class Sand(
     BasicResource
 ):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
     name = "sand"
-    
+
     def __init(self):  # light theme best : aint no way that's true -TCP
         self.stack_size = 10
         self.carriable = False
+
 
 class Stick(BasicResource):
     name = "stick"
 
     def __init__(self):
         self.gives = 2
+
 
 class PlantFiber(BasicResource):
     name = "plantfiber"
@@ -298,7 +300,7 @@ class World:
         size: tuple = (25, 25),
         rarity: dict = biome_rarity,
         passes: int = 4,
-        seed=0, # Someone is hijacking my comments with OwOs.
+        seed=0,  # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
         self.chunks = []  # Chunks of biomes, what flavour is it?
         self.seed = seed
@@ -399,7 +401,7 @@ class MiniWorld:
         size: tuple = (25, 25),
         rarity: dict = biome_rarity,
         biome_size: int = 3,
-        *_
+        *_,
     ):
         assert min(size) < 2  # The size must be at least (2, 2)
 
