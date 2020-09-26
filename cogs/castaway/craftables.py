@@ -196,7 +196,7 @@ class Workbench(world.CraftedResource):
 
 
 class ToolBench(world.CraftedResource):
-    # recipe = {Workbench: 1, smeltables.Bronze: 8}
+    recipe = {Workbench: 1, smeltables.Bronze: 8}
 
     name = "tool bench"
 

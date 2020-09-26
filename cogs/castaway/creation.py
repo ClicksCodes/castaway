@@ -56,21 +56,15 @@ class Inventory(CanCraft):
 
     @classmethod
     def sendCraftables(cls, ctx, cr_type):
-        if cr_type == "inv":
-            d = cls.canMake(ctx=ctx)
-        elif cr_type == "craft":
-            d = Crafting.canMake(ctx=ctx)
-        elif cr_type == "smelt":
-            d = Smelting.canMake(ctx=ctx)
-        elif cr_type == "tool":
-            d = ToolSmith.canMake(ctx=ctx)
-        else:
-            d = dict(
-                cls.canMake(ctx=ctx, suffix=True), 
-                **Crafting.canMake(ctx=ctx, suffix=True), 
-                **Smelting.canMake(ctx=ctx, suffix=True), 
-                **ToolSmith.canMake(ctx=ctx, suffix=True)
-            )
+        with open(f"data/{ctx.guild.id}.json") as data_file:
+            builds = json.load(data_file)["structures"]
+
+        d = dict(
+            cls.canMake(ctx=ctx), 
+            **(Crafting.canMake(ctx=ctx, suffix=True) if "workbench" in builds else {}),
+            **(Smelting.canMake(ctx=ctx, suffix=True) if "ore oven" in builds else {}),
+            **(ToolSmith.canMake(ctx=ctx, suffix=True) if "tool bench" in builds else {}),
+        )
 
         x = 0
 
@@ -166,10 +160,10 @@ class Crafting(CanCraft):
         "buildings": [
             craftables.Workbench,
             craftables.OreOven,
-            #craftables.ToolBench,
+            craftables.ToolBench,
             craftables.Hut,
-            craftables.Storage,
-            craftables.LargeStorage,
+            #craftables.Storage,
+            #craftables.LargeStorage,
             craftables.Firepit,
             craftables.UpgradedHut,
             craftables.Farm

@@ -16,6 +16,21 @@ class Handler(commands.Cog):
     async def CommandNotFound(_ctx, _error):
         pass
 
+    async def NoPrivateMessage(self, ctx, error):
+        await ctx.send("You can't run this command in DMs, it simply must be in a server")
+
+    async def BadArgument(self, ctx, error):
+        await ctx.send("Those arguments don't seem quite right... check help and try again")
+
+    async def BadUnionArgument(self, *args, **kwargs):
+        return await self.BadArgument(*args, **kwargs)
+
+    async def MissingRequiredArgument(self, *args, **kwargs):
+        return await self.BadArgument(*args, **kwargs)
+
+    async def TooManyArguments(self, *args, **kwargs):
+        return await self.BadArgument(*args, **kwargs)
+
     async def GameExists(self, ctx, error):
         await ctx.send("There's already a game going on in this server")
 
@@ -32,7 +47,7 @@ class Handler(commands.Cog):
         await ctx.send("There's not a game in this server")
 
     async def NoData(self, *args, **kwargs):
-        self.NoGame()
+        return await self.NoGame(*args, **kwargs)
 
 
 def setup(bot):

@@ -31,7 +31,7 @@ def _repeating_sample(population, k):
 activity_returns = (
     ((world.Wood, world.PlantFiber, world.Leaves, world.Stick, world.Rock), 1024),  # collecting
     ((world.Stick, world.PlantFiber, world.Leaves), 256),   # farming
-    ((world.Ore(), world.Ore(world.OreType.IRON), world.Rock, world.Rock, world.Rock), 512),  # mining
+    ((world.Ore(), world.Ore(world.OreType.IRON), world.Ore(world.OreType.BRONZE), world.Rock, world.Rock, world.Rock), 512),  # mining
     None,
 )
 

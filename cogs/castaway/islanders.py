@@ -13,16 +13,8 @@ class Skills(enum.Enum):
 
 class Server:
     def __init__(self, guild):
-        self.guild_id = guild
-        self.inventory = []
-        old = {}
-        old['islanders']['server'] = self.inventory
-        with open(f"data/{self.guild_id}.json", "w") as data_file:
-            json.dump(old, data_file)
-
-
-
-
+        self.guild = guild
+        self.id = "system"
 
 def get_data_for(member):
     with open(f"data/{member.guild.id}.json") as data_file:
@@ -46,6 +38,15 @@ def write_data_for(member, data):
     with open(f"data/{member.guild.id}.json", "w") as data_file:
         json.dump(old, data_file)
 
+def server_inventory_add(previous, item, amount):
+    for slot, i in enumerate(previous["items"]):
+        if item.name == i[0]:
+            previous["items"][slot][1] = i[1] + amount
+            break
+    else:
+        previous["items"].append([item.name, amount])
+
+    return previous, True
 
 def inventory_add(previous, item, amount):
     # "inventory": {
@@ -101,6 +102,6 @@ def inventory_remove(previous, item, amount):
     new = []
     for item, count in previous["items"]:
         if count > 0:
-            new.append((item, count))
+            new.append([item, count])
     previous["items"] = new
     return previous, success

@@ -1,1 +1,1 @@
-{"active": true, "islanders": {"317731855317336067": {"skills": {"2": 3}, "activity": {"start_time": 1601150214.164797, "activity": 0}, "inventory": {"slots": 8, "stack_size": 32, "items": [["stick", 32], ["leaves", 32], ["plantfiber", 32], ["rock", 32], ["farm", 27], ["wood", 11], ["plantfiber", 15], ["stick", 12]]}}}, "worldData": {"mapsize": [50, 50], "passes": 4, "seed": 314247908505860}, "structures": ["farm", "farm", "farm"]}
+{"active": true, "islanders": {}, "worldData": {"mapsize": [50, 50], "passes": 4, "seed": 683089750458223}, "structures": []}

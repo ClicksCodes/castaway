@@ -9,7 +9,13 @@ import discord, math, time, humanize, datetime, json, io
 from PIL import Image, ImageDraw
 import numpy as np
 import random
+from jishaku import paginators
+import typing
+import os
 
+class FakeItemTM:
+    def __init__(self, name):
+        self.name = name
 
 def farms_built():
     def predicate(ctx):
@@ -68,6 +74,58 @@ class Castaway(commands.Cog):
 
         return im, curMap
 
+    @commands.command()
+    @activities.requires_game()
+    async def buildings(self, ctx):
+        build_types = {}
+        with open(f"data/{ctx.guild.id}.json") as data_file:
+            builds = json.load(data_file)["structures"]
+        for item in builds:
+            build_types[item] = build_types.get(item, 0) + 1
+        await ctx.send("**You have built**:\n" + ('\n'.join(f"{build}: {amount}" for build, amount in build_types.items()) or '*Nothing. Like the amount of sleep I got tonight (last night of pyweek).*'))
+
+    @commands.command()
+    async def tutorial(self, ctx):
+        pages = paginators.PaginatorEmbedInterface(ctx.bot, commands.Paginator(prefix="", suffix="", max_size=1991))
+        await pages.add_line("**TUTORIAL**\nWelcome to Castaway! Your goal is to escape the island by collecting resources and crafting items to escape. Here, you can find the essential commands for island survival.")
+        await pages.add_line(
+            f"**BASIC COMMANDS**\nHere is the list of simple and useful commands you will need\n"
+            f"`@{ctx.bot.user.name}inventory` - Shows the items in your inventory\n"
+            f"`@{ctx.bot.user.name}map` - Shows a map of your island\n"
+            f"`@{ctx.bot.user.name}store` - Shows the items in the shared storage\n"
+            f"`@{ctx.bot.user.name}store add {{amount}} {{item}}` - Adds an item to the storage\n"
+            f"`@{ctx.bot.user.name}store take {{amount}} {{item}}` - Takes some items from storage\n"
+        )
+        await pages.add_line(
+            f"**CRAFTING**\nTo unlock new items you'll need to craft. *Please note, some items need buildings to be placed in order to craft*\n"
+            f"`@{ctx.bot.user.name}craft` - Craft up some items\n"
+            f"`@{ctx.bot.user.name}craft list` - Show a list of all possible items that you can craft (warning: it's long)\n"
+        )
+        await pages.add_line(
+            f"**COLLECTING**\nTo get enough resources to craft, you'll need to collect items. **These commands are meant to be run while idling. You will not instantly get items, please wait a few minutes before trying to put the items you've collected into your inventory**\n"
+            f"`@{ctx.bot.user.name}collect` - Collect some items that you find lying around your island. You must run `collect` again to put the items into your inventory\n"
+            f"`@{ctx.bot.user.name}mine` - Mine some ores from some caves on the island. You must run `mine` again to put the items into your inventory\n"
+        )
+        await pages.add_line(
+            f"**FARMING**\nFarming is a much quicker way to get plant-based items such as fiber and leaves\n"
+            f"`@{ctx.bot.user.name}farm` - Begin farming. You must have a farm to do so\n"
+            f"`@{ctx.bot.user.name}build` - Build a building, such as a farm or a workbench. You must have one in your inventory. Please refer to the crafting section to obtain these\n"
+        )
+        await pages.add_line(
+            f"**BUILDING**\nSome tasks, such as crafting special items or farming need buildings. You can craft buildings before placing them\n"
+            f"`@{ctx.bot.user.name}craft` - Craft the buildings before placing them\n"
+            f"`@{ctx.bot.user.name}build` - Build a building, such as a farm or a workbench. You must have one in your inventory. Please refer to the crafting section to obtain these\n"
+        )
+        await pages.add_line(
+            f"**OTHER**\nThere's a few things we haven't mentioned\n"
+            f"`@{ctx.bot.user.name}play` - Start a game. You will need manage server to do this\n"
+            f"`@{ctx.bot.user.name}quit` - Quit a game without finishing. You will need administrator to do this\n"
+            f"`@{ctx.bot.user.name}win` - Use resources in server storage to build a boat and win\n"
+            f"In addition, please note that player inventories are limited to 8 slots of 32 items each. You won't be able to get any more when your inventory is full"
+        )
+        await pages.send_to(ctx)
+
+
     @commands.command(
         aliases=["start", "begin", "s"]
     )  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
@@ -113,10 +171,17 @@ class Castaway(commands.Cog):
         )
         buf.close()
     
-    @commands.command()
+    @commands.command(aliases=["kill", "exit"])
     @commands.has_permissions(administrator=True)
+    @activities.requires_game()
     async def quit(self, ctx):
-        pass
+        await ctx.send(f"{ctx.author.mention}, if you are **certain** you want to leave the island and end the game please type `yes I am sure` as your next message")
+        response = (await ctx.bot.wait_for("message", check = lambda message: message.channel == ctx.channel and message.author == ctx.author)).content
+        if response.lower() == "yes i am sure":
+            os.remove(f"data/{ctx.guild.id}.json")
+            return await ctx.send(f"Goodbye world :wave:")
+        else:
+            await ctx.send("Cancelled deleting the game")
 
     @commands.command(name="map")
     @activities.requires_game()
@@ -156,6 +221,7 @@ You'll need them...
         ))
 
     @commands.command(aliases=["current", "currently"])
+    @activities.requires_game()
     async def activity(self, ctx):
         activity = islanders.get_data_for(ctx.author)["activity"]
         if activity is None:
@@ -170,11 +236,12 @@ You'll need them...
             footer=f"{ctx.author}"
         ))
 
-    @commands.command(aliases=["ex", "expl"])
-    async def explore(self, ctx):
-        """This command will make you look around and finding place on the map."""  # No shit shelock, I dont think im gonna play with my eyes closed.
+#    @commands.command(aliases=["ex", "expl"])
+#    async def explore(self, ctx):
+#        """This command will make you look around and finding place on the map."""  # No shit shelock, I dont think im gonna play with my eyes closed.
 
     @commands.command(aliases=["bl", "b"])
+    @activities.requires_game()
     @commands.max_concurrency(1, per=commands.BucketType.member, wait=False)
     async def build(self, ctx):
         """This command will let you build some structures around the map."""
@@ -246,32 +313,36 @@ Similar to collecting but faster
         ))
 
 
-    @commands.group(aliases=["mine"])
-    async def mines(self, ctx):
-        """This command will let you manage your mining."""
+    @commands.command(aliases=["m", "mi"])
+    @activities.activity(activities.Activities.MINING)
+    async def mine(self, ctx):
+        """Start mining some ores
 
-    @mines.command(name="mine", aliases=["m", "mi"])
-    async def mines_mine(self, ctx, mineid: int = None):
-        """This command will make you mine some ores, requires a tool."""
-
-    @mines.command(name="transport", aliases=["tr", "t"])
-    async def mines_transport(self, ctx, mineid: int = None):
-        """This command will make you able to transport resources from mine to an area on a map, which can be sped up with a minecart."""
+No diamond ore in sight though- perhaps it's because we're not at y=12...
+        """  # Minecraft.
+        await ctx.send(embed=discord.Embed(
+            title=f"You started collecting",
+            description=f"Run `mine` again later to store items, as you'll get slower over time.",
+            footer=f"{ctx.author}"
+        ))
 
     """inventory commands"""
 
     @commands.group(aliases=["inv"], invoke_without_command=True)
+    @activities.requires_game()
     async def inventory(self, ctx):
         """This command will open your inventory."""
         await creation.Inventory.send(ctx=ctx)
 
     @inventory.group(name="craft", invoke_without_command=True)
+    @activities.requires_game()
     @commands.max_concurrency(1, per=commands.BucketType.member, wait=False)
     async def craft(self, ctx):
         data = creation.Inventory.sendCraftables(ctx=ctx, cr_type="inv")
         await ctx.send(embed=data[0])
 
-        print(data[1])
+        if not len(data[1]) :
+            return
 
         def check(msg):
             try:
@@ -289,7 +360,7 @@ Similar to collecting but faster
 
         player_data["inventory"], success = islanders.inventory_add(player_data["inventory"], data[1][int(msg.content)-1], 1)
         if not success:
-            return await ctx.send("You don't have enough inventory space to fit the crafted item. Trash something first...")
+            return await ctx.send(f"You don't have enough inventory space to fit the crafted item. Put something in storage first (see `@{ctx.bot.user.name} store`)...")
         islanders.write_data_for(ctx.author, player_data)
 
 
@@ -306,6 +377,7 @@ Similar to collecting but faster
         await ctx.send(embed=data[0])
 
     @commands.command(name="craft", aliases=["cr"])
+    @activities.requires_game()
     async def _craft(self, ctx):
         await self.craft.invoke(ctx)
 
@@ -317,13 +389,73 @@ Similar to collecting but faster
 
     #     await ctx.send(embed=embed)
 
-    @commands.group(name="storage", invoke_without_command=True)
-    async def storage(self, ctx):
-        pass
+    @commands.group(aliases=["storage", "shared", "server"], invoke_without_command=True)
+    @activities.requires_game()
+    async def store(self, ctx):
+        data = islanders.get_data_for(islanders.Server(ctx.guild))["inventory"]["items"]
+        pages = commands.Paginator(prefix="**Shared Storage:**", suffix="")
+        if not data:
+            pages.add_line("*No items (use `store add` to store some)*")
+        for item, amount in data:
+            pages.add_line(f"{item}: {amount}")
+        for page in pages.pages:
+            await ctx.send(page)
 
-    #@store.command()
-    #async def store(self, ctx):
-    #    pass
+    @commands.command(aliases=["🐐"], hidden=True)  # Hello :). I'm writing this on the last night of the competition. I think we've got most of the bugs ironed out ~~now we've only got to add the core features and we'll be done~~ -3665
+    @activities.requires_game()
+    async def goat(self, ctx):
+        data = islanders.get_data_for(ctx.author)
+
+        data["inventory"], success = islanders.inventory_add(data["inventory"], FakeItemTM("🐐"), 1)
+        if not success:
+            return await ctx.send(":goat:")
+        islanders.write_data_for(ctx.author, data)
+
+    @store.command(aliases=["+", "store", "give"])
+    @activities.requires_game()
+    async def add(self, ctx, amount: int, *, item):
+        s_data = islanders.get_data_for(islanders.Server(ctx.guild))
+        p_data = islanders.get_data_for(ctx.author)
+        s_data["inventory"], _ = islanders.server_inventory_add(s_data["inventory"], FakeItemTM(item), amount)
+        p_data["inventory"], success = islanders.inventory_remove(p_data["inventory"], FakeItemTM(item), amount)
+        if not success:
+            return await ctx.send("You don't have the stuff you're trying to store")
+        islanders.write_data_for(islanders.Server(ctx.guild), s_data)
+        islanders.write_data_for(ctx.author, p_data)
+        await ctx.send("Successfully stored items in the shared bank")
+
+    @store.command(aliases=["-", "get", "unstore", "take"])
+    async def remove(self, ctx, amount: int, *, item):
+        s_data = islanders.get_data_for(islanders.Server(ctx.guild))
+        p_data = islanders.get_data_for(ctx.author)
+        p_data["inventory"], space_success = islanders.inventory_add(p_data["inventory"], FakeItemTM(item), amount)
+        s_data["inventory"], success = islanders.inventory_remove(s_data["inventory"], FakeItemTM(item), amount)
+        if not success:
+            return await ctx.send("The server doesn't have that stuff")
+        if not space_success:
+            return await ctx.send("You don't have enough inventory space to take that stuff- try depositing some items first")
+        islanders.write_data_for(ctx.author, p_data)
+        islanders.write_data_for(islanders.Server(ctx.guild), s_data)
+        await ctx.send("Successfully took items from the shared bank")
+
+    @commands.command(aliases=["win"])
+    @activities.requires_game()
+    async def sail(self, ctx):
+        """Build a boat and sail away"""
+        s_data = islanders.get_data_for(islanders.Server(ctx.guild))
+        s_data["inventory"], success1 = islanders.inventory_remove(s_data["inventory"], craftables.BundledLogs, 250)
+        s_data["inventory"], success2 = islanders.inventory_remove(s_data["inventory"], world.Wood, 250)
+        s_data["inventory"], success3 = islanders.inventory_remove(s_data["inventory"], craftables.Sail, 5)
+        s_data["inventory"], success4 = islanders.inventory_remove(s_data["inventory"], smeltables.Iron, 250)
+        if all([success1, success2, success3, success4]):
+            with open(f"data/{ctx.guild.id}.json") as data_file:
+                d = json.load(data_file)
+            d["active"] = False
+            with open(f"data/{ctx.guild.id}.json", "w") as data_file:
+                json.dump(d, data_file)
+            await ctx.send(f"You craft a giant *goat* ||somehow I managed to spell that as *b*oat the whole time... not sure quite how? -3665|| which leaps off into the sunset carring your entire server off the island with it")
+            await ctx.send(f":tada: **YOU AND {len(d['islanders']) - 2} OTHER ISLANDERS HAVE BEAT CASTAWAY!!!** :tada: It took you guys {humanize.naturaldelta(datetime.datetime.now() - datetime.datetime.fromtimestamp(d['start_time']))}. We really hope you enjoyed playing :thumbsup:")
+
 
 
 def setup(bot):
