@@ -1,4 +1,4 @@
 venv/
 pythonenv3.8/
-*DELETETHISDONOTPUSHWITHOUTDELETINGTHIS.json
+*.json
 __pycache__/
