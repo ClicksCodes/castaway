@@ -74,6 +74,8 @@ class CopperPickaxe(world.CraftedResource):
 class CopperShovel(world.CraftedResource):
     recipe = {smeltables.Copper: 1, world.Stick: 2}
 
+    name = "copper shovel"
+
     def __init__(self):
         self.durability = 50
 
@@ -81,12 +83,16 @@ class CopperShovel(world.CraftedResource):
 class CopperHoe(world.CraftedResource):
     recipe = {smeltables.Copper: 2, world.Stick: 2}
 
+    name = "copper hoe"
+
     def __init__(self):
         self.durability = 50
 
 
 class CopperScythe(world.CraftedResource):
     recipe = {smeltables.Copper: 1, world.Stick: 3}
+
+    name = "copper scythe"
 
     def __init__(self):
         self.durability = 50
@@ -98,12 +104,16 @@ class CopperScythe(world.CraftedResource):
 class IronAxe(world.CraftedResource):
     recipe = {smeltables.Iron: 3, world.Stick: 2}
 
+    name = "iron axe"
+
     def __init__(self):
         self.durability = 100
 
 
 class IronPickaxe(world.CraftedResource):
     recipe = {smeltables.Iron: 3, world.Stick: 2}
+
+    name = "iron pickaxe"
 
     def __init__(self):
         self.durability = 100
@@ -112,6 +122,8 @@ class IronPickaxe(world.CraftedResource):
 class IronShovel(world.CraftedResource):
     recipe = {smeltables.Iron: 1, world.Stick: 2}
 
+    name = "iron shovel"
+
     def __init__(self):
         self.durability = 100
 
@@ -119,12 +131,16 @@ class IronShovel(world.CraftedResource):
 class IronHoe(world.CraftedResource):
     recipe = {smeltables.Iron: 2, world.Stick: 2}
 
+    name = "iron hoe"
+
     def __init__(self):
         self.durability = 100
 
 
 class IronScythe(world.CraftedResource):
     recipe = {smeltables.Iron: 1, world.Stick: 3}
+
+    name = "iron scythe"
 
     def __init__(self):
         self.durability = 100
@@ -149,6 +165,11 @@ class Rope(world.CraftedResource):
     recipe = {String: 25}
 
     name = "rope"
+
+class Stick(world.CraftedResource):
+    recipe = {world.Wood: 3}
+
+    name = "stick"
 
 
 """End Game resources"""
@@ -175,25 +196,34 @@ class Workbench(world.CraftedResource):
 
 
 class ToolBench(world.CraftedResource):
-    recipe = {Workbench: 1, smeltables.Bronze: 8}
+    # recipe = {Workbench: 1, smeltables.Bronze: 8}
 
+    name = "tool bench"
 
 class Storage(world.CraftedResource):
-    recipe = {world.Wood: 25}
+    # recipe = {world.Wood: 25}
+
+    name = "storage chest"
 
     def __init__(self):
         pass
 
 
 class LargeStorage(world.CraftedResource):
-    recipe = {BundledLogs: 25, smeltables.Copper: 10}
+    # recipe = {BundledLogs: 25, smeltables.Copper: 10}
+
+    name = "large storage chest"
 
     def __init__(self):
         pass
 
 
 class OreOven(world.CraftedResource):
+
+    buildable = True
     recipe = {world.Rock: 20}
+
+    name = "ore oven"
 
     def __init__(self):
         pass
@@ -211,6 +241,10 @@ class WaterPurifier(world.CraftedResource):
 class Hut(world.CraftedResource):
     recipe = {world.Wood: 25, Rope: 10, world.Leaves: 10, BundledLogs: 5, Storage: 1}
 
+    buildable = True
+
+    name = "hut"
+
     def __init__(self):
         pass
 
@@ -224,12 +258,18 @@ class UpgradedHut(world.CraftedResource):
         LargeStorage: 1,
     }
 
+    buildable = True
+
+    name = "better hut:tm:"
+
     def __init__(self):
         pass
 
 
 class Firepit(world.CraftedResource):
     recipe = {world.Wood: 10, BundledLogs: 3, world.Leaves: 5}
+
+    buildable = True
 
     name = "fire pit"
 
@@ -240,18 +280,25 @@ class Firepit(world.CraftedResource):
 class Boat(world.CraftedResource):
     recipe = {BundledLogs: 250, world.Wood: 250, Sail: 5, smeltables.Iron: 50}
 
+    buildable = True
+
+    name = "enormous boat"
+
     def __init__(self):
         pass
 
+
+class Farm(world.CraftedResource):
+    recipe = {world.Leaves: 25, world.Wood: 25, BundledLogs: 10}
+
+    buildable = True
+
+    name = "farm"
+
+    def __init__(self):
+        pass
 
 """
-class Farm(world.CraftedResource):
-    recipe = {world.Leaves: 25, world.Wood: 25, BundledLogs: 10, String: 25}
-
-    def __init__(self):
-        pass
-
-
 class Trap(world.CraftedResource):
     recipe = {world.Leaves: 25, world.Wood: 10, String: 25}
 

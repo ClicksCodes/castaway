@@ -84,18 +84,17 @@ class Rock(BasicResource):  # He used to be a lonely guy, not anymore.
 class Sand(
     BasicResource
 ):  # Minion is not as good as you might think; he uses light theme EVERYWHERE and no one likes it. Yikes. : I like it so shut
+    name = "sand"
+    
     def __init(self):  # light theme best : aint no way that's true -TCP
         self.stack_size = 10
         self.carriable = False
 
-
 class Stick(BasicResource):
-
     name = "stick"
 
     def __init__(self):
-        self.gives = 1
-
+        self.gives = 2
 
 class PlantFiber(BasicResource):
     name = "plantfiber"
@@ -120,6 +119,7 @@ class Ore(BasicResource):
         self.stack_size = 5
         self.carriable = True
         self.ore_type = oretype
+        self.name = f"{oretype.name.lower()} ore"
 
 
 """Collectables"""
@@ -285,7 +285,7 @@ class Biome:  # Day 2: we have a generator.
 biome_rarity = {
     "OCEAN": 0,
     "JUNGLE": 10,  # Lovely jungle.
-    "CLIFF": 5,  # cant write what i was gonna write.
+    "CLIFF": 5,
     "LAKE": 2,  # ohno. owo
     "SAND": 9,
     "GRASS": 5,
@@ -297,9 +297,12 @@ class World:
         self,
         size: tuple = (25, 25),
         rarity: dict = biome_rarity,
-        passes: int = 4,  # Someone is hijacking my comments with OwOs.
+        passes: int = 4,
+        seed=0, # Someone is hijacking my comments with OwOs.
     ):  # i love minecraft, or <redacted>.
         self.chunks = []  # Chunks of biomes, what flavour is it?
+        self.seed = seed
+        random.seed(a=self.seed, version=2)
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []  # Chunks of meat.
             for h in range(size[1]):  # No clue what is happening here.

@@ -15,7 +15,7 @@ class Activities(enum.Enum):
     """All the activies that players can do"""  # Activities. yes.
     COLLECTING = 0  # Collectin' stuff.
     FARMING = 1  # Farmin' stuff.
-    # FARM_WATCHING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
+    MINING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
     # FETCHING_WATER = 3  # Fetch some watur.
 
 
@@ -29,9 +29,9 @@ def _repeating_sample(population, k):
 
 
 activity_returns = (
-    ((world.Wood, world.PlantFiber, world.Leaves), 1024),
-    ((world.Wood, world.PlantFiber, world.Leaves), 256),
-    None,
+    ((world.Wood, world.PlantFiber, world.Leaves, world.Stick, world.Rock), 1024),  # collecting
+    ((world.Stick, world.PlantFiber, world.Leaves), 256),   # farming
+    ((world.Ore(), world.Ore(world.OreType.IRON), world.Rock, world.Rock, world.Rock), 512),  # mining
     None,
 )
 
@@ -50,16 +50,20 @@ def get_activity(member):
     return islanders.get_data_for(member)["activity"]
 
 
-def stop_activity(member):
+async def stop_activity(ctx, member):
     data = islanders.get_data_for(member)
     activity = data["activity"]
     if activity is None:
         return
     returns = calculate_returns_for(member, activity)
     for item in returns:
-        data["inventory"] = islanders.inventory_add(data["inventory"], *item)
+        data["inventory"], success = islanders.inventory_add(data["inventory"], *item)
     data["activity"] = None
     islanders.write_data_for(member, data)
+    await ctx.send(
+        f"You've taken a break from {Activities(activity['activity']).name.lower()} to put the "
+        f"{len(returns)} item{'s' if len(returns) != 1 else ''} you got into your inventory"
+    )
 
 
 def start_activity(member, activity):
@@ -83,7 +87,7 @@ def activity(
         ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
 
             if get_activity(ctx.author) is not None:
-                stop_activity(ctx.author)
+                await stop_activity(ctx, ctx.author)
 
             start_activity(ctx.author, activity_type)
 
@@ -114,7 +118,7 @@ def requires_no_game():
     async def predicate(ctx):
         try:
             await requires_game().predicate(ctx)
-            return False
+            raise errors.GameExists("There is already a game in {ctx.guild.id}")
         except (errors.NoGame, errors.NoData):
             return True
 
