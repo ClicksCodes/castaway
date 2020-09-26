@@ -12,10 +12,12 @@ class NoData(NoGame):
 
     pass  # Ill continue writing comments tomorrow.
 
+
 class GameExists(commands.CheckFailure):
     """There is already an active game in the current guild"""
 
     pass  # No you won't -3665
+
 
 class NoFarmsBuilt(commands.CheckFailure):
     """No farm is in the server"""

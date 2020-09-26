@@ -11,10 +11,12 @@ class Skills(enum.Enum):
     SCAVENGING = 4  # Slave's work.
     FISHING = 5  # Sponge bob remembered that.
 
+
 class Server:
     def __init__(self, guild):
         self.guild = guild
         self.id = "system"
+
 
 def get_data_for(member):
     with open(f"data/{member.guild.id}.json") as data_file:
@@ -34,9 +36,10 @@ def get_data_for(member):
 def write_data_for(member, data):
     with open(f"data/{member.guild.id}.json") as data_file:
         old = json.load(data_file)
-        old['islanders'][str(member.id)] = data
+        old["islanders"][str(member.id)] = data
     with open(f"data/{member.guild.id}.json", "w") as data_file:
         json.dump(old, data_file)
+
 
 def server_inventory_add(previous, item, amount):
     for slot, i in enumerate(previous["items"]):
@@ -47,6 +50,7 @@ def server_inventory_add(previous, item, amount):
         previous["items"].append([item.name, amount])
 
     return previous, True
+
 
 def inventory_add(previous, item, amount):
     # "inventory": {
@@ -76,6 +80,7 @@ def inventory_add(previous, item, amount):
         if amount > 0:
             success = False
     return previous, success
+
 
 def inventory_remove(previous, item, amount):
     # "inventory": {

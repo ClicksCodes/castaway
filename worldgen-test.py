@@ -15,12 +15,12 @@ def generateMap(mapsize=(50, 50), passes=None):
         return tuple(int(value[i : i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
     colors = {
-        "OCEAN":   hex_to_rgb("71AFE5"),
-        "JUNGLE":  hex_to_rgb("60B358"),
-        "CLIFF":   hex_to_rgb("545454"),
-        "LAKE":    hex_to_rgb("78ECF2"),
-        "SAND":    hex_to_rgb("E6DC71"),
-        "GRASS":   hex_to_rgb("A1CC65"),
+        "OCEAN": hex_to_rgb("71AFE5"),
+        "JUNGLE": hex_to_rgb("60B358"),
+        "CLIFF": hex_to_rgb("545454"),
+        "LAKE": hex_to_rgb("78ECF2"),
+        "SAND": hex_to_rgb("E6DC71"),
+        "GRASS": hex_to_rgb("A1CC65"),
         "UNKNOWN": hex_to_rgb("000000"),
     }
 
