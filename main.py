@@ -3,8 +3,9 @@ from discord.ext import commands
 import config
 import traceback
 from jishaku import help_command
+import custom_context
 
-bot = commands.Bot(
+bot = custom_context.Bot(
     command_prefix=commands.when_mentioned_or(*config.prefixes),
     allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False),
     status=discord.Status.dnd,

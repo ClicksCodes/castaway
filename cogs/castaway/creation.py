@@ -172,10 +172,11 @@ class Crafting(CanCraft):
             craftables.LargeStorage,
             craftables.Firepit,
             craftables.UpgradedHut,
+            craftables.Farm
         ],
         "endgame": [craftables.Sail, craftables.Boat],
     }
-    
+
 
 class Smelting(CanCraft):
     location = "an ore oven"

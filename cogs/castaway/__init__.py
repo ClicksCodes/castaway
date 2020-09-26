@@ -182,30 +182,41 @@ You'll need them...
 
         buildings = ""
         possible = []
-        n = 1
+        n = 0
+
         for item in creation.flatten(creation.Crafting.menu):
-            if item in data["inventory"]["items"]:
-                possible.append(item.name)
-                buildings += f"\n[{n}] {item}"
+            if item.name in [item[0] for item in data["inventory"]["items"]]:
+                possible.append(item)
                 n += 1
+                buildings += f"\n[{n}] {item.name}"
+        
+        def check(msg):
+            try:
+                return (ctx.author == msg.author) and (0 < int(msg.content) <= n)
+            except: 
+                return False
         
         await ctx.send(embed=discord.Embed(
             title="Placeable buildings",
             description=buildings or "*You do not have any buildings in your inventory*"
         ))
 
-        if n == 1: return
+        if n == 0: return
 
-        msg = ctx.bot.wait_for("message", check = lambda msg : msg.author == ctx.author)
-        try: ctnt = int(msg.message.content)
-        except: return
+        msg = await ctx.bot.wait_for("message", check=check)
+        ctnt = int(msg.content)  # content - pinea
 
-        if 0 < ctnt < n:
+        if 0 < ctnt <= n:
+            data["inventory"], success = islanders.inventory_remove(data["inventory"], possible[ctnt-1], 1)  # content - pinea
+            if not success:
+                raise OutOfItemsError(f"You don't have enough {possible[ctnt-1].name} to build this")  # ctnt, you mean <redacted>? -3665 : no, it stands for content -pinea
             with open(f"data/{ctx.guild.id}.json") as data_file:
                 d = json.load(data_file)
-            d["structures"].append(possible[ctnt-1].value)
+            d["structures"].append(possible[ctnt-1].name)  # content - pinea
             with open(f"data/{ctx.guild.id}.json", "w") as data_file:
                 json.dump(d, data_file)
+            islanders.write_data_for(ctx.author, data)
+            await ctx.send(f"You built a {possible[ctnt-1].name}")  # content - pinea
 
 
     # @commands.group(aliases=["farms", "f"], invoke_without_command=True)  # Farmin Simulatur
