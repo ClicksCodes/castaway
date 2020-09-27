@@ -26,22 +26,23 @@ def generateMap(mapsize=(50, 50), passes=None):
 
     if passes == None:
         passes = int((math.sqrt(min((mapsize[0], mapsize[1])))) - 1)
-    game = world.World(mapsize, passes=passes)
+    game = world.World(mapsize, passes=passes, seed=69420)
 
     curMap = []
 
     for chunkRow in game.chunks:
         curRow = []
         for chunk in chunkRow:
-            if chunk.discovered == False and chunk.name == "OCEAN":
-                curRow.append(colors[chunk.name])
-            else:
-                curRow.append(colors["UNKNOWN"])
+            # if chunk.discovered == False and chunk.name == "OCEAN":
+            #     curRow.append(colors[chunk.name])
+            # else:
+            #     curRow.append(colors["UNKNOWN"])
+            curRow.append(colors[chunk.name])
         curMap.append(curRow)
 
     im = Image.fromarray(np.uint8(curMap), mode="RGB")
     im = im.resize(dimensions, 4)  # 0 4
-    im.save(f"{time.time()}.png")
+    im.show()
 
 
 generateMap(mapsize=(50, 50))

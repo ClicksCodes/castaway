@@ -15,7 +15,7 @@ class Activities(enum.Enum):
     """All the activies that players can do"""  # Activities. yes.
     COLLECTING = 0  # Collectin' stuff.
     FARMING = 1  # Farmin' stuff.
-    # FARM_WATCHING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
+    MINING = 2  # Fact: This code is 20% code and 80% comments. I'm Lovin' it.
     # FETCHING_WATER = 3  # Fetch some watur.
 
 
@@ -29,18 +29,34 @@ def _repeating_sample(population, k):
 
 
 activity_returns = (
-    ((world.Wood, world.PlantFiber, world.Leaves), 1024),
-    ((world.Wood, world.PlantFiber, world.Leaves), 256),
-    None,
+    (
+        (world.Wood, world.PlantFiber, world.Leaves, world.Stick, world.Rock),
+        1024,
+    ),  # collecting
+    ((world.Stick, world.PlantFiber, world.Leaves), 256),  # farming
+    (
+        (
+            world.Ore(),
+            world.Ore(world.OreType.IRON),
+            world.Ore(world.OreType.BRONZE),
+            world.Rock,
+            world.Rock,
+            world.Rock,
+        ),
+        512,
+    ),  # mining
     None,
 )
 
 
 def calculate_returns_for(member, activity):
-    activity = Activities(activity)
-    minutes = 100
+    time = activity["start_time"]
+    activity = activity["activity"]
+    minutes = (
+        datetime.datetime.now() - datetime.datetime.fromtimestamp(time)
+    ).seconds // 60
     return _repeating_sample(
-        ((item, 1) for item in activity_returns[activity][0]),
+        list(((item, 1) for item in activity_returns[activity][0])),
         round((minutes * 256) / (minutes + activity_returns[activity][1])),
     )
 
@@ -49,21 +65,25 @@ def get_activity(member):
     return islanders.get_data_for(member)["activity"]
 
 
-def stop_activity(member):
+async def stop_activity(ctx, member):
     data = islanders.get_data_for(member)
     activity = data["activity"]
     if activity is None:
         return
     returns = calculate_returns_for(member, activity)
     for item in returns:
-        data["inventory"] = islanders.inventory_add(data["inventory"], *item)
+        data["inventory"], success = islanders.inventory_add(data["inventory"], *item)
     data["activity"] = None
     islanders.write_data_for(member, data)
+    await ctx.send(
+        f"You've taken a break from {Activities(activity['activity']).name.lower()} to put the "
+        f"{len(returns)} item{'s' if len(returns) != 1 else ''} you got into your inventory"
+    )
 
 
 def start_activity(member, activity):
     data = islanders.get_data_for(member)
-    data["activity"] == {
+    data["activity"] = {
         "start_time": datetime.datetime.now().timestamp(),
         "activity": activity.value,
     }
@@ -75,18 +95,24 @@ def activity(
     activity_type: Activities,
 ):  # Activites again. : Good taste in music @3665 -TCP : Thanks -3665 : You're not welcome -TCP : Well ok then -3665
     """A decorator that marks a command as starting an activity"""  # We love decorators. : @mini maybe take in a number to determine how long it should take? -TCP : not quite how activites will work coded -3665 : ok -TCP
+
     def inner(func):
         async def predicate(
+            _cog,
             ctx,
         ):  # Nvidia Ctx, the 50th series, Ctx 5040 Ti will be sold at the cost of a liver. : sounds accurate -TCP : why... why do we... know this fact? how many livers have we bought that we just know what the price should be? -3665
 
             if get_activity(ctx.author) is not None:
-                stop_activity(ctx.author)
+                await stop_activity(ctx, ctx.author)
 
             start_activity(ctx.author, activity_type)
 
             return True  # Truth. : Lies -TCP
-        return commands.before_invoke(predicate)(requires_game()(func))  # Predictable. : Assignable predictiality -TCP
+
+        return commands.before_invoke(predicate)(
+            requires_game()(func)
+        )  # Predictable. : Assignable predictiality -TCP
+
     return inner
 
 
@@ -106,13 +132,14 @@ def requires_game():
 
     return commands.check(predicate)
 
+
 def requires_no_game():
     """A decorator that requires no active game to pass"""
 
     async def predicate(ctx):
         try:
             await requires_game().predicate(ctx)
-            return False
+            raise errors.GameExists("There is already a game in {ctx.guild.id}")
         except (errors.NoGame, errors.NoData):
             return True
 
