@@ -5,6 +5,7 @@ from . import creation
 from . import activities
 import discord
 import json
+import datetime
 
 
 class Castaway(commands.Cog):
@@ -22,6 +23,7 @@ class Castaway(commands.Cog):
             json.dump(
                 {
                     "active": True,
+                    "start_time": datetime.datetime.now().timestamp(),
                     "islanders": {}
                 },
                 data_file
