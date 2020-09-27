@@ -30,6 +30,7 @@ def farms_built():
 
     return commands.check(predicate)
 
+
 class Castaway(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
