@@ -16,7 +16,6 @@ import os
 dedicated_servers = []
 
 
-
 class FakeItemTM:
     def __init__(self, name):
         self.name = name
@@ -52,7 +51,6 @@ class Castaway(commands.Cog):
 
         return game, mapsize
 
-    
     @staticmethod
     @dedicated_only()
     async def assignChannels(ctx, world):
@@ -62,7 +60,9 @@ class Castaway(commands.Cog):
             ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False)
         }
 
-        category = await ctx.guild.create_category("Castaway", reason="Game Started. Play on!")
+        category = await ctx.guild.create_category(
+            "Castaway", reason="Game Started. Play on!"
+        )
 
         for row in world:
             tmp_channels = []
@@ -71,7 +71,7 @@ class Castaway(commands.Cog):
                     f"{chunk.name}",
                     overwrites=no_one,
                     topic=f"X:{chunk.coorinates[0]} / Y:{chunk.coorinates[1]} || Buildings: None",
-                    reason="Generating..."
+                    reason="Generating...",
                 )
                 tmp_channels.append(new_channel.id)
             channels_by_coord.append(tmp_channels)
@@ -85,7 +85,6 @@ class Castaway(commands.Cog):
 
         return (category.id, channels_by_coord)
 
-
     async def show_channel(self, member, coords: tuple = None):
         with open(f"data/{member.guild.id}.json") as data_file:
             guild_file = json.load(data_file)
@@ -97,7 +96,6 @@ class Castaway(commands.Cog):
         perms.read_messages = True
         perms.send_messages = True
         await channel.set_permissions(member, overwrites=perms)
-
 
     @staticmethod
     async def getMapImage(game, mapsize):
