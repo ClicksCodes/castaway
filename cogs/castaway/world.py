@@ -263,11 +263,12 @@ biome_structures = {  # These are not worth commenting
 
 
 class Biome:  # Day 2: we have a generator.
-    def __init__(self, biome_type: Biomes = Biomes.OCEAN):  # Coordinates is a thing.
+    def __init__(self, biome_type: Biomes = Biomes.OCEAN, coords: tuple = (0,0)):  # Coordinates is a thing.
         self.name = biome_type.name
         self.structures = []  # Arrays.
         self.ordered_structures = []
         self.discovered = False
+        self.coordinates = coords
         for i in range(5):  # i needs to go so much things, it's quite sad.
             cur_struct = []  # Structures are good, i think.
             for j in range(5):  # Whiles... love them.
@@ -308,13 +309,6 @@ class World:
         for w in range(size[0]):  # SIZES, THE BIGGER, the more there is.
             cur_chunks = []  # Chunks of meat.
             for h in range(size[1]):  # No clue what is happening here.
-                """
-                try:
-                    orar = ((h*w)/(size[0]) + (w*h)/(size[1])) + ((size[0])/(w*h) + (size[1])/(w*h))
-                except:
-                    orar = 100
-                print(orar)
-                """
                 if (h > size[1] - (size[1] / 10) or h < (size[1] / 10)) or (
                     w > size[0] - (size[0] / 10) or w < (size[1] / 10)
                 ):
@@ -330,7 +324,7 @@ class World:
                     ]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
                     rarity[next_to[0]] -= 30
                     rarity[next_to[1]] -= 30
-                cur_chunks.append(Biome(chosen))  # Biome, you are the chosen one!
+                cur_chunks.append(Biome(chosen,(h, w)))  # Biome, you are the chosen one!
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.
         for _ in range(passes):
             currentPass = self.chunks

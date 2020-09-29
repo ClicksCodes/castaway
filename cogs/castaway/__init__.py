@@ -42,6 +42,24 @@ class Castaway(commands.Cog):
         return game, mapsize
 
     @staticmethod
+    async def assignChannels(ctx,world):
+        channels_by_coord = []
+
+        no_one = {
+            ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False)
+        }
+
+        for row in world:
+            tmp_channels = []
+            for chunk in row:
+                new_channel = await ctx.guild.create_text_channel(f"{chunk.name}",overwrites=no_one,topic=f"X:{chunk.coorinates[0]} / Y:{chunk.coorinates[1]}")
+                tmp_channels.append(new_channel)
+            channels_by_coord.append(tmp_channels)
+
+        return channels_by_coord
+
+
+    @staticmethod
     async def getMapImage(game, mapsize):
         mult = 1000 / (max((mapsize[0], mapsize[1])))
 
@@ -140,7 +158,7 @@ class Castaway(commands.Cog):
         await pages.send_to(ctx)
 
     @commands.command(
-        aliases=["start", "begin", "s"]
+        aliases=["start", "begin"]
     )  # Second best thing in the code, the first one is darkmode. This starts the game. I know right?
     @commands.has_permissions(manage_guild=True)
     @activities.requires_no_game()
