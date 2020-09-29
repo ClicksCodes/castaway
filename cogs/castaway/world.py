@@ -263,7 +263,9 @@ biome_structures = {  # These are not worth commenting
 
 
 class Biome:  # Day 2: we have a generator.
-    def __init__(self, biome_type: Biomes = Biomes.OCEAN, coords: tuple = (0,0)):  # Coordinates is a thing.
+    def __init__(
+        self, biome_type: Biomes = Biomes.OCEAN, coords: tuple = (0, 0)
+    ):  # Coordinates is a thing.
         self.name = biome_type.name
         self.structures = []  # Arrays.
         self.ordered_structures = []
@@ -324,7 +326,9 @@ class World:
                     ]  # Need help, OwOs, UwUs and hewoo are annoying after some time.
                     rarity[next_to[0]] -= 30
                     rarity[next_to[1]] -= 30
-                cur_chunks.append(Biome(chosen,(h, w)))  # Biome, you are the chosen one!
+                cur_chunks.append(
+                    Biome(chosen, (h, w))
+                )  # Biome, you are the chosen one!
             self.chunks.append(cur_chunks)  # Chunks of biomes, lovely.
         for _ in range(passes):
             currentPass = self.chunks

@@ -42,7 +42,7 @@ class Castaway(commands.Cog):
         return game, mapsize
 
     @staticmethod
-    async def assignChannels(ctx,world):
+    async def assignChannels(ctx, world):
         channels_by_coord = []
 
         no_one = {
@@ -52,12 +52,15 @@ class Castaway(commands.Cog):
         for row in world:
             tmp_channels = []
             for chunk in row:
-                new_channel = await ctx.guild.create_text_channel(f"{chunk.name}",overwrites=no_one,topic=f"X:{chunk.coorinates[0]} / Y:{chunk.coorinates[1]}")
+                new_channel = await ctx.guild.create_text_channel(
+                    f"{chunk.name}",
+                    overwrites=no_one,
+                    topic=f"X:{chunk.coorinates[0]} / Y:{chunk.coorinates[1]}",
+                )
                 tmp_channels.append(new_channel)
             channels_by_coord.append(tmp_channels)
 
         return channels_by_coord
-
 
     @staticmethod
     async def getMapImage(game, mapsize):
