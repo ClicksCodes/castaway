@@ -13,10 +13,21 @@ from jishaku import paginators
 import typing
 import os
 
+dedicated_servers = []
+
+
 
 class FakeItemTM:
     def __init__(self, name):
         self.name = name
+
+
+def dedicated_only():
+    def predicate(ctx):
+        if ctx.guild.id in dedicated_servers:
+            return True
+        else:
+            return False
 
 
 def farms_built():
@@ -41,7 +52,9 @@ class Castaway(commands.Cog):
 
         return game, mapsize
 
+    
     @staticmethod
+    @dedicated_only()
     async def assignChannels(ctx, world):
         channels_by_coord = []
 
@@ -49,18 +62,42 @@ class Castaway(commands.Cog):
             ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False)
         }
 
+        category = await ctx.guild.create_category("Castaway", reason="Game Started. Play on!")
+
         for row in world:
             tmp_channels = []
             for chunk in row:
-                new_channel = await ctx.guild.create_text_channel(
+                new_channel = await category.create_text_channel(
                     f"{chunk.name}",
                     overwrites=no_one,
-                    topic=f"X:{chunk.coorinates[0]} / Y:{chunk.coorinates[1]}",
+                    topic=f"X:{chunk.coorinates[0]} / Y:{chunk.coorinates[1]} || Buildings: None",
+                    reason="Generating..."
                 )
-                tmp_channels.append(new_channel)
+                tmp_channels.append(new_channel.id)
             channels_by_coord.append(tmp_channels)
 
-        return channels_by_coord
+        with open(f"data/{ctx.guild.id}.json") as data_file:
+            old = json.load(data_file)
+            old["category"] = category.id
+            old["channels"] = channels_by_coord
+        with open(f"data/{ctx.guild.id}.json", "w") as data_file:
+            json.dump(old, data_file)
+
+        return (category.id, channels_by_coord)
+
+
+    async def show_channel(self, member, coords: tuple = None):
+        with open(f"data/{member.guild.id}.json") as data_file:
+            guild_file = json.load(data_file)
+            channels = guild_file.get("channels", None)
+        channel_id = channels[coords[1]][coords[0]]
+        channel = self.bot.get_channel(channel_id)
+
+        perms = channel.overwrites_for(member)
+        perms.read_messages = True
+        perms.send_messages = True
+        await channel.set_permissions(member, overwrites=perms)
+
 
     @staticmethod
     async def getMapImage(game, mapsize):
