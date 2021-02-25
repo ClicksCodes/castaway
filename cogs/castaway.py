@@ -150,7 +150,7 @@ class Castaway(commands.Cog):
                 await m.edit(embed=discord.Embed(
                         title=f"{emojis['Difficulty'][2]} What should your game difficulty be?",
                         description="What should your game difficulty be. 1 is easy, 2 is normal, and 3 is hard. Type `cancel` to cancel.",
-                        color=colours['c'],
+                        color=colours['C'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
                 )
                 try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
@@ -166,7 +166,7 @@ class Castaway(commands.Cog):
                 await m.edit(embed=discord.Embed(
                         title=f"{emojis['Name']} Want to play online?",
                         description="Enter `y` or `n` to choose if you want to interact with other islands for trading. Type `cancel` to cancel.",
-                        color=colours['c'],
+                        color=colours['C'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
                 )
                 try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)

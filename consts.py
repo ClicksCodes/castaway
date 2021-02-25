@@ -1,6 +1,7 @@
 import discord
 
-class c:
+
+class C:
     c = '\033[0m'
 
     RedDark = '\033[31m'
@@ -17,11 +18,12 @@ class c:
     Pink = '\033[95m'
     Cyan = '\033[96m'
 
+
 colours = {
     "r": 0xF27878,
     "o": 0xE5AB71,
     "g": 0xA1CC65,
-    "c": 0x78ECF2,
+    "C": 0x78ECF2,
     "b": 0x71AFE5,
     "m": 0x8D58B2
 }
@@ -44,10 +46,10 @@ emojis = {
     "left":         "<:left:791683268876697610>",
     "cross":        "<:cross:791683553741111336>",
     "tick":         "<:tick:791683415131815946>",
-    "Name" :        "<:Name:794172731356348417>",
-    "Max_Players" : "<:Max_Players:794172731381252096>",
-    "Size" :        "<:Size:794172731708932116>",
-    "Seed" :        "<:Seed:794172731439579188>",
+    "Name":         "<:Name:794172731356348417>",
+    "Max_Players":  "<:Max_Players:794172731381252096>",
+    "Size":         "<:Size:794172731708932116>",
+    "Seed":         "<:Seed:794172731439579188>",
     "Difficulty": {
         1: "<:Difficulty1:794172730827997185>",
         2: "<:Difficulty2:794172731032993793>",

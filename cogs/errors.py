@@ -21,12 +21,12 @@ class Errors(commands.Cog):
             try: code = str(sha256(str.encode(str(ctx.message.id))).hexdigest())[50:]
             except: code=ctx.message.id
 
-            if   isinstance(error, commands.errors.NoPrivateMessage):      return print(f"{c.GreenDark}[N] {c.Green}{str(error)}{c.c}")
-            elif isinstance(error, commands.errors.BotMissingPermissions): return print(f"{c.GreenDark}[N] {c.Green}{str(error)}{c.c}")
-            elif isinstance(error, commands.errors.CommandNotFound):       return print(f"{c.GreenDark}[N] {c.Green}{str(error)}{c.c}")
-            elif isinstance(error, asyncio.TimeoutError):                  return print(f"{c.GreenDark}[N] {c.Green}{str(error)}{c.c}")
-            elif isinstance(error, commands.errors.NotOwner):              return print(f"{c.GreenDark}[N] {c.Green}{str(error)}{c.c}")
-            elif isinstance(error, commands.errors.TooManyArguments):      return print(f"{c.GreenDark}[N] {c.Green}{str(error)}{c.c}")
+            if   isinstance(error, commands.errors.NoPrivateMessage):      return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.BotMissingPermissions): return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.CommandNotFound):       return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, asyncio.TimeoutError):                  return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.NotOwner):              return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.TooManyArguments):      return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
             elif isinstance(error, commands.errors.MissingPermissions):    
                 return await ctx.send(embed=discord.Embed(
                     title=f"{emojis['cross']} Missing permissions",
@@ -36,10 +36,10 @@ class Errors(commands.Cog):
             else:
                 tb = "".join(traceback.format_exception(type(error), error, error.__traceback__))
                 if "clear_reactions()" in tb: return
-                #tb = "\n".join([f"{c.RedDark}[C] {c.Red}" + line for line in (f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}".split("\n"))])
+                #tb = "\n".join([f"{C.RedDark}[C] {C.Red}" + line for line in (f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}".split("\n"))])
                 tb = "```" + ("\n".join([f"[C]" + line for line in (f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}".split("\n"))])) + "```"
                 #url = await postbin.postAsync(tb)
-                print(f"{c.RedDark}[C] {c.Red}FATAL:\n{tb}{c.c}\n{code}")
+                print(f"{C.RedDark}[C] {C.Red}FATAL:\n{tb}{C.c}\n{code}")
                 if self.bot.user.id == 757225562816118895:
                     # await self.bot.get_channel(791592620551307264).send(embed=discord.Embed(
                     #     title="Error",
@@ -64,7 +64,7 @@ class Errors(commands.Cog):
     async def on_error(event, *args, **kwargs):
         tb = "".join(traceback.format_exception(type(error), error, error.__traceback__))
         tb = f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}"
-        return print(f"{c.RedDark}[C] {c.Red}Error Below\n{tb}{c.c}")
+        return print(f"{C.RedDark}[C] {C.Red}Error Below\n{tb}{C.c}")
     
     @commands.command()
     @commands.is_owner()
