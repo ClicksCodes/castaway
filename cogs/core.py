@@ -1,9 +1,17 @@
-import discord, humanize, typing, time, asyncio, math, io, random
+import discord
+import humanize
+import typing
+import time
+import asyncio
+import math
+import io
+import random
 
 from datetime import datetime
 from discord.ext import commands
 
 from consts import *
+
 
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot): self.bot = bot
@@ -26,4 +34,6 @@ class Core(commands.Cog):
         time = m.created_at - ctx.message.created_at
         await m.edit(content=None, embed=self.createEmbed(f"Ping", f"Latency is: `{int(time.microseconds / 1000)}ms`", colours['g']))
 
-def setup(bot): bot.add_cog(Core(bot))
+
+def setup(bot):
+    bot.add_cog(Core(bot))

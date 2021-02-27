@@ -61,25 +61,25 @@ class Coal:
         pass
 
 
-class Gold: 
+class Gold:
     pass
 
 
-class Silver: 
+class Silver:
     pass
 
 
-class Platinum: 
+class Platinum:
     pass
 
 
-class Copper: 
+class Copper:
     pass
 
 
-class Iron: 
+class Iron:
     pass
 
 
-class Bronze: 
+class Bronze:
     pass

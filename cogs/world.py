@@ -15,7 +15,7 @@ class Biomes(enum.Enum):
 
 
 class Biome:
-    def __init__(self, t:Biomes, coords:tuple):
+    def __init__(self, t: Biomes, coords: tuple):
         self.name = t.name
         self.discovered = True if self.name == "OCEAN" else False
         self.coords = coords
@@ -23,7 +23,7 @@ class Biome:
 
 class World:
     def __init__(
-        self, 
+        self,
         size: tuple = (25, 25),
         rarity=None,
         passes: int = None,
@@ -52,18 +52,20 @@ class World:
             for x in range(size[0]):
                 if math.sqrt((x-(size[0]/2))**2 + (y-(size[1]/2))**2) > size[0]-((3/5)*min(size[0], size[1])):
                     n = Biome(t=Biomes.OCEAN, coords=(x, y))
-                else: 
+                else:
                     beach = math.sqrt((x-(size[0]/2))**2 + (y-(size[1]/2))**2)**1.15
-                    if beach > min(size[0], size[1])/3 and random.randint(0, 100) < beach: n = Biome(t=Biomes.SAND, coords=(x, y))
-                    else: 
+                    if beach > min(size[0], size[1])/3 and random.randint(0, 100) < beach:
+                        n = Biome(t=Biomes.SAND, coords=(x, y))
+                    else:
                         chosen = random.choices(list(Biomes), [n for n in rarity.values()])[0]
                         n = Biome(t=chosen, coords=(x, y))
                 self.map[y][x] = n
         for _ in range(round(self.passes)):
             for y in range(size[1]):
                 for x in range(size[0]):
-                    if (min(x, y) == 0) or (x == len(self.map[0])-1) or (y == len(self.map)-1): continue
-                    else: 
+                    if (min(x, y) == 0) or (x == len(self.map[0])-1) or (y == len(self.map)-1):
+                        continue
+                    else:
                         ne = [self.map[y - 1][x], self.map[y + 1][x], self.map[y][x - 1], self.map[y][x + 1]]
                         if "OCEAN" in [n.name for n in ne] and self.map[y][x].name == "LAKE":
                             self.nnmap[y][x] = Biome(t=Biomes.SAND, coords=(x, y))
@@ -77,7 +79,7 @@ class World:
     def mapimg(self, ctx, bot):
         def hex_to_rgb(value):
             lv = len(value)
-            return tuple(int(value[i : i + lv // 3], 16) for i in range(0, lv, lv // 3))
+            return tuple(int(value[i: i + lv // 3], 16) for i in range(0, lv, lv // 3))
         curMap = []
 
         cols = {
@@ -105,5 +107,5 @@ class World:
         font = ImageFont.truetype("fonts/roboto/Roboto-Bold.ttf", 24)
         draw = ImageDraw.Draw(im)
         x = bot.games[ctx.guild.id]['settings']
-        draw.text((50, 960),f"{x['name']} | {ctx.guild.name} | Seed: {x['seed']}",hex_to_rgb("000000"),font=font)
+        draw.text((50, 960), f"{x['name']} | {ctx.guild.name} | Seed: {x['seed']}", hex_to_rgb("000000"), font=font)
         return im

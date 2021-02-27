@@ -1,4 +1,11 @@
-import discord, humanize, typing, time, asyncio, math, io, random
+import discord
+import humanize
+import typing
+import time
+import asyncio
+import math
+import io
+import random
 
 from datetime import datetime
 from discord.ext import commands
@@ -9,10 +16,11 @@ from . import world
 
 
 class Castaway(commands.Cog):
-    def __init__(self, bot: commands.Bot): self.bot = bot
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
 
     async def globalChecks(self, ctx, user=None):
-        if ctx.guild.id not in self.bot.games: 
+        if ctx.guild.id not in self.bot.games:
             await ctx.send(embed=discord.Embed(
                     title=f"{emojis['Warning']} Your server doesn't have an island",
                     description=f"You'll need to run `{ctx.prefix}start` to start up your island.",
@@ -28,7 +36,7 @@ class Castaway(commands.Cog):
                 ))
                 return True
         return False
-    
+
     @commands.command()
     @commands.guild_only()
     async def start(self, ctx):
@@ -41,32 +49,41 @@ class Castaway(commands.Cog):
         options = {
             "name": "Castaway Island",
             "max_players": 0,
-            "size": (25,25), #        |  |  | Billion
+            "size": (25, 25),
             "seed": random.randint(0, 100000000),
             "difficulty": 2,
             "online": False
         }
         m = await ctx.send(embed=lembed)
         for _ in range(0, 50):
+            diffstring = 'Easy' if options['difficulty'] == 1 else 'Normal' if options['difficulty'] == 2 else 'Hard'
             await m.edit(embed=discord.Embed(
                 title="Island setup",
                 description=f"{emojis['Name']                              } **Name:** {options['name']}\n"
                             f"{emojis['Max_Players']                       } **Max Players:** {options['max_players']}\n"
                             f"{emojis['Size']                              } **Size:** {options['size'][0]}x{options['size'][1]}\n"
                             f"{emojis['Seed']                              } **Seed:** `{options['seed']}`\n"
-                            f"{emojis['Difficulty'][options['difficulty']] } **Difficulty:** {'Easy' if options['difficulty'] == 1 else 'Normal' if options['difficulty'] == 2 else 'Hard'}\n"
+                            f"{emojis['Difficulty'][options['difficulty']] } **Difficulty:** {diffstring}\n"
                             f"{emojis['Online'][int(options['online'])]    } **Online:** {'Yes' if options['online'] else 'No'}",
                 color=colours["b"]
             ))
-            for r in [791683415131815946, 791683553741111336, 794172731356348417, 794172731381252096, 794172731708932116, 794172731439579188, 794172731708932116, 794172731032993793, 794172731473002536]:
+            for r in [
+                791683415131815946, 791683553741111336, 794172731356348417,
+                794172731381252096, 794172731708932116, 794172731439579188,
+                794172731708932116, 794172731032993793, 794172731473002536
+            ]:
                 await m.add_reaction(self.bot.get_emoji(r))
 
             reaction = None
-            try: reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user : r.message.id == m.id and user == ctx.author)
-            except asyncio.TimeoutError: break
+            try:
+                reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+            except asyncio.TimeoutError:
+                break
 
-            try: await m.remove_reaction(reaction[0].emoji, ctx.author)
-            except: pass
+            try:
+                await m.remove_reaction(reaction[0].emoji, ctx.author)
+            except Exception as e:
+                print(e)
             r = reaction[0].emoji
 
             await asyncio.sleep(0.25)
@@ -83,9 +100,10 @@ class Castaway(commands.Cog):
                 self.bot.games[ctx.guild.id] = {"players": {}, "world": w, "tasks": {}, "settings": options}
 
                 return
-                
-            elif r.name == "cross": break
-            elif r.name == "Name": 
+
+            elif r.name == "cross":
+                break
+            elif r.name == "Name":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
                         title=f"{emojis['Name']} What should the island be called?",
@@ -93,11 +111,14 @@ class Castaway(commands.Cog):
                         color=colours['r'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
                 )
-                try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
-                except asyncio.TimeoutError: break
+                try:
+                    msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
+                except asyncio.TimeoutError:
+                    break
                 await msg.delete()
-                if msg.content.lower() != "cancel": options['name'] = msg.content[:100]
-            elif r.name == "Max_Players": 
+                if msg.content.lower() != "cancel":
+                    options['name'] = msg.content[:100]
+            elif r.name == "Max_Players":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
                         title=f"{emojis['Max_Players']} How many people should be allowed on the island?",
@@ -105,14 +126,18 @@ class Castaway(commands.Cog):
                         color=colours['o'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
                 )
-                try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
-                except asyncio.TimeoutError: break
+                try:
+                    msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
+                except asyncio.TimeoutError:
+                    break
                 await msg.delete()
-                if msg.content.lower() != "cancel": 
-                    try: 
+                if msg.content.lower() != "cancel":
+                    try:
                         msgc = int(msg.content)
-                        if msgc < 1000 and msgc >= 0: options['max_players'] = msgc
-                    except: continue
+                        if msgc < 1000 and msgc >= 0:
+                            options['max_players'] = msgc
+                    except ValueError:
+                        continue
             elif r.name == "Size":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
@@ -121,14 +146,18 @@ class Castaway(commands.Cog):
                         color=colours['g'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
                 )
-                try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
-                except asyncio.TimeoutError: break
+                try:
+                    msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
+                except asyncio.TimeoutError:
+                    break
                 await msg.delete()
-                if msg.content.lower() != "cancel": 
-                    try: 
+                if msg.content.lower() != "cancel":
+                    try:
                         msgc = int(msg.content)
-                        if msgc < 101 and msgc > 5: options['size'] = (msgc, msgc)
-                    except: continue
+                        if msgc < 101 and msgc > 5:
+                            options['size'] = (msgc, msgc)
+                    except ValueError:
+                        continue
             elif r.name == "Seed":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
@@ -137,15 +166,19 @@ class Castaway(commands.Cog):
                         color=colours['g'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
                 )
-                try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
-                except asyncio.TimeoutError: break
+                try:
+                    msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
+                except asyncio.TimeoutError:
+                    break
                 await msg.delete()
-                if msg.content.lower() != "cancel": 
-                    try: 
+                if msg.content.lower() != "cancel":
+                    try:
                         msgc = int(msg.content)
-                        if msgc < 1000000001 and msgc >= 0: options['seed'] = msgc
-                    except: continue
-            elif r.name == "Difficulty2": 
+                        if msgc < 1000000001 and msgc >= 0:
+                            options['seed'] = msgc
+                    except ValueError:
+                        continue
+            elif r.name == "Difficulty2":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
                         title=f"{emojis['Difficulty'][2]} What should your game difficulty be?",
@@ -153,14 +186,18 @@ class Castaway(commands.Cog):
                         color=colours['C'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
                 )
-                try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
-                except asyncio.TimeoutError: break
+                try:
+                    msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
+                except asyncio.TimeoutError:
+                    break
                 await msg.delete()
-                if msg.content.lower() != "cancel": 
-                    try: 
+                if msg.content.lower() != "cancel":
+                    try:
                         msgc = int(msg.content)
-                        if msgc < 4 and msgc >= 1: options['difficulty'] = msgc
-                    except: continue
+                        if msgc < 4 and msgc >= 1:
+                            options['difficulty'] = msgc
+                    except ValueError:
+                        continue
             elif r.name == "Online1":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
@@ -169,24 +206,32 @@ class Castaway(commands.Cog):
                         color=colours['C'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
                 )
-                try: msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message : message.author == ctx.author)
-                except asyncio.TimeoutError: break
+                try:
+                    msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
+                except asyncio.TimeoutError:
+                    break
                 await msg.delete()
-                if msg.content.lower() != "cancel" and msg.content.lower() in ['y', 'n', 'yes', 'no', '0', '1']: 
+                if msg.content.lower() != "cancel" and msg.content.lower() in ['y', 'n', 'yes', 'no', '0', '1']:
                     options['online'] = (1 if msg.content.lower() in ['y', 'yes', '1'] else 0)
-            else: break
+            else:
+                break
         await m.clear_reactions()
 
     @commands.command()
     @commands.guild_only()
     async def profile(self, ctx, user: typing.Optional[discord.Member]):
-        if not user: user = ctx.author
-        if await self.globalChecks(ctx, user): return
+        if not user:
+            user = ctx.author
+        if await self.globalChecks(ctx, user):
+            return
         player = self.bot.games[ctx.guild.id]["players"][user.id]
 
         stats = ""
-        for k, v in player.skills.items(): stats += ''.join([emojis['starFull'] for _ in range(v[0])]) + ''.join([emojis['starEmpty'] for _ in range(5-v[0])]) + " " + self.bot.games[ctx.guild.id]["players"][ctx.author.id].skills[k][1] + " " + k + " \n"
-        xpBar = emojis["xpStart"] + (emojis["xpMiddle"] * math.ceil((player.xp/((player.level*5)+5))*12)) + (emojis["xpIncomplete"] * (12-(math.ceil((player.xp/((player.level*5)+5))*12)))) + emojis["xpEnd"]
+        for k, v in player.skills.items():
+            stats += ''.join([emojis['starFull'] for _ in range(v[0])]) +
+            ''.join([emojis['starEmpty'] for _ in range(5-v[0])]) + " " + self.bot.games[ctx.guild.id]["players"][ctx.author.id].skills[k][1] + " " + k + " \n"
+        xpBar = emojis["xpStart"] + (emojis["xpMiddle"] * math.ceil((player.xp/((player.level*5)+5))*12)) + \
+            (emojis["xpIncomplete"] * (12-(math.ceil((player.xp/((player.level*5)+5))*12)))) + emojis["xpEnd"]
         await ctx.reply(embed=discord.Embed(
             title=f"{emojis['RankCard']} Profile - {user.display_name} | Level {player.level}",
             description=f"{stats}\n"
@@ -196,11 +241,12 @@ class Castaway(commands.Cog):
                         f"**Landed on the island:** {humanize.naturaltime(datetime.utcnow()-player.joined)}",
             color=colours["b"]
         ))
-    
+
     @commands.command()
     @commands.guild_only()
     async def map(self, ctx):
-        if await self.globalChecks(ctx): return
+        if await self.globalChecks(ctx):
+            return
         image = self.bot.games[ctx.guild.id]["world"].mapimg(ctx=ctx, bot=self.bot)
 
         buf = io.BytesIO()
@@ -211,10 +257,12 @@ class Castaway(commands.Cog):
         embed.set_image(url="attachment://map.png")
         return await ctx.reply(embed=embed, file=discord.File(buf, filename="map.png"))
         buf.close()
-    
+
     @commands.command()
     async def debug(self, ctx):
         await ctx.reply(self.bot.games)
-        #await ctx.delete()
+        # await ctx.delete()
 
-def setup(bot): bot.add_cog(Castaway(bot))
+
+def setup(bot):
+    bot.add_cog(Castaway(bot))

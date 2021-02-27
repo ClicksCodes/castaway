@@ -18,7 +18,7 @@ class Context(commands.Context):
         if not self.channel.permissions_for(self.me).manage_messages:
             return
         await self.message.delete()
-    
+
     async def reply(self, *args, **kwargs):
         kwargs["mention_author"] = False
         await self.message.reply(*args, **kwargs)

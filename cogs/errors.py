@@ -1,4 +1,14 @@
-import copy, discord, json, humanize, aiohttp, traceback, typing, time, asyncio, postbin, os
+import copy
+import discord
+import json
+import humanize
+import aiohttp
+import traceback
+import typing
+import time
+import asyncio
+import postbin
+import os
 
 from datetime import datetime
 from discord.ext import commands
@@ -10,7 +20,7 @@ from consts import *
 class Errors(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-    
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         try:
@@ -18,16 +28,25 @@ class Errors(commands.Cog):
             # Warning Yellow
             # Critical Red
             # Status Blue
-            try: code = str(sha256(str.encode(str(ctx.message.id))).hexdigest())[50:]
-            except: code=ctx.message.id
+            try:
+                code = str(sha256(str.encode(str(ctx.message.id))).hexdigest())[50:]
+            except Exception as e:
+                print(e)
+                code = ctx.message.id
 
-            if   isinstance(error, commands.errors.NoPrivateMessage):      return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
-            elif isinstance(error, commands.errors.BotMissingPermissions): return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
-            elif isinstance(error, commands.errors.CommandNotFound):       return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
-            elif isinstance(error, asyncio.TimeoutError):                  return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
-            elif isinstance(error, commands.errors.NotOwner):              return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
-            elif isinstance(error, commands.errors.TooManyArguments):      return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
-            elif isinstance(error, commands.errors.MissingPermissions):    
+            if isinstance(error, commands.errors.NoPrivateMessage):
+                return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.BotMissingPermissions):
+                return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.CommandNotFound):
+                return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, asyncio.TimeoutError):
+                return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.NotOwner):
+                return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.TooManyArguments):
+                return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
+            elif isinstance(error, commands.errors.MissingPermissions):
                 return await ctx.send(embed=discord.Embed(
                     title=f"{emojis['cross']} Missing permissions",
                     description=str(error),
@@ -35,10 +54,11 @@ class Errors(commands.Cog):
                 ))
             else:
                 tb = "".join(traceback.format_exception(type(error), error, error.__traceback__))
-                if "clear_reactions()" in tb: return
-                #tb = "\n".join([f"{C.RedDark}[C] {C.Red}" + line for line in (f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}".split("\n"))])
-                tb = "```" + ("\n".join([f"[C]" + line for line in (f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}".split("\n"))])) + "```"
-                #url = await postbin.postAsync(tb)
+                if "clear_reactions()" in tb:
+                    return
+                string = f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}"
+                tb = "```" + ("\n".join([f"[C]" + line for line in (string.split("\n"))])) + "```"
+                # url = await postbin.postAsync(tb)
                 print(f"{C.RedDark}[C] {C.Red}FATAL:\n{tb}{C.c}\n{code}")
                 if self.bot.user.id == 757225562816118895:
                     # await self.bot.get_channel(791592620551307264).send(embed=discord.Embed(
@@ -56,19 +76,22 @@ class Errors(commands.Cog):
                         description=tb,
                         color=colours["r"]
                     ))
-                else: return
-        except Exception as e: 
+                else:
+                    return
+        except Exception as e:
             print(e)
-        
+
     @commands.Cog.listener()
     async def on_error(event, *args, **kwargs):
         tb = "".join(traceback.format_exception(type(error), error, error.__traceback__))
         tb = f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}"
         return print(f"{C.RedDark}[C] {C.Red}Error Below\n{tb}{C.c}")
-    
+
     @commands.command()
     @commands.is_owner()
     async def error(self, ctx):
         return f"{notexistslol}"
 
-def setup(bot): bot.add_cog(Errors(bot))
+
+def setup(bot):
+    bot.add_cog(Errors(bot))

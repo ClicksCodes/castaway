@@ -1,5 +1,7 @@
-import random, datetime
+import random
+import datetime
 from consts import *
+
 
 class Player:
     def __init__(self, i):
