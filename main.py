@@ -17,11 +17,11 @@ class Context(commands.Context):
             return
         if not self.channel.permissions_for(self.me).manage_messages:
             return
-        await self.message.delete()
+        return await self.message.delete()
 
     async def reply(self, *args, **kwargs):
         kwargs["mention_author"] = False
-        await self.message.reply(*args, **kwargs)
+        return await self.message.reply(*args, **kwargs)
 
 
 class Bot(commands.Bot):
@@ -65,5 +65,4 @@ bot = Bot(
     intents=intents
 )
 
-bot.games = {}
 bot.run(config.token)

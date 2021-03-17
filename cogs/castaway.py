@@ -4,10 +4,12 @@ import typing
 import time
 import asyncio
 import math
+import json
 import io
 import random
+import os
 
-from datetime import datetime
+import datetime
 from discord.ext import commands
 
 from consts import *
@@ -19,8 +21,98 @@ class Castaway(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    async def fetchGame(self, server, m=None, ctx=None):
+        try:
+            with open(f"servers/{int(server)}.json") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return 404
+        except json.JSONDecodeError:
+            if m and ctx:
+                await m.edit(embed=discord.Embed(
+                    title=f"Your game seems to be broken :(",
+                    description=f"Sadly, the game you have is corrupted, and there's not too much we can do.\nTo reset your island, you can `{ctx.prefix}end`.",
+                    color=colours['r'],
+                ))
+            return 400
+
+    async def writeGame(self, server, data, ctx=None, m=None):
+        try:
+            with open(f"servers/{int(server)}.json", "w") as f:
+                return json.dump(data, f, indent=2)
+        except FileNotFoundError:
+            if m and ctx:
+                await m.edit(embed=discord.Embed(
+                    title=f"Oops - Thats an error",
+                    description=f"We tried to safe your game's data, but it doesn't seem to exist :/\nWe will retry by starting your game.",
+                    color=colours['r'],
+                ))
+            await asyncio.sleep(3)
+            out = self.newGame(server, data)
+            if out == 200:
+                return
+            return 404
+        except TypeError as e:
+            print(e)
+            if m and ctx:
+                await m.edit(embed=discord.Embed(
+                    title=f"Your game seems to be broken :(",
+                    description=f"Sadly, the game you have is corrupted.\nWe are going to try resetting your game with the data we tried to write.",
+                    color=colours['r'],
+                ))
+                await asyncio.sleep(3)
+                os.remove(f"servers/{server}.json")
+                result = self.newGame(server, data)
+                print(result)
+                if result == 201:
+                    return 201
+            return 400
+
+    def newGame(self, server, data):
+        try:
+            with open(f"servers/{int(server)}.json", "x") as f:
+                json.dump(data, f, indent=2)
+                return 201
+        except FileExistsError:
+            return 409
+        except TypeError:
+            return 400
+
+    async def addPlayer(self, ctx, user):
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if str(user.id) in game["players"]:
+            await m.edit(embed=discord.Embed(
+                title="You're already here",
+                description="You are already in the game, you can't join again ;)",
+                color=colours["o"]
+            ))
+            return
+        game["players"][str(user.id)] = {
+            "joined": datetime.datetime.timestamp(datetime.datetime.now()),
+            "skills": {
+                "Cooking":    [0, emojis["Cooking"]],
+                "Exploring":  [0, emojis["Exploring"]],
+                "Crafting":   [0, emojis["Crafting"]],
+                "Scavenging": [0, emojis["Scavenging"]],
+                "Fishing":    [0, emojis["Fishing"]]
+            },
+            "level": 1,
+            "upgradesUsed": 0,
+            "xp": 0
+        }
+        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))][0] = 2
+        await self.writeGame(ctx.guild.id, game, ctx, m)
+        await m.edit(embed=discord.Embed(
+            title="You're in!",
+            description=f"Welcome to {game['settings']['name']}! You are player {len(game['players'])}.\n"
+                        f"You can check your profile with `{ctx.prefix}profile` or manual with `{ctx.prefix}manual`",
+            color=colours["g"]
+        ))
+
     async def globalChecks(self, ctx, user=None):
-        if ctx.guild.id not in self.bot.games:
+        f = await self.fetchGame(ctx.guild.id)
+        if f == 404:
             await ctx.send(embed=discord.Embed(
                     title=f"{emojis['Warning']} Your server doesn't have an island",
                     description=f"You'll need to run `{ctx.prefix}start` to start up your island.",
@@ -28,7 +120,7 @@ class Castaway(commands.Cog):
                 ))
             return True
         if user:
-            if user.id not in self.bot.games[ctx.guild.id]["players"]:
+            if str(user.id) not in f["players"]:
                 await ctx.send(embed=discord.Embed(
                     title=f"{emojis['RankCard']} {user.display_name} hasn't joined the yet",
                     description=f"{user.display_name} isn't on the island yet. Get them to run `{ctx.prefix}join` to enter the island.",
@@ -40,12 +132,16 @@ class Castaway(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def start(self, ctx):
-        if ctx.guild.id in self.bot.games:
-            return await ctx.send(embed=discord.Embed(
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(game, dict):
+            return await m.edit(embed=discord.Embed(
                 title=f"{emojis['Warning']} Your server has already started",
                 description=f"If you want to restart your island, you can run `{ctx.prefix}restart` to start your island over.",
                 color=colours["r"]
             ))
+        if game != 404:
+            return
         options = {
             "name": "Castaway Island",
             "max_players": 0,
@@ -54,7 +150,6 @@ class Castaway(commands.Cog):
             "difficulty": 2,
             "online": False
         }
-        m = await ctx.send(embed=lembed)
         for _ in range(0, 50):
             diffstring = 'Easy' if options['difficulty'] == 1 else 'Normal' if options['difficulty'] == 2 else 'Hard'
             await m.edit(embed=discord.Embed(
@@ -91,13 +186,28 @@ class Castaway(commands.Cog):
             if r.name == "tick":
                 await m.clear_reactions()
                 await m.edit(embed=discord.Embed(
-                        title=f"Hang tight",
-                        description="Please wait while we set up your game. This could take some time",
-                        color=colours['b'],
-                    )
-                )
-                w = world.World(online=options["online"], seed=options["seed"], size=options["size"])
-                self.bot.games[ctx.guild.id] = {"players": {}, "world": w, "tasks": {}, "settings": options}
+                    title=f"Hang tight",
+                    description="Please wait while we set up your game. This could take some time",
+                    color=colours['b'],
+                ))
+                defaultGame = {
+                    "players": {},
+                    "tasks": {},
+                    "settings": options
+                }
+                out = self.newGame(ctx.guild.id, defaultGame)
+                if out == 201:
+                    await m.edit(embed=discord.Embed(
+                        title=f"You're all set!",
+                        description=f"Your island was created! You can check your `{ctx.prefix}profile`, and get your friends to `{ctx.prefix}join`.",
+                        color=colours['g'],
+                    ))
+                elif out == 409:
+                    await m.edit(embed=discord.Embed(
+                        title=f"How'd you do that?",
+                        description=f"You started a game, but it already exists :/\nIf you want to end your game, you can always `{ctx.prefix}end`.",
+                        color=colours['o'],
+                    ))
 
                 return
 
@@ -105,7 +215,8 @@ class Castaway(commands.Cog):
                 break
             elif r.name == "Name":
                 await m.clear_reactions()
-                await m.edit(embed=discord.Embed(
+                await m.edit(
+                    embed=discord.Embed(
                         title=f"{emojis['Name']} What should the island be called?",
                         description="Please enter a name for the island. Type `cancel` to cancel.",
                         color=colours['r'],
@@ -120,7 +231,8 @@ class Castaway(commands.Cog):
                     options['name'] = msg.content[:100]
             elif r.name == "Max_Players":
                 await m.clear_reactions()
-                await m.edit(embed=discord.Embed(
+                await m.edit(
+                    embed=discord.Embed(
                         title=f"{emojis['Max_Players']} How many people should be allowed on the island?",
                         description="Please enter the limit of people on the island. 0 means no limit. Type `cancel` to cancel.",
                         color=colours['o'],
@@ -140,7 +252,8 @@ class Castaway(commands.Cog):
                         continue
             elif r.name == "Size":
                 await m.clear_reactions()
-                await m.edit(embed=discord.Embed(
+                await m.edit(
+                    embed=discord.Embed(
                         title=f"{emojis['Size']} How big should your island be?",
                         description="Please enter the size of your island. Default is 25, limit is 6-100. Type `cancel` to cancel.",
                         color=colours['g'],
@@ -160,7 +273,8 @@ class Castaway(commands.Cog):
                         continue
             elif r.name == "Seed":
                 await m.clear_reactions()
-                await m.edit(embed=discord.Embed(
+                await m.edit(
+                    embed=discord.Embed(
                         title=f"{emojis['Seed']} What should your island seed be?",
                         description="This is the number used to generate your island. Limit is 0-1 billion. Type `cancel` to cancel.",
                         color=colours['g'],
@@ -180,7 +294,8 @@ class Castaway(commands.Cog):
                         continue
             elif r.name == "Difficulty2":
                 await m.clear_reactions()
-                await m.edit(embed=discord.Embed(
+                await m.edit(
+                    embed=discord.Embed(
                         title=f"{emojis['Difficulty'][2]} What should your game difficulty be?",
                         description="What should your game difficulty be. 1 is easy, 2 is normal, and 3 is hard. Type `cancel` to cancel.",
                         color=colours['C'],
@@ -200,7 +315,8 @@ class Castaway(commands.Cog):
                         continue
             elif r.name == "Online1":
                 await m.clear_reactions()
-                await m.edit(embed=discord.Embed(
+                await m.edit(
+                    embed=discord.Embed(
                         title=f"{emojis['Name']} Want to play online?",
                         description="Enter `y` or `n` to choose if you want to interact with other islands for trading. Type `cancel` to cancel.",
                         color=colours['C'],
@@ -224,21 +340,24 @@ class Castaway(commands.Cog):
             user = ctx.author
         if await self.globalChecks(ctx, user):
             return
-        player = self.bot.games[ctx.guild.id]["players"][user.id]
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        player = game["players"][str(user.id)]
 
         stats = ""
-        for k, v in player.skills.items():
-            stats += ''.join([emojis['starFull'] for _ in range(v[0])]) +
-            ''.join([emojis['starEmpty'] for _ in range(5-v[0])]) + " " + self.bot.games[ctx.guild.id]["players"][ctx.author.id].skills[k][1] + " " + k + " \n"
-        xpBar = emojis["xpStart"] + (emojis["xpMiddle"] * math.ceil((player.xp/((player.level*5)+5))*12)) + \
-            (emojis["xpIncomplete"] * (12-(math.ceil((player.xp/((player.level*5)+5))*12)))) + emojis["xpEnd"]
-        await ctx.reply(embed=discord.Embed(
-            title=f"{emojis['RankCard']} Profile - {user.display_name} | Level {player.level}",
+        for k, v in player["skills"].items():
+            stats += ''.join([emojis['starFull'] for _ in range(v[0])]) + \
+                ''.join([emojis['starEmpty'] for _ in range(5-v[0])]) + " " + \
+                player['skills'][k][1] + " " + k + " \n"
+        xpBar = emojis["xpStart"] + (emojis["xpMiddle"] * math.ceil((player['xp']/((player['level']*5)+5))*12)) + \
+            (emojis["xpIncomplete"] * (12-(math.ceil((player['xp']/((player['level']*5)+5))*12)))) + emojis["xpEnd"]
+        await m.edit(embed=discord.Embed(
+            title=f"{emojis['RankCard']} Profile - {user.display_name} | Level {player['level']}",
             description=f"{stats}\n"
-                        f"**Experience:** {player.xp} / {(player.level*5)+5}\n"
+                        f"**Experience:** {player['xp']} / {(player['level']*5)+5}\n"
                         f"{xpBar}\n"
-                        f"{(emojis['Warning'] + ' ') if player.level-1-player.upgradesUsed else ''}**Upgrades avaliable:** {player.level-1-player.upgradesUsed}\n\n"
-                        f"**Landed on the island:** {humanize.naturaltime(datetime.utcnow()-player.joined)}",
+                        f"{(emojis['Warning'] + ' ') if player['level']-1-player['upgradesUsed'] else ''}**Upgrades avaliable:** {player['level']-1-player['upgradesUsed']}\n\n"
+                        f"**Landed on the island:** {humanize.naturaltime(datetime.datetime.utcnow()-datetime.datetime.utcfromtimestamp(player['joined']))}",
             color=colours["b"]
         ))
 
@@ -247,7 +366,22 @@ class Castaway(commands.Cog):
     async def map(self, ctx):
         if await self.globalChecks(ctx):
             return
-        image = self.bot.games[ctx.guild.id]["world"].mapimg(ctx=ctx, bot=self.bot)
+        m = await ctx.send(embed=discord.Embed(
+            title="Loading",
+            description="This may take some time, please hold",
+            color=colours["g"]
+        ))
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(game, int):
+            return
+        w = world.World(online=game['settings']['online'], size=game['settings']['size'], seed=game['settings']['seed'], name=game['settings']['name'], bot=self.bot)
+        image = await w.mapimg(ctx=ctx)
+        if image == 408:
+            return await ctx.reply(embed=discord.Embed(
+                title="Oops - That's an error",
+                description="We tried generating your map, but it went unresponsive",
+                color=colours['r']
+            ))
 
         buf = io.BytesIO()
         image.save(buf, format="png")
@@ -255,13 +389,17 @@ class Castaway(commands.Cog):
         embed = discord.Embed(title="Game map", color=colours["b"])
 
         embed.set_image(url="attachment://map.png")
-        return await ctx.reply(embed=embed, file=discord.File(buf, filename="map.png"))
-        buf.close()
+        await m.delete()
+        await ctx.reply(embed=embed, file=discord.File(buf, filename="map.png"))
+        return buf.close()
+
+    @commands.command()
+    async def join(self, ctx):
+        await self.addPlayer(ctx, ctx.author)
 
     @commands.command()
     async def debug(self, ctx):
-        await ctx.reply(self.bot.games)
-        # await ctx.delete()
+        await self.addPlayer(ctx, ctx.author)
 
 
 def setup(bot):
