@@ -18,7 +18,7 @@ class Core(commands.Cog):
 
     @commands.command()
     async def stats(self, ctx):
-        m = await ctx.send(embed=loadingEmbed)
+        m = await ctx.send(embed=lembed)
         await m.edit(embed=discord.Embed(
             title="Stats",
             description=f"**Servers:** {len(self.bot.guilds)}\n"
@@ -32,7 +32,7 @@ class Core(commands.Cog):
     async def ping(self, ctx):
         m = await ctx.send(embed=lembed)
         time = m.created_at - ctx.message.created_at
-        await m.edit(content=None, embed=self.createEmbed(f"Ping", f"Latency is: `{int(time.microseconds / 1000)}ms`", colours['g']))
+        await m.edit(content=None, embed=discord.Embed(title=f"Ping", description=f"Latency is: `{int(time.microseconds / 1000)}ms`", color=colours['g']))
 
 
 def setup(bot):

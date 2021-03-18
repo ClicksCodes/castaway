@@ -4,5 +4,7 @@ cogs = [
     "jishaku",
     "cogs.core",
     "cogs.castaway",
-    "cogs.errors"
+    "cogs.errors",
+    "cogs.itemManager",
+    "cogs.work"
 ]

@@ -48,7 +48,7 @@ class Errors(commands.Cog):
                 return print(f"{C.GreenDark}[N] {C.Green}{str(error)}{C.c}")
             elif isinstance(error, commands.errors.MissingPermissions):
                 return await ctx.send(embed=discord.Embed(
-                    title=f"{emojis['cross']} Missing permissions",
+                    title=f"{self.bot.get_emoji(emojis['cross'])} Missing permissions",
                     description=str(error),
                     color=colours["r"]
                 ))
@@ -73,7 +73,7 @@ class Errors(commands.Cog):
                     # ))
                     return await ctx.send(embed=discord.Embed(
                         title="Error",
-                        description=tb,
+                        description=str("```" + "".join(traceback.format_exception(type(error), error, error.__traceback__)).split("\n")[-2] + "```"),
                         color=colours["r"]
                     ))
                 else:
@@ -90,7 +90,7 @@ class Errors(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def error(self, ctx):
-        return f"{notexistslol}"
+        raise Warning("completely real error not fake very legit")
 
 
 def setup(bot):

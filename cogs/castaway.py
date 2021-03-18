@@ -1,19 +1,17 @@
+import asyncio
+import datetime
+import io
+import json
+import math
+import os
+import random
+import typing
+
 import discord
 import humanize
-import typing
-import time
-import asyncio
-import math
-import json
-import io
-import random
-import os
-
-import datetime
+from consts import *
 from discord.ext import commands
 
-from consts import *
-from . import types
 from . import world
 
 
@@ -90,18 +88,28 @@ class Castaway(commands.Cog):
             return
         game["players"][str(user.id)] = {
             "joined": datetime.datetime.timestamp(datetime.datetime.now()),
+            "hp": 10,
+            "food": {
+                "level": 20,
+                "lastEaten": None
+            },
+            "water": {
+                "level": 20,
+                "lastDrink": None
+            },
             "skills": {
-                "Cooking":    [0, emojis["Cooking"]],
-                "Exploring":  [0, emojis["Exploring"]],
-                "Crafting":   [0, emojis["Crafting"]],
-                "Scavenging": [0, emojis["Scavenging"]],
-                "Fishing":    [0, emojis["Fishing"]]
+                "Cooking": [0, 0],
+                "Exploring": [0, 0],
+                "Crafting": [0, 0],
+                "Scavenging": [0, 0],
+                "Fishing": [0, 0]
             },
             "level": 1,
             "upgradesUsed": 0,
-            "xp": 0
+            "xp": 0,
+            "inventory": {}
         }
-        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))][0] = 2
+        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))] = 2
         await self.writeGame(ctx.guild.id, game, ctx, m)
         await m.edit(embed=discord.Embed(
             title="You're in!",
@@ -114,7 +122,7 @@ class Castaway(commands.Cog):
         f = await self.fetchGame(ctx.guild.id)
         if f == 404:
             await ctx.send(embed=discord.Embed(
-                    title=f"{emojis['Warning']} Your server doesn't have an island",
+                    title=f"{self.bot.get_emoji(emojis['Warning'])} Your server doesn't have an island",
                     description=f"You'll need to run `{ctx.prefix}start` to start up your island.",
                     color=colours["r"]
                 ))
@@ -122,7 +130,7 @@ class Castaway(commands.Cog):
         if user:
             if str(user.id) not in f["players"]:
                 await ctx.send(embed=discord.Embed(
-                    title=f"{emojis['RankCard']} {user.display_name} hasn't joined the yet",
+                    title=f"{self.bot.get_emoji(emojis['RankCard'])} {user.display_name} hasn't joined the yet",
                     description=f"{user.display_name} isn't on the island yet. Get them to run `{ctx.prefix}join` to enter the island.",
                     color=colours["r"]
                 ))
@@ -136,7 +144,7 @@ class Castaway(commands.Cog):
         game = await self.fetchGame(ctx.guild.id, m, ctx)
         if isinstance(game, dict):
             return await m.edit(embed=discord.Embed(
-                title=f"{emojis['Warning']} Your server has already started",
+                title=f"{self.bot.get_emoji(emojis['Warning'])} Your server has already started",
                 description=f"If you want to restart your island, you can run `{ctx.prefix}restart` to start your island over.",
                 color=colours["r"]
             ))
@@ -154,12 +162,12 @@ class Castaway(commands.Cog):
             diffstring = 'Easy' if options['difficulty'] == 1 else 'Normal' if options['difficulty'] == 2 else 'Hard'
             await m.edit(embed=discord.Embed(
                 title="Island setup",
-                description=f"{emojis['Name']                              } **Name:** {options['name']}\n"
-                            f"{emojis['Max_Players']                       } **Max Players:** {options['max_players']}\n"
-                            f"{emojis['Size']                              } **Size:** {options['size'][0]}x{options['size'][1]}\n"
-                            f"{emojis['Seed']                              } **Seed:** `{options['seed']}`\n"
-                            f"{emojis['Difficulty'][options['difficulty']] } **Difficulty:** {diffstring}\n"
-                            f"{emojis['Online'][int(options['online'])]    } **Online:** {'Yes' if options['online'] else 'No'}",
+                description=f"{self.bot.get_emoji(emojis['Name'])                              } **Name:** {options['name']}\n"
+                            f"{self.bot.get_emoji(emojis['Max_Players'])                       } **Max Players:** {options['max_players']}\n"
+                            f"{self.bot.get_emoji(emojis['Size'])                              } **Size:** {options['size'][0]}x{options['size'][1]}\n"
+                            f"{self.bot.get_emoji(emojis['Seed'])                              } **Seed:** `{options['seed']}`\n"
+                            f"{self.bot.get_emoji(emojis['Difficulty'][options['difficulty']]) } **Difficulty:** {diffstring}\n"
+                            f"{self.bot.get_emoji(emojis['Online'][int(options['online'])])    } **Online:** {'Yes' if options['online'] else 'No'}",
                 color=colours["b"]
             ))
             for r in [
@@ -193,7 +201,8 @@ class Castaway(commands.Cog):
                 defaultGame = {
                     "players": {},
                     "tasks": {},
-                    "settings": options
+                    "settings": options,
+                    "store": {}
                 }
                 out = self.newGame(ctx.guild.id, defaultGame)
                 if out == 201:
@@ -217,7 +226,7 @@ class Castaway(commands.Cog):
                 await m.clear_reactions()
                 await m.edit(
                     embed=discord.Embed(
-                        title=f"{emojis['Name']} What should the island be called?",
+                        title=f"{self.bot.get_emoji(emojis['Name'])} What should the island be called?",
                         description="Please enter a name for the island. Type `cancel` to cancel.",
                         color=colours['r'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
@@ -233,7 +242,7 @@ class Castaway(commands.Cog):
                 await m.clear_reactions()
                 await m.edit(
                     embed=discord.Embed(
-                        title=f"{emojis['Max_Players']} How many people should be allowed on the island?",
+                        title=f"{self.bot.get_emoji(emojis['Max_Players'])} How many people should be allowed on the island?",
                         description="Please enter the limit of people on the island. 0 means no limit. Type `cancel` to cancel.",
                         color=colours['o'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
@@ -254,7 +263,7 @@ class Castaway(commands.Cog):
                 await m.clear_reactions()
                 await m.edit(
                     embed=discord.Embed(
-                        title=f"{emojis['Size']} How big should your island be?",
+                        title=f"{self.bot.get_emoji(emojis['Size'])} How big should your island be?",
                         description="Please enter the size of your island. Default is 25, limit is 6-100. Type `cancel` to cancel.",
                         color=colours['g'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
@@ -275,7 +284,7 @@ class Castaway(commands.Cog):
                 await m.clear_reactions()
                 await m.edit(
                     embed=discord.Embed(
-                        title=f"{emojis['Seed']} What should your island seed be?",
+                        title=f"{self.bot.get_emoji(emojis['Seed'])} What should your island seed be?",
                         description="This is the number used to generate your island. Limit is 0-1 billion. Type `cancel` to cancel.",
                         color=colours['g'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
@@ -296,7 +305,7 @@ class Castaway(commands.Cog):
                 await m.clear_reactions()
                 await m.edit(
                     embed=discord.Embed(
-                        title=f"{emojis['Difficulty'][2]} What should your game difficulty be?",
+                        title=f"{self.bot.get_emoji(emojis['Difficulty'][2])} What should your game difficulty be?",
                         description="What should your game difficulty be. 1 is easy, 2 is normal, and 3 is hard. Type `cancel` to cancel.",
                         color=colours['C'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
@@ -317,7 +326,7 @@ class Castaway(commands.Cog):
                 await m.clear_reactions()
                 await m.edit(
                     embed=discord.Embed(
-                        title=f"{emojis['Name']} Want to play online?",
+                        title=f"{self.bot.get_emoji(emojis['Name'])} Want to play online?",
                         description="Enter `y` or `n` to choose if you want to interact with other islands for trading. Type `cancel` to cancel.",
                         color=colours['C'],
                     ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
@@ -333,7 +342,7 @@ class Castaway(commands.Cog):
                 break
         await m.clear_reactions()
 
-    @commands.command()
+    @commands.command(aliases=["p"])
     @commands.guild_only()
     async def profile(self, ctx, user: typing.Optional[discord.Member]):
         if not user:
@@ -346,17 +355,18 @@ class Castaway(commands.Cog):
 
         stats = ""
         for k, v in player["skills"].items():
-            stats += ''.join([emojis['starFull'] for _ in range(v[0])]) + \
-                ''.join([emojis['starEmpty'] for _ in range(5-v[0])]) + " " + \
-                player['skills'][k][1] + " " + k + " \n"
-        xpBar = emojis["xpStart"] + (emojis["xpMiddle"] * math.ceil((player['xp']/((player['level']*5)+5))*12)) + \
-            (emojis["xpIncomplete"] * (12-(math.ceil((player['xp']/((player['level']*5)+5))*12)))) + emojis["xpEnd"]
+            stats += ''.join([str(self.bot.get_emoji(emojis['starFull'])) for _ in range(v[0])]) + \
+                ''.join([str(self.bot.get_emoji(emojis['starEmpty'])) for _ in range(5-v[0])]) + " " + \
+                str(self.bot.get_emoji(emojis[k])) + " " + k + " \n"
+        xpBar = str(self.bot.get_emoji(emojis["xpStart"])) + (str(self.bot.get_emoji(emojis["xpMiddle"])) * math.ceil((player['xp']/((player['level']*5)+5))*12)) + \
+            (str(self.bot.get_emoji(emojis["xpIncomplete"])) * (12-(math.ceil((player['xp']/((player['level']*5)+5))*12)))) + str(self.bot.get_emoji(emojis["xpEnd"]))
         await m.edit(embed=discord.Embed(
-            title=f"{emojis['RankCard']} Profile - {user.display_name} | Level {player['level']}",
+            title=f"{self.bot.get_emoji(emojis['RankCard'])} Profile - {user.display_name} | Level {player['level']}",
             description=f"{stats}\n"
                         f"**Experience:** {player['xp']} / {(player['level']*5)+5}\n"
                         f"{xpBar}\n"
-                        f"{(emojis['Warning'] + ' ') if player['level']-1-player['upgradesUsed'] else ''}**Upgrades avaliable:** {player['level']-1-player['upgradesUsed']}\n\n"
+                        f"{(str(self.bot.get_emoji(emojis['Warning'])) + ' ') if player['level']-1-player['upgradesUsed'] else ''}"
+                        f"**Upgrades avaliable:** {player['level']-1-player['upgradesUsed']}\n\n"
                         f"**Landed on the island:** {humanize.naturaltime(datetime.datetime.utcnow()-datetime.datetime.utcfromtimestamp(player['joined']))}",
             color=colours["b"]
         ))
@@ -394,12 +404,16 @@ class Castaway(commands.Cog):
         return buf.close()
 
     @commands.command()
+    @commands.guild_only()
     async def join(self, ctx):
+        if await self.globalChecks(ctx):
+            return
         await self.addPlayer(ctx, ctx.author)
 
     @commands.command()
-    async def debug(self, ctx):
-        await self.addPlayer(ctx, ctx.author)
+    @commands.guild_only()
+    async def dumpgame(self, ctx):
+        await ctx.reply(str(await self.fetchGame(ctx.guild.id)))
 
 
 def setup(bot):
