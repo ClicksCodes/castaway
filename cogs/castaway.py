@@ -109,7 +109,7 @@ class Castaway(commands.Cog):
             "xp": 0,
             "inventory": {}
         }
-        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))] = 2
+        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))] = [2, 0]
         await self.writeGame(ctx.guild.id, game, ctx, m)
         await m.edit(embed=discord.Embed(
             title="You're in!",
