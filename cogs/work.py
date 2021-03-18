@@ -247,7 +247,18 @@ class Work(commands.Cog):
 
     @commands.command(aliases=["cancel"])
     async def stop(self, ctx):
-        pass
+        if await self.globalChecks(ctx, user=ctx.author):
+            return
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if str(ctx.author.id) in game["tasks"]:
+            await self.calcRewards(ctx, m)
+        else:
+            await m.edit(embed=discord.Embed(
+                title="Nothing to do",
+                description="You weren't doing any tasks :(",
+                color=colours["o"]
+            ))
 
     @commands.command()
     @commands.guild_only()
