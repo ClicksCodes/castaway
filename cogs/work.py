@@ -262,7 +262,7 @@ class Work(commands.Cog):
         if levelup:
             text += f'\nYou also reached player level {game["players"][str(ctx.author.id)]["level"]}!'
         if lostTile:
-            text += f'\nOne {usedTile} was used up in the process.'
+            text += f'\nOne {lostTile} was used up in the process.'
         if rewardSystem == 1:
             await m.edit(embed=discord.Embed(
                 title=f"Finished {task}",
