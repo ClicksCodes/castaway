@@ -420,5 +420,6 @@ class Work(commands.Cog):
             color=colours["b"]
         ))
 
+
 def setup(bot):
     bot.add_cog(Work(bot))

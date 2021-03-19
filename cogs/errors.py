@@ -90,7 +90,7 @@ class Errors(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def error(self, ctx):
-        raise Warning("completely real error not fake very legit")
+        raise Warning("Error has no attribute Error")
 
 
 def setup(bot):
