@@ -60,7 +60,7 @@ farming = {
 
 exploring = {
     "peritem": {
-        "div": 5,
+        "div": 10,
         "min": 1,
         "max": 2
     },

@@ -168,25 +168,25 @@ class Work(commands.Cog):
         if task == "Fishing":
             table = LootTables.fishing
             rewardSystem = 1
-            if random.randint(0, 5*level) == 0:
+            if random.randint(0, 3*level) == 0:
                 game["resources"]["fishing_spots"] -= 1
                 lostTile = "Fishing spot"
         elif task == "Scavenging":
             table = LootTables.scavenging
             rewardSystem = 1
-            if random.randint(0, 5*level) == 0:
+            if random.randint(0, 3*level) == 0:
                 game["resources"]["undiscovered_land"] -= 1
                 lostTile = "Undiscovered land"
         elif task == "Mining":
             table = LootTables.mining
             rewardSystem = 1
-            if random.randint(0, 5*level) == 0:
+            if random.randint(0, 3*level) == 0:
                 game["resources"]["mines"] -= 1
                 lostTile = "Mine"
         elif task == "Farming":
             table = LootTables.farming
             rewardSystem = 1
-            if random.randint(0, 5*level) == 0:
+            if random.randint(0, 3*level) == 0:
                 game["resources"]["farms"] -= 1
                 lostTile = "Farm"
         elif task == "Exploring":
