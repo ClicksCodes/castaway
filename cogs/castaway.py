@@ -207,10 +207,10 @@ class Castaway(commands.Cog):
                     "settings": options,
                     "store": {},
                     "resources": {
-                        "farms": 10,
-                        "mines": 10,
-                        "fishing_spots": 10,
-                        "undiscovered_land": 10
+                        "farms": 5,
+                        "mines": 5,
+                        "fishing_spots": 5,
+                        "undiscovered_land": 5
                     }
                 }
                 out = self.newGame(ctx.guild.id, defaultGame)
