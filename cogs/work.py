@@ -286,7 +286,7 @@ class Work(commands.Cog):
                             f"In this time, {len(collected)} places were discovered - you can see them in `{ctx.prefix}places`",
                 color=colours["g"]
             ))
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
     async def startTask(self, ctx, m, task):
         game = await self.fetchGame(ctx.guild.id, m, ctx)
@@ -417,6 +417,19 @@ class Work(commands.Cog):
                         f"{self.bot.get_emoji(emojis['Scavenging']) } Undiscovered land: {game['resources']['undiscovered_land']}\n"
                         f"{self.bot.get_emoji(emojis['Farming'])    } Farms: {game['resources']['farms']}\n"
                         f"{self.bot.get_emoji(emojis['Mining'])     } Mines: {game['resources']['mines']}",
+            color=colours["b"]
+        ))
+
+    @commands.command()
+    @commands.guild_only()
+    async def tasks(self, ctx):
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(game, int):
+            return
+        await m.edit(embed=discord.Embed(
+            title="Current active tasks",
+            description="\n".join([f"{ctx.guild.get_member(int(k)).mention}: {v['type']}" for k, v in game["tasks"].items()]),
             color=colours["b"]
         ))
 
