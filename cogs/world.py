@@ -122,17 +122,13 @@ class World:
             cur_row = []
             for chunk in chunkRow:
                 cur_row.append(cols[chunk.name])
-                # if chunk.discovered == True:
-                #     cur_row.append(cols[chunk.name])
-                # else:
-                #     cur_row.append(colors["UNKNOWN"])
             curMap.append(cur_row)
 
         im = Image.fromarray(np.uint8(curMap), mode="RGB")
         size = 1000
         while size % self.size[0] != 0:
             size -= 1
-        im = im.resize((1000, 1000), 4)  # 0 4
+        im = im.resize((1000, 1000), 0)  # 0 4
         font = ImageFont.truetype("fonts/roboto/Roboto-Bold.ttf", 24)
         draw = ImageDraw.Draw(im)
         draw.text((50, 960), f"{self.name} | {ctx.guild.name} | Seed: {self.seed}", hex_to_rgb("000000"), font=font)

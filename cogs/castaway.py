@@ -61,7 +61,6 @@ class Castaway(commands.Cog):
                 await asyncio.sleep(3)
                 os.remove(f"servers/{server}.json")
                 result = self.newGame(server, data)
-                print(result)
                 if result == 201:
                     return 201
             return 400
@@ -79,6 +78,8 @@ class Castaway(commands.Cog):
     async def addPlayer(self, ctx, user):
         m = await ctx.send(embed=lembed)
         game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(game, int):
+            return
         if str(user.id) in game["players"]:
             await m.edit(embed=discord.Embed(
                 title="You're already here",
@@ -102,7 +103,9 @@ class Castaway(commands.Cog):
                 "Exploring": [0, 0],
                 "Crafting": [0, 0],
                 "Scavenging": [0, 0],
-                "Fishing": [0, 0]
+                "Fishing": [0, 0],
+                "Mining": [0, 0],
+                "Farming": [0, 0]
             },
             "level": 1,
             "upgradesUsed": 0,
@@ -145,7 +148,7 @@ class Castaway(commands.Cog):
         if isinstance(game, dict):
             return await m.edit(embed=discord.Embed(
                 title=f"{self.bot.get_emoji(emojis['Warning'])} Your server has already started",
-                description=f"If you want to restart your island, you can run `{ctx.prefix}restart` to start your island over.",
+                description=f"If you want to restart your island, you can run `{ctx.prefix}end` to start your island over.",
                 color=colours["r"]
             ))
         if game != 404:
@@ -202,7 +205,13 @@ class Castaway(commands.Cog):
                     "players": {},
                     "tasks": {},
                     "settings": options,
-                    "store": {}
+                    "store": {},
+                    "resources": {
+                        "farms": 10,
+                        "mines": 10,
+                        "fishing_spots": 10,
+                        "undiscovered_land": 10
+                    }
                 }
                 out = self.newGame(ctx.guild.id, defaultGame)
                 if out == 201:
@@ -351,6 +360,8 @@ class Castaway(commands.Cog):
             return
         m = await ctx.send(embed=lembed)
         game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(game, int):
+            return
         player = game["players"][str(user.id)]
 
         stats = ""
@@ -409,6 +420,94 @@ class Castaway(commands.Cog):
         if await self.globalChecks(ctx):
             return
         await self.addPlayer(ctx, ctx.author)
+
+    @commands.command()
+    @commands.guild_only()
+    async def end(self, ctx):
+        if not ctx.author.guild_permissions.manage_messages:
+            return await ctx.reply(embed=discord.Embed(
+                title="You can't do that >:(",
+                description="You need to have the `manage_server` permission to end a game",
+                color=colours["r"]
+            ))
+        m = await ctx.reply(embed=discord.Embed(
+            title="You sure?",
+            description=f"This will completely delete your island from the face of the earth - it cannot be recovered.\n"
+                        f"You can {self.bot.get_emoji(emojis['tick'])} confirm deletion or {self.bot.get_emoji(emojis['cross'])} delete your island",
+            color=colours["o"]
+        ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: `Reaction`"))
+
+        for r in [emojis['tick'], emojis['cross']]:
+            await m.add_reaction(self.bot.get_emoji(r))
+
+        try:
+            reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+        except asyncio.TimeoutError:
+            return
+
+        try:
+            r = reaction[0].emoji
+        except AttributeError:
+            return
+
+        try:
+            await m.remove_reaction(r, ctx.author)
+        except Exception as e:
+            print(e)
+
+        if r.name == "tick":
+            await m.delete()
+            os.remove(f"servers/{ctx.guild.id}.json")
+            await ctx.reply(embed=discord.Embed(
+                title="Poof",
+                description=f"Thats it, your game cannot be recovered. If you want to start again, just `{ctx.prefix}start`",
+                color=colours["o"]
+            ))
+        else:
+            await m.delete()
+
+    @commands.command()
+    @commands.guild_only()
+    async def leave(self, ctx):
+        m = await ctx.reply(embed=discord.Embed(
+            title="You sure?",
+            description=f"You will be removed from the island, along with your items.\n"
+                        f"You can {self.bot.get_emoji(emojis['tick'])} confirm deletion or {self.bot.get_emoji(emojis['cross'])} delete your island",
+            color=colours["o"]
+        ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: `Reaction`"))
+
+        for r in [emojis['tick'], emojis['cross']]:
+            await m.add_reaction(self.bot.get_emoji(r))
+
+        try:
+            reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+        except asyncio.TimeoutError:
+            return
+
+        try:
+            r = reaction[0].emoji
+        except AttributeError:
+            return
+
+        try:
+            await m.remove_reaction(r, ctx.author)
+        except Exception as e:
+            print(e)
+
+        if r.name == "tick":
+            game = await self.fetchGame(ctx.guild.id, m, ctx)
+            if isinstance(game, int):
+                return
+            del game["players"][str(ctx.author.id)]
+            await self.writeGame(ctx.guild.id, game, ctx, m)
+            await m.delete()
+            await ctx.reply(embed=discord.Embed(
+                title="Poof",
+                description=f"Thats it, you've left. If you want to join again, just `{ctx.prefix}join`",
+                color=colours["o"]
+            ))
+        else:
+            await m.delete()
 
     @commands.command()
     @commands.guild_only()

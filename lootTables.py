@@ -25,6 +25,53 @@ fishing = {
     }
 }
 
+mining = {
+    "peritem": {
+        "div": 1,
+        "min": 0,
+        "max": 1
+    },
+    "types": {
+        10: 15,
+        11: 1,
+        12: 3,
+        13: 10
+    }
+}
+
+farming = {
+    "peritem": {
+        "div": 1,
+        "min": 0,
+        "max": 2
+    },
+    "types": {
+        41: 5,
+        42: 5,
+        43: 1,
+        44: 4,
+        45: 5,
+        46: 2,
+        47: 4,
+        48: 4,
+        49: 5
+    }
+}
+
+exploring = {
+    "peritem": {
+        "div": 5,
+        "min": 1,
+        "max": 2
+    },
+    "types": {
+        "fishing_spots": 3,
+        "mines": 1,
+        "undiscovered_land": 2,
+        "farms": 3
+    }
+}
+
 
 class LootTable:
     def __init__(self, minutes, level=1):

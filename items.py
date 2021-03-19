@@ -1,7 +1,7 @@
 """
 
 x: Basic items, used in most recipes, cannot be crafted
-1x: reserved for ores/metals
+1x: ores/metals
 2x-3x: Materials, can be crafted, main components of structures
 4x: Foodstuffs
 5x-6x: Structures
@@ -35,6 +35,11 @@ items = {
         "description": "Just your basic H₂O",
         "props": ["cleanliness"]
     },
+    5: {},
+    6: {},
+    7: {},
+    8: {},
+    9: {},
     10: {
         "name": "coal",
         "description": "Used to make heat, make sure it is in steady supply",
@@ -55,11 +60,41 @@ items = {
         "description": "Used to make tools mainly",
         "stackSize": 32
     },
+    14: {},
+    15: {},
+    16: {},
+    17: {},
+    18: {},
+    19: {},
+    20: {},
+    21: {},
+    22: {},
+    23: {},
+    24: {},
+    25: {},
+    26: {},
+    27: {},
+    28: {},
+    29: {},
+    30: {},
+    31: {},
+    32: {},
+    33: {},
+    34: {},
+    35: {},
+    36: {},
+    37: {},
+    38: {},
+    39: {},
     40: {
         "name": "fish",
         "description": "* Not suitable for vegetarians",
-        "stackSize": 10,
-        "props": ["cooked", "type"]
+        "stackSize": 10
+    },
+    401: {
+        "name": "cooked fish",
+        "description": "* Not suitable for vegetarians - Even when cooked",
+        "stackSize": 10
     },
     41: {
         "name": "berries",
@@ -74,8 +109,12 @@ items = {
     43: {
         "name": "chicken",
         "description": "Make sure to cook it, you'll lose a lot of health",
-        "stackSize": 10,
-        "props": ["cooked"]
+        "stackSize": 10
+    },
+    431: {
+        "name": "cooked chicken",
+        "description": "You cooked it, well done",
+        "stackSize": 10
     },
     44: {
         "name": "insects",
@@ -90,20 +129,32 @@ items = {
     46: {
         "name": "egg",
         "description": "Just an egg, y'know",
-        "stackSize": 10,
-        "props": ["preparation"]
+        "stackSize": 10
+    },
+    461: {
+        "name": "cooked egg",
+        "description": "Just an egg, y'know",
+        "stackSize": 10
     },
     47: {
         "name": "seaweed",
         "description": "Weed, from the sea",
-        "stackSize": 10,
-        "props": ["cooked"]
+        "stackSize": 10
+    },
+    471: {
+        "name": "cooked seaweed",
+        "description": "Weed, from the sea",
+        "stackSize": 10
     },
     48: {
         "name": "mushrooms",
         "description": "Gotta get some shrooms",
-        "stackSize": 10,
-        "props": ["cooked"]
+        "stackSize": 10
+    },
+    481: {
+        "name": "cooked mushrooms",
+        "description": "Gotta get some shrooms",
+        "stackSize": 10
     },
     49: {
         "name": "nuts",

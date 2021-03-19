@@ -75,6 +75,8 @@ class ItemManager(commands.Cog):
     async def addPlayer(self, ctx, user):
         m = await ctx.send(embed=lembed)
         game = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(game, int):
+            return
         if str(user.id) in game["players"]:
             await m.edit(embed=discord.Embed(
                 title="You're already here",
@@ -99,6 +101,8 @@ class ItemManager(commands.Cog):
                 "Crafting": 0,
                 "Scavenging": 0,
                 "Fishing": 0,
+                "Mining": [0, 0],
+                "Farming": [0, 0]
             },
             "level": 1,
             "upgradesUsed": 0,
@@ -116,6 +120,8 @@ class ItemManager(commands.Cog):
 
     async def giveItems(self, user, server, items, ctx=None, m=None):
         game = await self.fetchGame(server)
+        if isinstance(game, int):
+            return
         player = game["players"][str(user)]
         inv = player["inventory"]
         for item in items:
@@ -152,6 +158,8 @@ class ItemManager(commands.Cog):
     async def inventory(self, ctx, user: typing.Optional[discord.Member]):
         m = await ctx.send(embed=lembed)
         g = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(g, int):
+            return
         if not user:
             user = ctx.author
         if str(user.id) not in g["players"]:
