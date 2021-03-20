@@ -213,12 +213,14 @@ class Castaway(commands.Cog):
                     "tasks": {},
                     "settings": options,
                     "store": {},
+                    "storeSize": 1,
                     "resources": {
                         "farms": 5,
                         "mines": 5,
                         "fishing_spots": 5,
                         "undiscovered_land": 5
-                    }
+                    },
+                    "started": datetime.datetime.timestamp(datetime.datetime.now())
                 }
                 out = self.newGame(ctx.guild.id, defaultGame)
                 if out == 201:
@@ -245,7 +247,7 @@ class Castaway(commands.Cog):
                         title=f"{self.bot.get_emoji(emojis['Name'])} What should the island be called?",
                         description="Please enter a name for the island. Type `cancel` to cancel.",
                         color=colours['r'],
-                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
+                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Text")
                 )
                 try:
                     msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
@@ -261,7 +263,7 @@ class Castaway(commands.Cog):
                         title=f"{self.bot.get_emoji(emojis['Max_Players'])} How many people should be allowed on the island?",
                         description="Please enter the limit of people on the island. 0 means no limit. Type `cancel` to cancel.",
                         color=colours['o'],
-                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
+                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number")
                 )
                 try:
                     msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
@@ -282,7 +284,7 @@ class Castaway(commands.Cog):
                         title=f"{self.bot.get_emoji(emojis['Size'])} How big should your island be?",
                         description="Please enter the size of your island. Default is 25, limit is 6-100. Type `cancel` to cancel.",
                         color=colours['g'],
-                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
+                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number")
                 )
                 try:
                     msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
@@ -303,7 +305,7 @@ class Castaway(commands.Cog):
                         title=f"{self.bot.get_emoji(emojis['Seed'])} What should your island seed be?",
                         description="This is the number used to generate your island. Limit is 0-1 billion. Type `cancel` to cancel.",
                         color=colours['g'],
-                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
+                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number")
                 )
                 try:
                     msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
@@ -324,7 +326,7 @@ class Castaway(commands.Cog):
                         title=f"{self.bot.get_emoji(emojis['Difficulty'][2])} What should your game difficulty be?",
                         description="What should your game difficulty be. 1 is easy, 2 is normal, and 3 is hard. Type `cancel` to cancel.",
                         color=colours['C'],
-                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Number`")
+                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number")
                 )
                 try:
                     msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
@@ -345,7 +347,7 @@ class Castaway(commands.Cog):
                         title=f"{self.bot.get_emoji(emojis['Name'])} Want to play online?",
                         description="Enter `y` or `n` to choose if you want to interact with other islands for trading. Type `cancel` to cancel.",
                         color=colours['C'],
-                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: `Text`")
+                    ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Text")
                 )
                 try:
                     msg = await ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author)
@@ -376,12 +378,12 @@ class Castaway(commands.Cog):
             stats += ''.join([str(self.bot.get_emoji(emojis['starFull'])) for _ in range(v[0])]) + \
                 ''.join([str(self.bot.get_emoji(emojis['starEmpty'])) for _ in range(5-v[0])]) + " " + \
                 str(self.bot.get_emoji(emojis[k])) + " " + k + " \n"
-        xpBar = str(self.bot.get_emoji(emojis["xpStart"])) + (str(self.bot.get_emoji(emojis["xpMiddle"])) * math.ceil((player['xp']/((player['level']*5)+5))*12)) + \
-            (str(self.bot.get_emoji(emojis["xpIncomplete"])) * (12-(math.ceil((player['xp']/((player['level']*5)+5))*12)))) + str(self.bot.get_emoji(emojis["xpEnd"]))
+        xpBar = str(self.bot.get_emoji(emojis["xpStart"])) + (str(self.bot.get_emoji(emojis["xpMiddle"])) * math.ceil((player['xp']/((player['level']*10*game["settings"]["difficulty"])+10))*12)) + \
+            (str(self.bot.get_emoji(emojis["xpIncomplete"])) * (12-(math.ceil((player['xp']/((player['level']*(10*game["settings"]["difficulty"]))+10))*12)))) + str(self.bot.get_emoji(emojis["xpEnd"]))
         await m.edit(embed=discord.Embed(
             title=f"{self.bot.get_emoji(emojis['RankCard'])} Profile - {user.display_name} | Level {player['level']}",
             description=f"{stats}\n"
-                        f"**Experience:** {player['xp']} / {(player['level']*5)+5}\n"
+                        f"**Experience:** {player['xp']} / {(player['level']*10*game['settings']['difficulty'])+10}\n"
                         f"{xpBar}\n"
                         f"{(str(self.bot.get_emoji(emojis['Warning'])) + ' ') if player['level']-1-player['upgradesUsed'] else ''}"
                         f"**Upgrades avaliable:** {player['level']-1-player['upgradesUsed']}\n\n"
@@ -389,9 +391,9 @@ class Castaway(commands.Cog):
             color=colours["b"]
         ))
 
-    @commands.command()
+    @commands.command(aliases=["map", "is"])
     @commands.guild_only()
-    async def map(self, ctx):
+    async def island(self, ctx):
         if await self.globalChecks(ctx):
             return
         m = await ctx.send(embed=discord.Embed(
@@ -414,7 +416,17 @@ class Castaway(commands.Cog):
         buf = io.BytesIO()
         image.save(buf, format="png")
         buf.seek(0)
-        embed = discord.Embed(title="Game map", color=colours["b"])
+        embed = discord.Embed(
+            title=f"{game['settings']['name']} ({len(game['players'])} islanders)",
+            description=f"**Community storage size:** {(game['storeSize']**2)*100} items ({sum([v for k, v in game['store'].items()])} used)\n"
+                        f"**Players currently working:** {len(game['tasks'])}\n"
+                        f"**Resource piles:** {sum([v for k, v in game['resources'].items()])}\n"
+                        f"**Map size:** {game['settings']['size'][0]}x{game['settings']['size'][1]}\n"
+                        f"**Map seed:** {game['settings']['seed']}\n"
+                        f"**Island created:** {datetime.datetime.fromtimestamp(game['started']).strftime('20%y-%m-%d')} "
+                        f"({humanize.naturaldelta(datetime.datetime.now()-datetime.datetime.fromtimestamp(game['started']))} ago)\n",
+            color=colours["b"]
+        )
 
         embed.set_image(url="attachment://map.png")
         await m.delete()
@@ -431,6 +443,8 @@ class Castaway(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def end(self, ctx):
+        if await self.globalChecks(ctx):
+            return
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.reply(embed=discord.Embed(
                 title="You can't do that >:(",
@@ -442,7 +456,7 @@ class Castaway(commands.Cog):
             description=f"This will completely delete your island from the face of the earth - it cannot be recovered.\n"
                         f"You can {self.bot.get_emoji(emojis['tick'])} confirm deletion or {self.bot.get_emoji(emojis['cross'])} delete your island",
             color=colours["o"]
-        ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: `Reaction`"))
+        ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: Reaction"))
 
         for r in [emojis['tick'], emojis['cross']]:
             await m.add_reaction(self.bot.get_emoji(r))
@@ -476,12 +490,14 @@ class Castaway(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def leave(self, ctx):
+        if await self.globalChecks(ctx, ctx.author):
+            return
         m = await ctx.reply(embed=discord.Embed(
             title="You sure?",
             description=f"You will be removed from the island, along with your items.\n"
                         f"You can {self.bot.get_emoji(emojis['tick'])} confirm deletion or {self.bot.get_emoji(emojis['cross'])} delete your island",
             color=colours["o"]
-        ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: `Reaction`"))
+        ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: Reaction"))
 
         for r in [emojis['tick'], emojis['cross']]:
             await m.add_reaction(self.bot.get_emoji(r))

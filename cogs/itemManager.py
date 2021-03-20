@@ -72,59 +72,6 @@ class ItemManager(commands.Cog):
         except TypeError:
             return 400
 
-    async def addPlayer(self, ctx, user):
-        m = await ctx.send(embed=lembed)
-        game = await self.fetchGame(ctx.guild.id, m, ctx)
-        if isinstance(game, int):
-            return
-        if str(user.id) in game["players"]:
-            await m.edit(embed=discord.Embed(
-                title="You're already here",
-                description="You are already in the game, you can't join again ;)",
-                color=colours["o"]
-            ))
-            return
-        if len(game["players"]) >= game["settings"]["max_players"] and game["settings"]["max_players"] > 0:
-            await m.edit(embed=discord.Embed(
-                title="The game is full",
-                description="This game has got the maximum number of players allowed :/",
-                color=colours["o"]
-            ))
-            return
-        game["players"][str(user.id)] = {
-            "joined": datetime.datetime.timestamp(datetime.datetime.now()),
-            "hp": 10,
-            "food": {
-                "level": 20,
-                "lastEaten": None
-            },
-            "water": {
-                "level": 20,
-                "lastDrink": None
-            },
-            "skills": {
-                "Cooking": 0,
-                "Exploring": 0,
-                "Crafting": 0,
-                "Scavenging": 0,
-                "Fishing": 0,
-                "Mining": [0, 0],
-                "Farming": [0, 0]
-            },
-            "level": 1,
-            "upgradesUsed": 0,
-            "xp": 0,
-            "inventory": {}
-        }
-        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))] = [2, 0]
-        await self.writeGame(ctx.guild.id, game, ctx, m)
-        await m.edit(embed=discord.Embed(
-            title="You're in!",
-            description=f"Welcome to {game['settings']['name']}! You are player {len(game['players'])}.\n"
-                        f"You can check your profile with `{ctx.prefix}profile` or manual with `{ctx.prefix}manual`",
-            color=colours["g"]
-        ))
-
     async def giveItems(self, user, server, items, ctx=None, m=None):
         game = await self.fetchGame(server)
         if isinstance(game, int):
@@ -163,6 +110,8 @@ class ItemManager(commands.Cog):
     @commands.command(aliases=["inv", "i"])
     @commands.guild_only()
     async def inventory(self, ctx, user: typing.Optional[discord.Member]):
+        if await self.globalChecks(ctx, (user or ctx.author)):
+            return
         m = await ctx.send(embed=lembed)
         g = await self.fetchGame(ctx.guild.id, m, ctx)
         if isinstance(g, int):
@@ -198,7 +147,7 @@ class ItemManager(commands.Cog):
                     title=f"Inventory for {user.display_name}",
                     description=s,
                     color=colours["b"]
-                ))
+                ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: Reaction"))
                 await m.add_reaction(self.bot.get_emoji(emojis["Transfer"]))
                 await m.add_reaction(self.bot.get_emoji(emojis["Delete"]))
                 await m.add_reaction(self.bot.get_emoji(emojis["Sort"]))
@@ -223,7 +172,7 @@ class ItemManager(commands.Cog):
                             title=f"{self.bot.get_emoji(emojis['Delete'])} Destroy items",
                             description=s,
                             color=colours["r"]
-                        ))
+                        ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number, list"))
                     else:
                         s = f"Send the item IDs of the items you wish to move to the store, separated by spaces, or \"all\" to destroy everything. React with " \
                             f"{self.bot.get_emoji(emojis['Delete'])} to cancel\n\n" + string
@@ -231,7 +180,7 @@ class ItemManager(commands.Cog):
                             title=f"{self.bot.get_emoji(emojis['Transfer'])} Transfer items",
                             description=s,
                             color=colours["o"]
-                        ))
+                        ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number, list"))
                     await m.remove_reaction(self.bot.get_emoji(emojis["Transfer"]), ctx.me)
                     await m.remove_reaction(self.bot.get_emoji(emojis["Sort"]), ctx.me)
                     try:
@@ -272,7 +221,15 @@ class ItemManager(commands.Cog):
                                         del g["players"][str(ctx.author.id)]["inventory"][str(item)]
                                     except KeyError:
                                         pass
-                            await self.writeGame(ctx.guild.id, g, ctx, m)
+                            if sum([v for k, v in g["store"].items()]) > (g["storeSize"]**2) * 100:
+                                await m.edit(embed=discord.Embed(
+                                    title=f"Inventory",
+                                    description=f"The community store is full - Adding these items would take it over its capacity of {(g['storeSize']**2)*100} items",
+                                    color=colours["r"]
+                                ))
+                                await asyncio.sleep(5)
+                            else:
+                                await self.writeGame(ctx.guild.id, g, ctx, m)
                         else:
                             pass
                         await m.clear_reactions()
@@ -284,7 +241,7 @@ class ItemManager(commands.Cog):
                     g = await self.fetchGame(ctx.guild.id, m, ctx)
                     inv = g["players"][str(ctx.author.id)]["inventory"]
                     tuples = [(k, v) for k, v in inv.items()]
-                    tuples = sorted(tuples, key=lambda x: x[0])
+                    tuples = sorted(tuples, key=lambda x: int(x[0]))
                     g["players"][str(ctx.author.id)]["inventory"] = {i[0]: i[1] for i in tuples}
                     await self.writeGame(ctx.guild.id, g, ctx, m)
             await m.clear_reactions()
@@ -292,6 +249,8 @@ class ItemManager(commands.Cog):
     @commands.command(aliases=["s"])
     @commands.guild_only()
     async def store(self, ctx):
+        if await self.globalChecks(ctx):
+            return
         m = await ctx.send(embed=lembed)
         g = await self.fetchGame(ctx.guild.id, m, ctx)
         if isinstance(g, int):
@@ -303,12 +262,13 @@ class ItemManager(commands.Cog):
             string = "\n".join([
                 f"`{k}` {Items.items[int(k)]['name'].capitalize()}: {v}" for k, v in store.items()
             ])
-            s = f"{self.bot.get_emoji(emojis['Sort'])} Sort items | {self.bot.get_emoji(emojis['Transfer'])} Transfer items\n\n" + string
+            s = f"{self.bot.get_emoji(emojis['Sort'])} Sort items | {self.bot.get_emoji(emojis['Transfer'])} Transfer items\n" \
+                f"{sum([v for k, v in g['store'].items()])} used of {(g['storeSize']**2)*100}\n\n" + string
             await m.edit(embed=discord.Embed(
                 title=f"Community store",
                 description=s,
                 color=colours["b"]
-            ))
+            ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: Reaction"))
             try:
                 reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
             except asyncio.TimeoutError:
@@ -324,7 +284,7 @@ class ItemManager(commands.Cog):
                 g = await self.fetchGame(ctx.guild.id, m, ctx)
                 inv = g["store"]
                 tuples = [(k, v) for k, v in inv.items()]
-                tuples = sorted(tuples, key=lambda x: x[0])
+                tuples = sorted(tuples, key=lambda x: int(x[0]))
                 g["store"] = {i[0]: i[1] for i in tuples}
                 await self.writeGame(ctx.guild.id, g, ctx, m)
             elif r == "transfer":
@@ -334,7 +294,7 @@ class ItemManager(commands.Cog):
                     title=f"Community store",
                     description=s,
                     color=colours["o"]
-                ))
+                ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: Reaction"))
                 await m.remove_reaction(self.bot.get_emoji(emojis["Transfer"]), ctx.me)
                 await asyncio.sleep(0.08)
                 await m.remove_reaction(self.bot.get_emoji(emojis["Sort"]), ctx.me)

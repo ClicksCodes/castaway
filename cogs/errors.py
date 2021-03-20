@@ -57,7 +57,7 @@ class Errors(commands.Cog):
                 if "clear_reactions()" in tb:
                     return
                 string = f"Command ran: {ctx.message.content}\nUser id:{ctx.author.id}\nGuild id:{ctx.guild.id}\n\n{tb}"
-                tb = "```" + ("\n".join([f"[C]" + line for line in (string.split("\n"))])) + "```"
+                tb = "\n".join([f"[C]" + line for line in (string.split("\n"))])
                 # url = await postbin.postAsync(tb)
                 print(f"{C.RedDark}[C] {C.Red}FATAL:\n{tb}{C.c}\n{code}")
                 if self.bot.user.id == 757225562816118895:

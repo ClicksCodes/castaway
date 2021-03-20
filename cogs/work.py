@@ -72,59 +72,6 @@ class Work(commands.Cog):
         except TypeError:
             return 400
 
-    async def addPlayer(self, ctx, user):
-        m = await ctx.send(embed=lembed)
-        game = await self.fetchGame(ctx.guild.id, m, ctx)
-        if isinstance(game, int):
-            return
-        if str(user.id) in game["players"]:
-            await m.edit(embed=discord.Embed(
-                title="You're already here",
-                description="You are already in the game, you can't join again ;)",
-                color=colours["o"]
-            ))
-            return
-        if len(game["players"]) >= game["settings"]["max_players"] and game["settings"]["max_players"] > 0:
-            await m.edit(embed=discord.Embed(
-                title="The game is full",
-                description="This game has got the maximum number of players allowed :/",
-                color=colours["o"]
-            ))
-            return
-        game["players"][str(user.id)] = {
-            "joined": datetime.datetime.timestamp(datetime.datetime.now()),
-            "hp": 10,
-            "food": {
-                "level": 20,
-                "lastEaten": None
-            },
-            "water": {
-                "level": 20,
-                "lastDrink": None
-            },
-            "skills": {
-                "Cooking": 0,
-                "Exploring": 0,
-                "Crafting": 0,
-                "Scavenging": 0,
-                "Fishing": 0,
-                "Mining": [0, 0],
-                "Farming": [0, 0]
-            },
-            "level": 1,
-            "upgradesUsed": 0,
-            "xp": 0,
-            "inventory": {}
-        }
-        game["players"][str(user.id)]["skills"][random.choice(list(game["players"][str(user.id)]["skills"].keys()))] = [2, 0]
-        await self.writeGame(ctx.guild.id, game, ctx, m)
-        await m.edit(embed=discord.Embed(
-            title="You're in!",
-            description=f"Welcome to {game['settings']['name']}! You are player {len(game['players'])}.\n"
-                        f"You can check your profile with `{ctx.prefix}profile` or manual with `{ctx.prefix}manual`",
-            color=colours["g"]
-        ))
-
     async def giveItems(self, user, server, items, ctx=None, m=None):
         game = await self.fetchGame(server)
         if isinstance(game, int):
@@ -172,6 +119,14 @@ class Work(commands.Cog):
         table = None
         rewardSystem = 0
         lostTile = ""
+        if task == "Crafting":
+            del game["tasks"][str(ctx.author.id)]
+            await self.writeGame(ctx.guild.id, game, ctx, m)
+            return await m.edit(embed=discord.Embed(
+                title="Finished crafting",
+                description="You are no longer crafting",
+                color=colours["g"]
+            ))
         if task == "Fishing":
             table = LootTables.fishing
             rewardSystem = 1
@@ -210,9 +165,9 @@ class Work(commands.Cog):
             levelled = True
             game["players"][str(ctx.author.id)]["skills"][task] = [game["players"][str(ctx.author.id)]["skills"][task][0]+1, 0]
         game["players"][str(ctx.author.id)]["xp"] += round(timeTaken / 10)
-        while game["players"][str(ctx.author.id)]["xp"] > (game["players"][str(ctx.author.id)]["level"]*5)+5:
+        while game["players"][str(ctx.author.id)]["xp"] > (game["players"][str(ctx.author.id)]["level"]*(5*game["settings"]["difficulty"]))+10:
             levelup = True
-            game["players"][str(ctx.author.id)]["xp"] -= (game["players"][str(ctx.author.id)]["level"]*5)+5
+            game["players"][str(ctx.author.id)]["xp"] -= (game["players"][str(ctx.author.id)]["level"]*(5*game["settings"]["difficulty"]))+10
             game["players"][str(ctx.author.id)]["level"] += 1
         del game["tasks"][str(ctx.author.id)]
         await self.writeGame(ctx.guild.id, game, ctx, m)
@@ -312,7 +267,7 @@ class Work(commands.Cog):
                     description=f"You tried to go {task}, but there was nowhere to go :/\n"
                                 f"Someone will have to go exploring (`{ctx.prefix}explore`) to find new areas to go {task}.\n"
                                 f"View your current locations with `{ctx.prefix}places`",
-                    color=colours["g"]
+                    color=colours["r"]
                 ))
         game["tasks"][str(ctx.author.id)] = {"type": task, "startedAt": datetime.datetime.timestamp(datetime.datetime.now())}
         await self.writeGame(ctx.guild.id, game, ctx, m)
@@ -414,6 +369,8 @@ class Work(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def places(self, ctx):
+        if await self.globalChecks(ctx):
+            return
         m = await ctx.send(embed=lembed)
         game = await self.fetchGame(ctx.guild.id, m, ctx)
         if isinstance(game, int):
@@ -430,6 +387,8 @@ class Work(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def tasks(self, ctx):
+        if await self.globalChecks(ctx):
+            return
         m = await ctx.send(embed=lembed)
         game = await self.fetchGame(ctx.guild.id, m, ctx)
         if isinstance(game, int):

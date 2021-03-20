@@ -6,5 +6,6 @@ cogs = [
     "cogs.castaway",
     "cogs.errors",
     "cogs.itemManager",
-    "cogs.work"
+    "cogs.work",
+    "cogs.crafting"
 ]
