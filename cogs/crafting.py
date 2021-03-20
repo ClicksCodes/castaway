@@ -179,7 +179,8 @@ class Crafting(commands.Cog):
                     amount = int(response.content)
                     if amount > limit:
                         amount = limit
-                    if amount < 1: amount = 1
+                    if amount < 1:
+                        amount = 1
                     await m.edit(embed=discord.Embed(
                         title="Crafting",
                         description=f"You are now making {Items.items[int(item)]['name']} x{amount * Items.items[item]['recipe']['out']}...",

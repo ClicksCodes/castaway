@@ -363,33 +363,100 @@ class Castaway(commands.Cog):
     @commands.command(aliases=["p"])
     @commands.guild_only()
     async def profile(self, ctx, user: typing.Optional[discord.Member]):
-        if not user:
-            user = ctx.author
-        if await self.globalChecks(ctx, user):
-            return
         m = await ctx.send(embed=lembed)
-        game = await self.fetchGame(ctx.guild.id, m, ctx)
-        if isinstance(game, int):
-            return
-        player = game["players"][str(user.id)]
+        skip = False
+        while True:
+            if not user:
+                user = ctx.author
+            if await self.globalChecks(ctx, user):
+                return
+            game = await self.fetchGame(ctx.guild.id, m, ctx)
+            if isinstance(game, int):
+                return
+            player = game["players"][str(user.id)]
 
-        stats = ""
-        for k, v in player["skills"].items():
-            stats += ''.join([str(self.bot.get_emoji(emojis['starFull'])) for _ in range(v[0])]) + \
-                ''.join([str(self.bot.get_emoji(emojis['starEmpty'])) for _ in range(5-v[0])]) + " " + \
-                str(self.bot.get_emoji(emojis[k])) + " " + k + " \n"
-        xpBar = str(self.bot.get_emoji(emojis["xpStart"])) + (str(self.bot.get_emoji(emojis["xpMiddle"])) * math.ceil((player['xp']/((player['level']*10*game["settings"]["difficulty"])+10))*12)) + \
-            (str(self.bot.get_emoji(emojis["xpIncomplete"])) * (12-(math.ceil((player['xp']/((player['level']*(10*game["settings"]["difficulty"]))+10))*12)))) + str(self.bot.get_emoji(emojis["xpEnd"]))
-        await m.edit(embed=discord.Embed(
-            title=f"{self.bot.get_emoji(emojis['RankCard'])} Profile - {user.display_name} | Level {player['level']}",
-            description=f"{stats}\n"
-                        f"**Experience:** {player['xp']} / {(player['level']*10*game['settings']['difficulty'])+10}\n"
-                        f"{xpBar}\n"
-                        f"{(str(self.bot.get_emoji(emojis['Warning'])) + ' ') if player['level']-1-player['upgradesUsed'] else ''}"
-                        f"**Upgrades avaliable:** {player['level']-1-player['upgradesUsed']}\n\n"
-                        f"**Landed on the island:** {humanize.naturaltime(datetime.datetime.utcnow()-datetime.datetime.utcfromtimestamp(player['joined']))}",
-            color=colours["b"]
-        ))
+            stats = ""
+            for k, v in player["skills"].items():
+                stats += ''.join([str(self.bot.get_emoji(emojis['starFull'])) for _ in range(v[0])]) + \
+                    ''.join([str(self.bot.get_emoji(emojis['starEmpty'])) for _ in range(5-v[0])]) + " " + \
+                    str(self.bot.get_emoji(emojis[k])) + " " + k + " \n"
+            xpBar = str(self.bot.get_emoji(emojis["xpStart"])) + \
+                (str(self.bot.get_emoji(emojis["xpMiddle"])) * math.ceil((player['xp']/((player['level']*10*game["settings"]["difficulty"])+10))*12)) + \
+                (str(self.bot.get_emoji(emojis["xpIncomplete"])) *
+                    (12-(math.ceil((player['xp']/((player['level']*(10*game["settings"]["difficulty"]))+10))*12)))) + str(self.bot.get_emoji(emojis["xpEnd"]))
+            upgradesAvaliable = player['level']-1-player['upgradesUsed']
+            await m.edit(embed=discord.Embed(
+                title=f"{self.bot.get_emoji(emojis['RankCard'])} Profile - {user.display_name} | Level {player['level']}",
+                description=f"{stats}\n"
+                            f"**Experience:** {player['xp']} / {(player['level']*10*game['settings']['difficulty'])+10}\n"
+                            f"{xpBar}\n"
+                            f"{(str(self.bot.get_emoji(emojis['Warning'])) + ' ') if upgradesAvaliable else ''}"
+                            f"**Upgrades avaliable:** {player['level']-1-player['upgradesUsed']}\n\n"
+                            f"**Landed on the island:** {humanize.naturaltime(datetime.datetime.utcnow()-datetime.datetime.utcfromtimestamp(player['joined']))}",
+                color=colours["b"]
+            ))
+            if upgradesAvaliable and ctx.author == user:
+                if not skip:
+                    await m.add_reaction(self.bot.get_emoji(emojis['Warning']))
+                    try:
+                        reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+                    except asyncio.TimeoutError:
+                        await m.clear_reactions()
+                        break
+
+                    try:
+                        r = reaction[0].emoji
+                    except AttributeError:
+                        await m.clear_reactions()
+                        break
+
+                    try:
+                        await m.clear_reactions()
+                        await asyncio.sleep(0.1)
+                    except Exception as e:
+                        break
+                        print(e)
+
+                if r.name.lower() == "warning" or skip:
+                    if not skip:
+                        for r in [emojis["Cooking"], emojis["Exploring"], emojis["Crafting"], emojis["Scavenging"], emojis["Fishing"], emojis["Mining"], emojis["Farming"]]:
+                            await m.add_reaction(self.bot.get_emoji(r))
+                    try:
+                        reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+                    except asyncio.TimeoutError:
+                        await m.clear_reactions()
+                        break
+
+                    try:
+                        r = reaction[0].emoji
+                    except AttributeError:
+                        await m.clear_reactions()
+                        break
+
+                    skip = False
+                    try:
+                        game = await self.fetchGame(ctx.guild.id, m, ctx)
+                        game["players"][str(ctx.author.id)]["skills"][r.name][0] += 1
+                        game["players"][str(ctx.author.id)]["upgradesUsed"] += 1
+                        await self.writeGame(ctx.guild.id, game, ctx, m)
+                        if game["players"][str(ctx.author.id)]['level']-1-game["players"][str(ctx.author.id)]['upgradesUsed'] > 0:
+                            skip = True
+                            await m.remove_reaction(r, ctx.author)
+                        else:
+                            await m.clear_reactions()
+                    except KeyError:
+                        pass
+
+                    try:
+                        if not skip:
+                            await m.clear_reactions()
+                            await asyncio.sleep(0.1)
+                    except Exception as e:
+                        print(e)
+                        break
+            else:
+                break
+        await m.clear_reactions()
 
     @commands.command(aliases=["map", "is"])
     @commands.guild_only()

@@ -289,6 +289,8 @@ class Work(commands.Cog):
             return
         if str(ctx.author.id) in game["tasks"]:
             await self.calcRewards(ctx, m)
+        else:
+            await m.delete()
         await self.startTask(ctx, m, "Cooking")
 
     @commands.command()
@@ -299,6 +301,8 @@ class Work(commands.Cog):
         game = await self.fetchGame(ctx.guild.id, m, ctx)
         if str(ctx.author.id) in game["tasks"]:
             await self.calcRewards(ctx, m)
+        else:
+            await m.delete()
         await self.startTask(ctx, m, "Exploring")
 
     @commands.command(aliases=["collect"])
@@ -311,6 +315,8 @@ class Work(commands.Cog):
             return
         if str(ctx.author.id) in game["tasks"]:
             await self.calcRewards(ctx, m)
+        else:
+            await m.delete()
         await self.startTask(ctx, m, "Scavenging")
 
     @commands.command()
@@ -323,6 +329,8 @@ class Work(commands.Cog):
             return
         if str(ctx.author.id) in game["tasks"]:
             await self.calcRewards(ctx, m)
+        else:
+            await m.delete()
         await self.startTask(ctx, m, "Fishing")
 
     @commands.command()
@@ -335,6 +343,8 @@ class Work(commands.Cog):
             return
         if str(ctx.author.id) in game["tasks"]:
             await self.calcRewards(ctx, m)
+        else:
+            await m.delete()
         await self.startTask(ctx, m, "Mining")
 
     @commands.command()
@@ -347,6 +357,8 @@ class Work(commands.Cog):
             return
         if str(ctx.author.id) in game["tasks"]:
             await self.calcRewards(ctx, m)
+        else:
+            await m.delete()
         await self.startTask(ctx, m, "Farming")
 
     @commands.command(aliases=["cancel"])

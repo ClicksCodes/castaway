@@ -174,7 +174,7 @@ class ItemManager(commands.Cog):
                             color=colours["r"]
                         ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number, list"))
                     else:
-                        s = f"Send the item IDs of the items you wish to move to the store, separated by spaces, or \"all\" to destroy everything. React with " \
+                        s = f"Send the item IDs of the items you wish to move to the store, separated by spaces, or \"all\" to transfer everything. React with " \
                             f"{self.bot.get_emoji(emojis['Delete'])} to cancel\n\n" + string
                         await m.edit(embed=discord.Embed(
                             title=f"{self.bot.get_emoji(emojis['Transfer'])} Transfer items",
@@ -205,7 +205,7 @@ class ItemManager(commands.Cog):
                                             if item not in g["store"]:
                                                 g["store"][item] = amount
                                             else:
-                                                g["store"] += amount
+                                                g["store"][item] += amount
                                         del g["players"][str(ctx.author.id)]["inventory"][str(item)]
                                     except KeyError:
                                         pass
@@ -217,7 +217,7 @@ class ItemManager(commands.Cog):
                                             if item not in g["store"]:
                                                 g["store"][item] = amount
                                             else:
-                                                g["store"] += amount
+                                                g["store"][item] += amount
                                         del g["players"][str(ctx.author.id)]["inventory"][str(item)]
                                     except KeyError:
                                         pass
