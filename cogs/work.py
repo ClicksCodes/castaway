@@ -84,6 +84,13 @@ class Work(commands.Cog):
                 color=colours["o"]
             ))
             return
+        if len(game["players"]) >= game["settings"]["max_players"] and game["settings"]["max_players"] > 0:
+            await m.edit(embed=discord.Embed(
+                title="The game is full",
+                description="This game has got the maximum number of players allowed :/",
+                color=colours["o"]
+            ))
+            return
         game["players"][str(user.id)] = {
             "joined": datetime.datetime.timestamp(datetime.datetime.now()),
             "hp": 10,

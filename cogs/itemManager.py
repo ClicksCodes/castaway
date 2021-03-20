@@ -84,6 +84,13 @@ class ItemManager(commands.Cog):
                 color=colours["o"]
             ))
             return
+        if len(game["players"]) >= game["settings"]["max_players"] and game["settings"]["max_players"] > 0:
+            await m.edit(embed=discord.Embed(
+                title="The game is full",
+                description="This game has got the maximum number of players allowed :/",
+                color=colours["o"]
+            ))
+            return
         game["players"][str(user.id)] = {
             "joined": datetime.datetime.timestamp(datetime.datetime.now()),
             "hp": 10,
@@ -168,15 +175,209 @@ class ItemManager(commands.Cog):
                 description=f"{user.display_name} is not yet on the island, get them to `{ctx.prefix}join` if you want them to join.",
                 color=colours["b"]
             ))
-        inventory = g["players"][str(user.id)]["inventory"]
-        string = "\n".join([
-            f"`{k}` {Items.items[int(k)]['name'].capitalize()}: {v}" for k, v in inventory.items()
-        ])
-        await m.edit(embed=discord.Embed(
-            title=f"Inventory for {user.display_name}",
-            description=string,
-            color=colours["b"]
-        ))
+        if user.id != ctx.author.id:
+            inventory = g["players"][str(user.id)]["inventory"]
+            string = "\n".join([
+                f"`{k}` {Items.items[int(k)]['name'].capitalize()}: {v}" for k, v in inventory.items()
+            ])
+            await m.edit(embed=discord.Embed(
+                title=f"Inventory for {user.display_name}",
+                description=string,
+                color=colours["b"]
+            ))
+        if user.id == ctx.author.id:
+            while True:
+                g = await self.fetchGame(ctx.guild.id, m, ctx)
+                inventory = g["players"][str(user.id)]["inventory"]
+                string = "\n".join([
+                    f"`{k}` {Items.items[int(k)]['name'].capitalize()}: {v}" for k, v in inventory.items()
+                ])
+                s = f"{self.bot.get_emoji(emojis['Transfer'])} Transfer items to store | {self.bot.get_emoji(emojis['Delete'])} Destroy items | " \
+                    f"{self.bot.get_emoji(emojis['Sort'])} Sort items\n\n" + string
+                await m.edit(embed=discord.Embed(
+                    title=f"Inventory for {user.display_name}",
+                    description=s,
+                    color=colours["b"]
+                ))
+                await m.add_reaction(self.bot.get_emoji(emojis["Transfer"]))
+                await m.add_reaction(self.bot.get_emoji(emojis["Delete"]))
+                await m.add_reaction(self.bot.get_emoji(emojis["Sort"]))
+
+                try:
+                    reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+                except asyncio.TimeoutError:
+                    break
+
+                try:
+                    await m.remove_reaction(reaction[0].emoji, ctx.author)
+                except Exception as e:
+                    print(e)
+                r = reaction[0].emoji.name.lower()
+
+                if r in ["delete", "transfer"]:
+                    deleting = (r == "delete")
+                    if deleting:
+                        s = f"Send the item IDs of the items you wish to destroy, separated by spaces, or \"all\" to destroy everything. " \
+                            f"React with {self.bot.get_emoji(emojis['Delete'])} to cancel\n\n" + string
+                        await m.edit(embed=discord.Embed(
+                            title=f"{self.bot.get_emoji(emojis['Delete'])} Destroy items",
+                            description=s,
+                            color=colours["r"]
+                        ))
+                    else:
+                        s = f"Send the item IDs of the items you wish to move to the store, separated by spaces, or \"all\" to destroy everything. React with " \
+                            f"{self.bot.get_emoji(emojis['Delete'])} to cancel\n\n" + string
+                        await m.edit(embed=discord.Embed(
+                            title=f"{self.bot.get_emoji(emojis['Transfer'])} Transfer items",
+                            description=s,
+                            color=colours["o"]
+                        ))
+                    await m.remove_reaction(self.bot.get_emoji(emojis["Transfer"]), ctx.me)
+                    await m.remove_reaction(self.bot.get_emoji(emojis["Sort"]), ctx.me)
+                    try:
+                        done, _ = await asyncio.wait([
+                            ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author),
+                            ctx.bot.wait_for('reaction_add', timeout=120, check=lambda _, user: user == ctx.author)
+                        ], return_when=asyncio.FIRST_COMPLETED)
+                    except asyncio.TimeoutError:
+                        break
+
+                    try:
+                        text = None
+                        response = done.pop().result()
+                        if type(response) == discord.message.Message:
+                            await response.delete()
+                            g = await self.fetchGame(ctx.guild.id, m, ctx)
+                            if response.content.lower() == "all":
+                                for item in g["players"][str(ctx.author.id)]["inventory"].copy().keys():
+                                    try:
+                                        if not deleting:
+                                            amount = int(g["players"][str(ctx.author.id)]["inventory"][str(item)])
+                                            if item not in g["store"]:
+                                                g["store"][item] = amount
+                                            else:
+                                                g["store"] += amount
+                                        del g["players"][str(ctx.author.id)]["inventory"][str(item)]
+                                    except KeyError:
+                                        pass
+                            else:
+                                for item in response.content.split(" "):
+                                    try:
+                                        if not deleting:
+                                            amount = int(g["players"][str(ctx.author.id)]["inventory"][str(item)])
+                                            if item not in g["store"]:
+                                                g["store"][item] = amount
+                                            else:
+                                                g["store"] += amount
+                                        del g["players"][str(ctx.author.id)]["inventory"][str(item)]
+                                    except KeyError:
+                                        pass
+                            await self.writeGame(ctx.guild.id, g, ctx, m)
+                        else:
+                            pass
+                        await m.clear_reactions()
+                    except Exception as e:
+                        print(e)
+                    for future in done:
+                        future.exception()
+                elif r in ["sort"]:
+                    g = await self.fetchGame(ctx.guild.id, m, ctx)
+                    inv = g["players"][str(ctx.author.id)]["inventory"]
+                    tuples = [(k, v) for k, v in inv.items()]
+                    tuples = sorted(tuples, key=lambda x: x[0])
+                    g["players"][str(ctx.author.id)]["inventory"] = {i[0]: i[1] for i in tuples}
+                    await self.writeGame(ctx.guild.id, g, ctx, m)
+            await m.clear_reactions()
+
+    @commands.command(aliases=["s"])
+    @commands.guild_only()
+    async def store(self, ctx):
+        m = await ctx.send(embed=lembed)
+        g = await self.fetchGame(ctx.guild.id, m, ctx)
+        if isinstance(g, int):
+            return
+        await m.add_reaction(self.bot.get_emoji(emojis["Sort"]))
+        await m.add_reaction(self.bot.get_emoji(emojis["Transfer"]))
+        while True:
+            store = g["store"]
+            string = "\n".join([
+                f"`{k}` {Items.items[int(k)]['name'].capitalize()}: {v}" for k, v in store.items()
+            ])
+            s = f"{self.bot.get_emoji(emojis['Sort'])} Sort items | {self.bot.get_emoji(emojis['Transfer'])} Transfer items\n\n" + string
+            await m.edit(embed=discord.Embed(
+                title=f"Community store",
+                description=s,
+                color=colours["b"]
+            ))
+            try:
+                reaction = await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+            except asyncio.TimeoutError:
+                break
+
+            try:
+                await m.remove_reaction(reaction[0].emoji, ctx.author)
+            except Exception as e:
+                print(e)
+            r = reaction[0].emoji.name.lower()
+
+            if r == "sort":
+                g = await self.fetchGame(ctx.guild.id, m, ctx)
+                inv = g["store"]
+                tuples = [(k, v) for k, v in inv.items()]
+                tuples = sorted(tuples, key=lambda x: x[0])
+                g["store"] = {i[0]: i[1] for i in tuples}
+                await self.writeGame(ctx.guild.id, g, ctx, m)
+            elif r == "transfer":
+                s = f"Send the item IDs of the items you wish to move to your inventory, separated by spaces. React with " \
+                    f"{self.bot.get_emoji(emojis['Delete'])} to cancel\n\n" + string
+                await m.edit(embed=discord.Embed(
+                    title=f"Community store",
+                    description=s,
+                    color=colours["o"]
+                ))
+                await m.remove_reaction(self.bot.get_emoji(emojis["Transfer"]), ctx.me)
+                await asyncio.sleep(0.08)
+                await m.remove_reaction(self.bot.get_emoji(emojis["Sort"]), ctx.me)
+                await asyncio.sleep(0.08)
+                await m.add_reaction(self.bot.get_emoji(emojis["Delete"]))
+                try:
+                    done, _ = await asyncio.wait([
+                        ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author),
+                        ctx.bot.wait_for('reaction_add', timeout=120, check=lambda _, user: user == ctx.author)
+                    ], return_when=asyncio.FIRST_COMPLETED)
+                except asyncio.TimeoutError:
+                    break
+
+                try:
+                    text = None
+                    response = done.pop().result()
+                    if type(response) == discord.message.Message:
+                        await response.delete()
+                        g = await self.fetchGame(ctx.guild.id, m, ctx)
+                        for item in response.content.split(" "):
+                            try:
+                                amount = int(g["store"][str(item)])
+                                if item not in g["players"][str(ctx.author.id)]["inventory"]:
+                                    g["players"][str(ctx.author.id)]["inventory"][str(item)] = amount
+                                else:
+                                    g["players"][str(ctx.author.id)]["inventory"][str(item)] += amount
+                                del g["store"][str(item)]
+                            except KeyError:
+                                pass
+                        await self.writeGame(ctx.guild.id, g, ctx, m)
+                    else:
+                        pass
+                    await m.clear_reactions()
+                except Exception as e:
+                    print(e)
+                for future in done:
+                    future.exception()
+                await m.clear_reactions()
+                await asyncio.sleep(0.08)
+                await m.add_reaction(self.bot.get_emoji(emojis["Sort"]))
+                await asyncio.sleep(0.08)
+                await m.add_reaction(self.bot.get_emoji(emojis["Transfer"]))
+        await m.clear_reactions()
 
 
 def setup(bot):
