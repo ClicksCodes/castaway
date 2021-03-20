@@ -74,15 +74,15 @@ exploring = {
 
 
 class LootTable:
-    def __init__(self, minutes, level=1):
+    def __init__(self, minutes, level=1, food=10, water=10):
         self.minutes = minutes
         self.level = level
+        self.food = food
+        self.water = water
 
     def getTable(self):
         levelMult = (1.5 * self.level**2) + 13
-        num = self.minutes * levelMult
-        den = 0.1 * self.minutes + 10
-        return num/den
+        return ((levelMult*self.minutes)/(.1*self.minutes+10))*((min(self.food, 5)+5)/10)*(self.water/10)
 
     def table(self, amount, table):
         rewards = []

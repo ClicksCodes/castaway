@@ -97,14 +97,8 @@ class Castaway(commands.Cog):
         game["players"][str(user.id)] = {
             "joined": datetime.datetime.timestamp(datetime.datetime.now()),
             "hp": 10,
-            "food": {
-                "level": 20,
-                "lastEaten": None
-            },
-            "water": {
-                "level": 20,
-                "lastDrink": None
-            },
+            "food": 10,
+            "water": 10,
             "skills": {
                 "Cooking": [0, 0],
                 "Exploring": [0, 0],
@@ -363,6 +357,33 @@ class Castaway(commands.Cog):
     @commands.command(aliases=["p"])
     @commands.guild_only()
     async def profile(self, ctx, user: typing.Optional[discord.Member]):
+        if not user:
+            user = ctx.author
+        if await self.globalChecks(ctx, user):
+            return
+        game = await self.fetchGame(ctx.guild.id)
+        if isinstance(game, int):
+            return
+        player = game["players"][str(ctx.author.id)]
+        food = str(self.bot.get_emoji(emojis["food"]["f"])) * (math.floor(player["food"]/2))
+        food += str(self.bot.get_emoji(emojis["food"]["h"])) * (player["food"] % 2)
+        food += str(self.bot.get_emoji(emojis["food"]["e"])) * (5-math.ceil(player["food"]/2))
+        food += f"{player['food']}/10"
+        water = str(self.bot.get_emoji(emojis["water"]["f"])) * (math.floor(player["water"]/2))
+        water += str(self.bot.get_emoji(emojis["water"]["h"])) * (player["water"] % 2)
+        water += str(self.bot.get_emoji(emojis["water"]["e"])) * (5-math.ceil(player["water"]/2))
+        water += f"{player['water']}/10"
+        hp = str(self.bot.get_emoji(emojis["hp"]["f"])) * (math.floor(player["hp"]/2))
+        hp += str(self.bot.get_emoji(emojis["hp"]["h"])) * (player["hp"] % 2)
+        hp += str(self.bot.get_emoji(emojis["hp"]["e"])) * (5-math.ceil(player["hp"]/2))
+        hp += f"{player['hp']}/10"
+        await ctx.reply(embed=discord.Embed(
+            title=ctx.author.display_name,
+            description=f"{hp}\n"
+                        f"{food}\n"
+                        f"{water}",
+            color=colours["b"]
+        ))
         m = await ctx.send(embed=lembed)
         skip = False
         while True:

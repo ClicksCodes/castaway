@@ -115,7 +115,7 @@ class Work(commands.Cog):
         task = user["type"]
         timeTaken = (datetime.datetime.now() - datetime.datetime.fromtimestamp(user["startedAt"])).total_seconds() / 60
         level = game["players"][str(ctx.author.id)]["skills"][task.capitalize()][0] + 1
-        LT = LootTables.LootTable(minutes=int(timeTaken), level=level)
+        LT = LootTables.LootTable(minutes=int(timeTaken), level=level, hunger=game["players"][str(ctx.author.id)]["food"], water=game["players"][str(ctx.author.id)]["water"])
         table = None
         rewardSystem = 0
         lostTile = ""
