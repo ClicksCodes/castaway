@@ -5,9 +5,11 @@ import time
 import asyncio
 import math
 import io
+import subprocess
 import random
+import functools
 
-from datetime import datetime
+import datetime
 from discord.ext import commands
 
 from consts import *
@@ -25,14 +27,38 @@ class Core(commands.Cog):
                         f"**Members:** {len(self.bot.users)}\n"
                         f"**Emojis:** {len(self.bot.emojis)}\n"
                         f"**Ping:** {round(self.bot.latency*1000)}ms\n",
-            color=colours["g"]
+            color=colours["b"]
         ))
 
     @commands.command()
     async def ping(self, ctx):
         m = await ctx.send(embed=lembed)
         time = m.created_at - ctx.message.created_at
-        await m.edit(content=None, embed=discord.Embed(title=f"Ping", description=f"Latency is: `{int(time.microseconds / 1000)}ms`", color=colours['g']))
+        await m.edit(content=None, embed=discord.Embed(title=f"Ping", description=f"Latency is: `{int(time.microseconds / 1000)}ms`", color=colours['b']))
+
+    async def run_sync(self, func: callable, *args, **kwargs):
+        return await self.bot.loop.run_in_executor(None, functools.partial(func, *args, **kwargs))
+
+    @commands.command(aliases=["v"])
+    async def version(self, ctx):
+        head = str(await self.run_sync(subprocess.check_output, ["git", "rev-parse", "HEAD"]))[2:-3]
+        branch = str(await self.run_sync(subprocess.check_output, ["git", "rev-parse", "--abbrev-ref", "HEAD"]))[2:-3]
+        commit = str(await self.run_sync(subprocess.check_output, ["git", "show-branch", "rewrite"]))[(5+(len(branch))):-3]
+        url = str(await self.run_sync(subprocess.check_output, ["git", "config", "--get", "remote.origin.url"]))[2:-3]
+
+        await ctx.reply(embed=discord.Embed(
+            title=f"{self.bot.user.name}",
+            description=f"**Repository:** [{url.split('/')[-2]}/{url.split('/')[-1]}]({url})\n"
+                        f"**Branch:** `{branch}`\n"
+                        f"**HEAD:** `{head}`\n"
+                        f"**Commit:** `{commit}`\n"
+                        f"**Uptime:** `{str(datetime.datetime.now()-self.bot.uptime).split('.')[0]}`",
+            color=colours['b']
+        ).set_footer(
+            text=f"You probably don't know what most of this means - "
+                 f"If you do, you can work with us to make {self.bot.user.name} and other bots at https://discord.gg/bPaNnxe",
+            icon_url=self.bot.user.avatar_url
+        ))
 
 
 def setup(bot):

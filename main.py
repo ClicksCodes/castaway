@@ -1,6 +1,7 @@
 from discord.ext import commands
 
 import config
+import datetime
 from consts import *
 
 DEV = 0
@@ -64,5 +65,5 @@ bot = Bot(
     presence=None,
     intents=intents
 )
-
+bot.uptime = datetime.datetime.now()
 bot.run(config.token)

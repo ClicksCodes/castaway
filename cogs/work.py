@@ -170,6 +170,17 @@ class Work(commands.Cog):
             game["players"][str(ctx.author.id)]["xp"] -= (game["players"][str(ctx.author.id)]["level"]*(5*game["settings"]["difficulty"]))+10
             game["players"][str(ctx.author.id)]["level"] += 1
         del game["tasks"][str(ctx.author.id)]
+        f = random.randint(1, 3)
+        w = int((random.randint(1, 3)) == 1) + 1
+        game["players"][str(ctx.author.id)]["food"] -= max(f, 0)
+        game["players"][str(ctx.author.id)]["water"] -= max(w, 0)
+        hpLost = False
+        if game["players"][str(ctx.author.id)]["food"] == 0:
+            game["players"][str(ctx.author.id)]["hp"] -= 1
+            hpLost = True
+        if game["players"][str(ctx.author.id)]["water"] == 0:
+            game["players"][str(ctx.author.id)]["hp"] -= 2
+            hpLost = True
         await self.writeGame(ctx.guild.id, game, ctx, m)
         if rewardSystem == 1:
             collected = LT.table(LT.getTable(), table)
@@ -225,6 +236,7 @@ class Work(commands.Cog):
             text += f'\nYou also reached player level {game["players"][str(ctx.author.id)]["level"]}!'
         if lostTile:
             text += f'\nOne {lostTile} was used up in the process.'
+        text += f"\n\nYou lost {f} food and {w} water from working{', and some HP from low food and drink' if hpLost else ''}"
         if rewardSystem == 1:
             await m.edit(embed=discord.Embed(
                 title=f"Finished {task}",

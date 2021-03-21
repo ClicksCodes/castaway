@@ -32,7 +32,11 @@ items = {
     4: {
         "name": "water",
         "description": "Just your basic H₂O",
-        "props": ["cleanliness"],
+        "found": "Purifying water"
+    },
+    5: {
+        "name": "dirty water",
+        "description": "Water, but dirty - Make sure to purify it",
         "found": "Not possible"
     },
     10: {
@@ -87,7 +91,7 @@ items = {
     401: {
         "name": "cooked fish",
         "description": "* Not suitable for vegetarians - Even when cooked",
-        "found": "Farming"
+        "found": "Cooking"
     },
     41: {
         "name": "berries",
@@ -107,7 +111,7 @@ items = {
     431: {
         "name": "cooked chicken",
         "description": "You cooked it, well done",
-        "found": "Farming"
+        "found": "Cooking"
     },
     44: {
         "name": "insects",
@@ -127,7 +131,7 @@ items = {
     461: {
         "name": "cooked egg",
         "description": "Just an egg, y'know",
-        "found": "Farming"
+        "found": "Cooking"
     },
     47: {
         "name": "seaweed",
@@ -137,7 +141,7 @@ items = {
     471: {
         "name": "cooked seaweed",
         "description": "Weed, from the sea",
-        "found": "Farming"
+        "found": "Cooking"
     },
     48: {
         "name": "mushrooms",
@@ -147,7 +151,7 @@ items = {
     481: {
         "name": "cooked mushrooms",
         "description": "Gotta get some shrooms",
-        "found": "Farming"
+        "found": "Cooking"
     },
     49: {
         "name": "nuts",
@@ -169,6 +173,7 @@ items = {
         }
     }
 }
+
 
 class Multiplier:
     def __init__(self, item, level=1):

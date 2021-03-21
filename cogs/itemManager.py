@@ -339,6 +339,36 @@ class ItemManager(commands.Cog):
                 await m.add_reaction(self.bot.get_emoji(emojis["Transfer"]))
         await m.clear_reactions()
 
+    @commands.command()
+    @commands.guild_only()
+    async def drink(self, ctx):
+        if await self.globalChecks(ctx, ctx.author):
+            return
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        game["players"][str(ctx.author.id)]["water"] = 10
+        await self.writeGame(ctx.guild.id, game, ctx, m)
+        await m.edit(embed=discord.Embed(
+            title="Water",
+            description="You are now on 100% water - This will reduce as you work",
+            color=colours["b"]
+        ))
+
+    @commands.command()
+    @commands.guild_only()
+    async def eat(self, ctx):
+        if await self.globalChecks(ctx, ctx.author):
+            return
+        m = await ctx.send(embed=lembed)
+        game = await self.fetchGame(ctx.guild.id, m, ctx)
+        game["players"][str(ctx.author.id)]["food"] = 10
+        await self.writeGame(ctx.guild.id, game, ctx, m)
+        await m.edit(embed=discord.Embed(
+            title="Food",
+            description="You are now on 100% food - This will reduce as you work",
+            color=colours["g"]
+        ))
+
 
 def setup(bot):
     bot.add_cog(ItemManager(bot))
