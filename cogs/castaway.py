@@ -622,6 +622,106 @@ class Castaway(commands.Cog):
         else:
             await m.delete()
 
+    @commands.command(aliases=["m"])
+    @commands.guild_only()
+    async def manual(self, ctx):
+        if await self.globalChecks(ctx, ctx.author):
+            return
+        c = ctx.prefix
+        keys = {
+            0: [
+                "Islands",
+                "An island is where each game of Castaway takes place - It has a name, map, and some islanders trying to escape\n\n"
+                f"{self.bot.get_emoji(emojis['Name'])} **Name:** The island name is just how you recognise it against others\n"
+                f"{self.bot.get_emoji(emojis['Max_Players'])} **Max players:** The amount of people allowed on the island, any others won't be able to join\n"
+                f"{self.bot.get_emoji(emojis['Size'])} **Size:** The size of your island decides how many resources can be found\n"
+                f"{self.bot.get_emoji(emojis['Seed'])} **Seed:** Seeds are used to generate your map, not too important\n"
+                f"{self.bot.get_emoji(emojis['Difficulty'][2])} **Difficulty:** Affects item drop rates, and how long you have to work for the same reward\n"
+                f"{self.bot.get_emoji(emojis['Online'][1])} **Online:** Lets your interact with other servers, and other servers interact with your island\n"
+            ],
+            1: [
+                "Players",
+                "Each player has a list of statistics and information about them\n\n"
+                f"{self.bot.get_emoji(emojis['food']['f'])} **Food:** Food is increased with `{c}eat` and is needed to stop losing health when working\n"
+                f"{self.bot.get_emoji(emojis['water']['f'])} **Water:** Food is increased with `{c}drink` and is also needed to stop losing health when working\n"
+                f"Both Food and Water will decrease the amount of items gained when working - so make sure to keep them high\n"
+                f"{self.bot.get_emoji(emojis['hp']['f'])} **HP:** Your health decreases if you are on low food and water, "
+                f"and losing your health clears your items and halves your stats\n"
+                f"{self.bot.get_emoji(emojis['starFull'])} **Skills:** Skills help you complete tasks faster and more efficiently. Someone good at scavenging can "
+                f"gain more items than someone at level 1\n"
+                f"{self.bot.get_emoji(emojis['Warning'])} **XP and upgrades:** As you complete activities, your player skill level increases. Each time you level up,"
+                f" you can upgrade any skill."
+            ],
+            2: [
+                "Working",
+                "Working is how you get items on your island. It is affected by skills and difficulty\n\n"
+                f"{self.bot.get_emoji(emojis['Cooking'])} **Cooking:** `{c}cook` Converts raw food to cooked variants, with better nutrition\n"
+                f"{self.bot.get_emoji(emojis['Exploring'])} **Exploring:** `{c}explore` Looks for new places on the map for activities which require them\n"
+                f"{self.bot.get_emoji(emojis['Crafting'])} **Crafting:** `{c}craft` or `{c}c` *See Crafting*\n"
+                f"{self.bot.get_emoji(emojis['Scavenging'])} **Scavenging:** `{c}scavenge` or `{c}collect` Uses `Undiscovered land`, and collects small items like wood\n"
+                f"{self.bot.get_emoji(emojis['Fishing'])} **Fishing:** `{c}fish` uses `Fishing spots`, and collects fish from the water to be cooked and eaten\n"
+                f"{self.bot.get_emoji(emojis['Mining'])} **Mining:** `{c}mine` uses `Mines`, and collects metals and ores for crafting\n"
+                f"{self.bot.get_emoji(emojis['Farming'])} **Farming:** `{c}farm` uses `Farms`, and collects various food items, some of which need to be cooked\n"
+            ],
+            3: [
+                "Crafting",
+                "Crafting lets you convert resources into materials and structures. Crafting takes time and can be sped up with the crafting skill\n\n"
+                "**IDs:** Each item has an ID, which is shown as a `number` before items. These are used for deciding what to craft\n"
+                "**Skill:** Crafting does not increase naturally, and can only increase when you gain a player level from other activities\n"
+                f"**Items:** A list of items and how to craft them can be seen on `{c}craft` or `{c}c`. For more information on an item, you can `{c}item` followed by its ID\n"
+            ],
+            4: [
+                "Inventory",
+                "Your inventory is where items are stored for yourself personally. These can be transferred\n\n"
+                f"There is an infinite capacity for your inventory, but only you can access; it using `{c}inventory`, `{c}inv` or `{c}i`.\n"
+                f"{self.bot.get_emoji(emojis['Transfer'])} Any item can be transferred from your inventory to the server storage, and the other way around\n"
+                f"{self.bot.get_emoji(emojis['Delete'])} Delete any unused items, losing them forever\n"
+                f"{self.bot.get_emoji(emojis['Sort'])} All items in your inventory can be sorted easily, in order of their ID\n"
+            ],
+            5: [
+                "Store",
+                "The community store is where items are stored for everyone to take. These can be transferred\n\n"
+                f"There is a limited capacity for your the store, and it can be accessed using `{c}store` or `{c}s`.\n"
+                f"This capacity can be increased using `{c}craft 50` or `{c}c 50`.\n"
+                f"{self.bot.get_emoji(emojis['Transfer'])} Any item can be transferred from the store to your inventory, and the other way around\n"
+                f"{self.bot.get_emoji(emojis['Sort'])} All items in the server can be sorted easily, in order of their ID\n"
+            ]
+        }
+        page = 0
+        m = await ctx.send(embed=lembed)
+        for r in [emojis["left"], emojis["cross"], emojis["right"]]:
+            await m.add_reaction(self.bot.get_emoji(r))
+        while True:
+            await m.edit(embed=discord.Embed(
+                title=f"Manual: {keys[page][0]} ({page+1}/{len(keys.keys())})",
+                description=keys[page][1],
+                color=colours['b']
+            ).set_footer(text=f"I'm listening for your next reaction, {ctx.author.display_name} | Expected: Reaction"))
+            try:
+                done, _ = await asyncio.wait([
+                    ctx.bot.wait_for('reaction_add', timeout=120, check=lambda _, user: user == ctx.author),
+                    ctx.bot.wait_for('reaction_remove', timeout=120, check=lambda _, user: user == ctx.author)
+                ], return_when=asyncio.FIRST_COMPLETED)
+            except asyncio.TimeoutError:
+                break
+
+            try:
+                response = done.pop().result()
+                await m.remove_reaction(response[0].emoji, ctx.author)
+                if response[0].emoji.name == "cross":
+                    break
+                elif response[0].emoji.name == "left":
+                    page -= 1
+                else:
+                    page += 1
+                page = min(max(0, page), len(keys.keys())-1)
+            except Exception as e:
+                print(e)
+            for future in done:
+                future.exception()
+        await asyncio.sleep(0.8)
+        await m.clear_reactions()
+
     @commands.command()
     @commands.guild_only()
     async def dumpgame(self, ctx):

@@ -307,7 +307,7 @@ class Crafting(commands.Cog):
                         page -= 1
                     else:
                         page += 1
-                    page = min(max(0, page), len(keys.keys()))
+                    page = min(max(0, page), len(keys.keys())-1)
             except Exception as e:
                 print(e)
             for future in done:

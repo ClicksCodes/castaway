@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import json
 import os
+import math
 import typing
 import random
 
@@ -172,15 +173,32 @@ class Work(commands.Cog):
         del game["tasks"][str(ctx.author.id)]
         f = random.randint(1, 3)
         w = int((random.randint(1, 3)) == 1) + 1
-        game["players"][str(ctx.author.id)]["food"] -= max(f, 0)
-        game["players"][str(ctx.author.id)]["water"] -= max(w, 0)
+        game["players"][str(ctx.author.id)]["food"] -= f
+        game["players"][str(ctx.author.id)]["water"] -= w
         hpLost = False
-        if game["players"][str(ctx.author.id)]["food"] == 0:
+        if game["players"][str(ctx.author.id)]["food"] <= 0:
             game["players"][str(ctx.author.id)]["hp"] -= 1
+            game["players"][str(ctx.author.id)]["food"] = 0
             hpLost = True
-        if game["players"][str(ctx.author.id)]["water"] == 0:
+        if game["players"][str(ctx.author.id)]["water"] <= 0:
             game["players"][str(ctx.author.id)]["hp"] -= 2
+            game["players"][str(ctx.author.id)]["water"] = 0
             hpLost = True
+        if game["players"][str(ctx.author.id)]["hp"] <= 0:
+            game["players"][str(ctx.author.id)]["inventory"] = {}
+            for k, v in game["players"][str(ctx.author.id)]["skills"].items():
+                game["players"][str(ctx.author.id)]["skills"][k] = [math.floor(v[0]/2), 0]
+            game["players"][str(ctx.author.id)]["hp"] = 10
+            game["players"][str(ctx.author.id)]["food"] = 10
+            game["players"][str(ctx.author.id)]["water"] = 10
+            del game["tasks"][str(ctx.author.id)]
+            await self.writeGame(ctx.guild.id, game, ctx, m)
+            await m.edit(embed=discord.Embed(
+                title=f"{self.bot.get_emoji(emojis['hp']['e'])} You're out of health",
+                description=f"You ran out of health after {task}, and your items have been cleared; along with half of your skills",
+                color=colours["r"]
+            ))
+            return 409
         await self.writeGame(ctx.guild.id, game, ctx, m)
         if rewardSystem == 1:
             collected = LT.table(LT.getTable(), table)
@@ -300,7 +318,9 @@ class Work(commands.Cog):
         if isinstance(game, int):
             return
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.delete()
         await self.startTask(ctx, m, "Cooking")
@@ -312,7 +332,9 @@ class Work(commands.Cog):
         m = await ctx.send(embed=lembed)
         game = await self.fetchGame(ctx.guild.id, m, ctx)
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.delete()
         await self.startTask(ctx, m, "Exploring")
@@ -326,7 +348,9 @@ class Work(commands.Cog):
         if isinstance(game, int):
             return
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.delete()
         await self.startTask(ctx, m, "Scavenging")
@@ -340,7 +364,9 @@ class Work(commands.Cog):
         if isinstance(game, int):
             return
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.delete()
         await self.startTask(ctx, m, "Fishing")
@@ -354,7 +380,9 @@ class Work(commands.Cog):
         if isinstance(game, int):
             return
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.delete()
         await self.startTask(ctx, m, "Mining")
@@ -368,7 +396,9 @@ class Work(commands.Cog):
         if isinstance(game, int):
             return
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.delete()
         await self.startTask(ctx, m, "Farming")
@@ -382,7 +412,9 @@ class Work(commands.Cog):
         if isinstance(game, int):
             return
         if str(ctx.author.id) in game["tasks"]:
-            await self.calcRewards(ctx, m)
+            o = await self.calcRewards(ctx, m)
+            if o == 409:
+                return
         else:
             await m.edit(embed=discord.Embed(
                 title="Nothing to do",
