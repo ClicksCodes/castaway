@@ -4,6 +4,7 @@ import typing
 import time
 import asyncio
 import math
+import os
 import io
 import subprocess
 import random
@@ -46,12 +47,19 @@ class Core(commands.Cog):
         commit = str(await self.run_sync(subprocess.check_output, ["git", "show-branch", "rewrite"]))[(5+(len(branch))):-3]
         url = str(await self.run_sync(subprocess.check_output, ["git", "config", "--get", "remote.origin.url"]))[2:-3]
 
+        total_size = 0
+        for path, dirs, files in os.walk("./servers"):
+            for f in files:
+                fp = os.path.join(path, f)
+                total_size += os.path.getsize(fp)
+
         await ctx.reply(embed=discord.Embed(
             title=f"{self.bot.user.name}",
             description=f"**Repository:** [{url.split('/')[-2]}/{url.split('/')[-1]}]({url})\n"
                         f"**Branch:** `{branch}`\n"
                         f"**HEAD:** `{head}`\n"
                         f"**Commit:** `{commit}`\n"
+                        f"**Server size:** `{humanize.naturalsize(total_size)}`\n"
                         f"**Uptime:** `{str(datetime.datetime.now()-self.bot.uptime).split('.')[0]}`",
             color=colours['b']
         ).set_footer(
