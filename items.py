@@ -153,5 +153,36 @@ items = {
         "name": "nuts",
         "description": "NUT",
         "found": "Farming"
+    },
+    50: {
+        "name": "store upgrade",
+        "description": "Gives your community store more capacity",
+        "found": "Crafting",
+        "recipe": {
+            "in": {
+                0: 50,
+                2: 5
+            },
+            "out": 1,
+            "max": 1,
+            "time": 60
+        }
     }
 }
+
+class Multiplier:
+    def __init__(self, item, level=1):
+        self.item = item
+        self.level = level
+
+    def itemMultiplier(self):
+        if int(self.item) == 50:
+            return int(self.level)**2
+        else:
+            return 1
+
+    def timeMultiplier(self):
+        if int(self.item) == 50:
+            return (int(self.level)**2) * 2
+        else:
+            return 1

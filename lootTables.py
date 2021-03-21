@@ -74,10 +74,10 @@ exploring = {
 
 
 class LootTable:
-    def __init__(self, minutes, level=1, food=10, water=10):
+    def __init__(self, minutes, level=1, hunger=10, water=10):
         self.minutes = minutes
         self.level = level
-        self.food = food
+        self.food = hunger
         self.water = water
 
     def getTable(self):

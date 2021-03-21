@@ -202,6 +202,7 @@ class Castaway(commands.Cog):
                     description="Please wait while we set up your game. This could take some time",
                     color=colours['b'],
                 ))
+                structures = (-2 * options["difficulty"]) + 7
                 defaultGame = {
                     "players": {},
                     "tasks": {},
@@ -209,12 +210,13 @@ class Castaway(commands.Cog):
                     "store": {},
                     "storeSize": 1,
                     "resources": {
-                        "farms": 5,
-                        "mines": 5,
-                        "fishing_spots": 5,
-                        "undiscovered_land": 5
+                        "farms": structures,
+                        "mines": structures,
+                        "fishing_spots": structures,
+                        "undiscovered_land": structures
                     },
-                    "started": datetime.datetime.timestamp(datetime.datetime.now())
+                    "started": datetime.datetime.timestamp(datetime.datetime.now()),
+                    "structures": {}
                 }
                 out = self.newGame(ctx.guild.id, defaultGame)
                 if out == 201:
@@ -368,15 +370,15 @@ class Castaway(commands.Cog):
         food = str(self.bot.get_emoji(emojis["food"]["f"])) * (math.floor(player["food"]/2))
         food += str(self.bot.get_emoji(emojis["food"]["h"])) * (player["food"] % 2)
         food += str(self.bot.get_emoji(emojis["food"]["e"])) * (5-math.ceil(player["food"]/2))
-        food += f"{player['food']}/10"
+        food += f" {player['food']}/10"
         water = str(self.bot.get_emoji(emojis["water"]["f"])) * (math.floor(player["water"]/2))
         water += str(self.bot.get_emoji(emojis["water"]["h"])) * (player["water"] % 2)
         water += str(self.bot.get_emoji(emojis["water"]["e"])) * (5-math.ceil(player["water"]/2))
-        water += f"{player['water']}/10"
+        water += f" {player['water']}/10"
         hp = str(self.bot.get_emoji(emojis["hp"]["f"])) * (math.floor(player["hp"]/2))
         hp += str(self.bot.get_emoji(emojis["hp"]["h"])) * (player["hp"] % 2)
         hp += str(self.bot.get_emoji(emojis["hp"]["e"])) * (5-math.ceil(player["hp"]/2))
-        hp += f"{player['hp']}/10"
+        hp += f" {player['hp']}/10"
         await ctx.reply(embed=discord.Embed(
             title=ctx.author.display_name,
             description=f"{hp}\n"

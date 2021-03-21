@@ -1,5 +1,4 @@
 Features:
-Structures
 Health
 Manual
 Multiplayer
@@ -7,3 +6,4 @@ Collecting + purifying water
 Help message
 
 Bugs:
+health/food/water not reduced by working

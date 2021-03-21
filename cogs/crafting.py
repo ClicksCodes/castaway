@@ -137,88 +137,96 @@ class Crafting(commands.Cog):
             ))
             await asyncio.sleep(5)
             return
-        limit = 0
-        forRec = [[str(k), int(v)] for k, v in Items.items[item]["recipe"]["in"].items()]
-        br = False
-        while limit < 1000:
-            for i in forRec:
-                usefulInv[i[0]] -= i[1]
-            for _, v in usefulInv.items():
-                if v < 0:
-                    br = True
+        if "max" in Items.items[item]["recipe"]:
+            limit = Items.items[item]["recipe"]["max"]
+            amount = Items.items[item]["recipe"]["max"]
+            forRec = [[str(k), int(v)] for k, v in Items.items[item]["recipe"]["in"].items()]
+        else:
+            limit = 0
+            forRec = [[str(k), int(v)] for k, v in Items.items[item]["recipe"]["in"].items()]
+            br = False
+            while limit < 1000:
+                for i in forRec:
+                    usefulInv[i[0]] -= i[1]
+                for _, v in usefulInv.items():
+                    if v < 0:
+                        br = True
+                        break
+                if br:
                     break
-            if br:
-                break
-            limit += 1
-        time = (Items.items[item]["recipe"]["time"]*limit) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1)
-        await m.add_reaction(self.bot.get_emoji(emojis["cross"]))
-        n = ', '.join([f'{Items.items[i[0]]["name"]} x{i[1]}' for i in ingredients])
-        await m.edit(embed=discord.Embed(
-            title="How many do you want to make?",
-            description=f"You can make {Items.items[int(item)]['name']} x{limit * Items.items[item]['recipe']['out']} in "
-                        f"{round(time, 2)}s ({humanize.naturaldelta(datetime.timedelta(seconds=time))})\n"
-                        f"It costs {n} to make {Items.items[item]['recipe']['out']} {Items.items[item]['name']} at "
-                        f"{Items.items[item]['recipe']['out']} items / {Items.items[item]['recipe']['time']}s",
-            color=colours["g"]
-        ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number"))
+                limit += 1
+            time = (Items.items[item]["recipe"]["time"]*limit) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1)
+            await m.add_reaction(self.bot.get_emoji(emojis["cross"]))
+            n = ', '.join([f'{Items.items[i[0]]["name"]} x{i[1]}' for i in ingredients])
+            await m.edit(embed=discord.Embed(
+                title="How many do you want to make?",
+                description=f"You can make {Items.items[int(item)]['name']} x{limit * Items.items[item]['recipe']['out']} in "
+                            f"{round(time, 2)}s ({humanize.naturaldelta(datetime.timedelta(seconds=time))})\n"
+                            f"It costs {n} to make {Items.items[item]['recipe']['out']} {Items.items[item]['name']} at "
+                            f"{Items.items[item]['recipe']['out']} items / {Items.items[item]['recipe']['time']}s",
+                color=colours["g"]
+            ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number"))
 
-        try:
-            done, _ = await asyncio.wait([
-                ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author),
-                ctx.bot.wait_for('reaction_add', timeout=120, check=lambda _, user: user == ctx.author)
-            ], return_when=asyncio.FIRST_COMPLETED)
-        except asyncio.TimeoutError:
-            return
+            try:
+                done, _ = await asyncio.wait([
+                    ctx.bot.wait_for('message', timeout=120, check=lambda message: message.author == ctx.author),
+                    ctx.bot.wait_for('reaction_add', timeout=120, check=lambda _, user: user == ctx.author)
+                ], return_when=asyncio.FIRST_COMPLETED)
+            except asyncio.TimeoutError:
+                return
 
-        await m.clear_reactions()
-        try:
+            await m.clear_reactions()
+
             response = done.pop().result()
             if type(response) == discord.message.Message:
                 await response.delete()
                 try:
-                    amount = int(response.content)
+                    amount = round(int(response.content) / Items.items[item]['recipe']['out'])
                     if amount > limit:
                         amount = limit
                     if amount < 1:
                         amount = 1
-                    await m.edit(embed=discord.Embed(
-                        title="Crafting",
-                        description=f"You are now making {Items.items[int(item)]['name']} x{amount * Items.items[item]['recipe']['out']}...",
-                        color=colours["g"]
-                    ))
-                    game = await self.fetchGame(server, m, ctx)
-                    game["tasks"][str(ctx.author.id)] = {"type": "Crafting", "startedAt": datetime.datetime.timestamp(datetime.datetime.now())}
-                    await self.writeGame(server, game, ctx, m)
-                    await asyncio.sleep((Items.items[item]["recipe"]["time"]*amount) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1))
-                    game = await self.fetchGame(server, m, ctx)
-                    if str(ctx.author.id) not in game["tasks"]:
-                        return
-                    if game["tasks"][str(ctx.author.id)]["type"] != "Crafting":
-                        return
-                    del game["tasks"][str(ctx.author.id)]
-                    for i in forRec:
-                        game["players"][str(ctx.author.id)]["inventory"][i[0]] -= i[1] * amount
-                        if game["players"][str(ctx.author.id)]["inventory"][i[0]] <= 0:
-                            del game["players"][str(ctx.author.id)]["inventory"][i[0]]
-                    if str(item) in game["players"][str(ctx.author.id)]["inventory"]:
-                        game["players"][str(ctx.author.id)]["inventory"][str(item)] += amount * Items.items[item]['recipe']['out']
-                    else:
-                        game["players"][str(ctx.author.id)]["inventory"][str(item)] = amount * Items.items[item]['recipe']['out']
-                    await self.writeGame(server, game, ctx, m)
-                    await m.edit(embed=discord.Embed(
-                        title="Crafting",
-                        description=f"You made {Items.items[int(item)]['name']} x{amount * Items.items[item]['recipe']['out']}",
-                        color=colours["g"]
-                    ))
-                    await asyncio.sleep(3)
                 except ValueError:
                     return
             else:
                 return
-        except Exception as e:
-            print(e)
-        for future in done:
-            future.exception()
+            for future in done:
+                future.exception()
+        await m.edit(embed=discord.Embed(
+            title="Crafting",
+            description=f"You are now making {Items.items[int(item)]['name']} x{amount * Items.items[item]['recipe']['out']}...",
+            color=colours["g"]
+        ))
+        game = await self.fetchGame(server, m, ctx)
+        game["tasks"][str(ctx.author.id)] = {"type": "Crafting", "startedAt": datetime.datetime.timestamp(datetime.datetime.now())}
+        await self.writeGame(server, game, ctx, m)
+        timeMultiplier = Items.Multiplier(item, game["storeSize"]).timeMultiplier()
+        await asyncio.sleep((Items.items[item]["recipe"]["time"]*amount*timeMultiplier) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1))
+        game = await self.fetchGame(server, m, ctx)
+        multiplier = Items.Multiplier(item, game["storeSize"]).itemMultiplier()
+        if str(ctx.author.id) not in game["tasks"]:
+            return
+        if game["tasks"][str(ctx.author.id)]["type"] != "Crafting":
+            return
+        del game["tasks"][str(ctx.author.id)]
+        for i in forRec:
+            game["players"][str(ctx.author.id)]["inventory"][i[0]] -= i[1] * amount * multiplier
+            if game["players"][str(ctx.author.id)]["inventory"][i[0]] <= 0:
+                del game["players"][str(ctx.author.id)]["inventory"][i[0]]
+        if int(item) == 50:
+            game["storeSize"] += 1
+        else:
+            if str(item) in game["players"][str(ctx.author.id)]["inventory"]:
+                game["players"][str(ctx.author.id)]["inventory"][str(item)] += amount * Items.items[item]['recipe']['out']
+            else:
+                game["players"][str(ctx.author.id)]["inventory"][str(item)] = amount * Items.items[item]['recipe']['out']
+        await self.writeGame(server, game, ctx, m)
+        await m.edit(embed=discord.Embed(
+            title="Crafting",
+            description=f"You made {Items.items[int(item)]['name']} x{amount * Items.items[item]['recipe']['out']}",
+            color=colours["g"]
+        ))
+        await asyncio.sleep(3)
 
     @commands.command(aliases=["c", "crafting"])
     @commands.guild_only()
@@ -251,6 +259,7 @@ class Crafting(commands.Cog):
             return
         for r in [emojis['left'], emojis['right'], emojis['cross']]:
             await m.add_reaction(self.bot.get_emoji(r))
+        game = await self.fetchGame(ctx.guild.id)
         while True:
             string = []
             for item in craftables[page]:
@@ -258,8 +267,10 @@ class Crafting(commands.Cog):
                 current += f"**{item['name'].capitalize()}** "
                 if "recipe" in item:
                     current += "- Recipe: `"
-                    current += ", ".join([f"{Items.items[k]['name']} x{v}" for k, v in item["recipe"]["in"].items()])
-                    current += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {item['recipe']['time']}s)"
+                    multiplier = Items.Multiplier(item['iid'], game["storeSize"]).itemMultiplier()
+                    timeMultiplier = Items.Multiplier(item['iid'], game["storeSize"]).timeMultiplier()
+                    current += ", ".join([f"{Items.items[k]['name']} x{v * multiplier}" for k, v in item["recipe"]["in"].items()])
+                    current += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {item['recipe']['time'] * timeMultiplier}s)"
                 else:
                     current += "- *Not craftable*"
                 string.append(current)
@@ -284,6 +295,7 @@ class Crafting(commands.Cog):
                         item = int(response.content)
                         if item not in Items.items.keys():
                             continue
+                        await response.delete()
                         await self.craftItem(ctx, m, ctx.author.id, ctx.guild.id, item)
                     except ValueError:
                         continue
@@ -300,6 +312,7 @@ class Crafting(commands.Cog):
                 print(e)
             for future in done:
                 future.exception()
+        await asyncio.sleep(0.8)
         await m.clear_reactions()
 
     @commands.command()
@@ -314,6 +327,7 @@ class Crafting(commands.Cog):
                 color=colours['r']
             ))
         try:
+            iid = item
             item = Items.items[int(item)]
         except (TypeError, KeyError):
             return await ctx.reply(embed=discord.Embed(
@@ -321,11 +335,17 @@ class Crafting(commands.Cog):
                 description=f"I couldn't find an item with that ID",
                 color=colours['r']
             ))
+        game = await self.fetchGame(ctx.guild.id)
         recipe = ""
         if "recipe" in item:
             recipe = "Recipe - `"
-            recipe += ", ".join([f"{Items.items[int(k)]['name']} x{v}" for k, v in item['recipe']['in'].items()])
-            recipe += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {item['recipe']['time']}s)"
+            ex = ""
+            multiplier = Items.Multiplier(iid, game["storeSize"]).itemMultiplier()
+            timeMultiplier = Items.Multiplier(iid, game["storeSize"]).timeMultiplier()
+            if int(iid) == 50:
+                ex = f"\nUpgrades to level {game['storeSize']+1}, {((game['storeSize']+1)**2)*100} item capacity"
+            recipe += ", ".join([f"{Items.items[int(k)]['name']} x{v * multiplier}" for k, v in item['recipe']['in'].items()])
+            recipe += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {item['recipe']['time'] * timeMultiplier}s) {ex}"
         else:
             recipe = "*Not craftable*"
         await ctx.reply(embed=discord.Embed(
