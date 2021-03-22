@@ -44,7 +44,7 @@ class Core(commands.Cog):
     async def version(self, ctx):
         head = str(await self.run_sync(subprocess.check_output, ["git", "rev-parse", "HEAD"]))[2:-3]
         branch = str(await self.run_sync(subprocess.check_output, ["git", "rev-parse", "--abbrev-ref", "HEAD"]))[2:-3]
-        commit = str(await self.run_sync(subprocess.check_output, ["git", "show-branch", "rewrite"]))[(5+(len(branch))):-3]
+        commit = str(await self.run_sync(subprocess.check_output, ["git", "show-branch", branch]))[(5+(len(branch))):-3]
         url = str(await self.run_sync(subprocess.check_output, ["git", "config", "--get", "remote.origin.url"]))[2:-3]
 
         total_size = 0
