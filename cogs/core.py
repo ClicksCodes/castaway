@@ -91,6 +91,15 @@ class Core(commands.Cog):
             color=colours["b"]
         ))
 
+    @commands.command()
+    async def todo(self, ctx):
+        url = str(await self.run_sync(subprocess.check_output, ["git", "config", "--get", "remote.origin.url"]))[2:-3]
+        await ctx.reply(embed=discord.Embed(
+            title="What's on the TODO list?",
+            description=f"Help us make {self.bot.user.name} better by giving us your idea [here]({url}/projects/1",
+            color=colours["b"]
+        ))
+
 
 def setup(bot):
     bot.add_cog(Core(bot))
