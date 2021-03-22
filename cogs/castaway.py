@@ -218,6 +218,8 @@ class Castaway(commands.Cog):
                     "started": datetime.datetime.timestamp(datetime.datetime.now()),
                     "structures": {}
                 }
+                if options["online"]:
+                    defaultGame["knownIslands"] = {}
                 out = self.newGame(ctx.guild.id, defaultGame)
                 if out == 201:
                     await m.edit(embed=discord.Embed(
