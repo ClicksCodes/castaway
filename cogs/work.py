@@ -241,6 +241,8 @@ class Work(commands.Cog):
             await self.writeGame(ctx.guild.id, game, ctx, m)
         if rewardSystem == 3:
             collected = LT.table(LT.getTable(), table)
+            cut = (.0175 * game["settings"]["size"][0]) + 0.3
+            collected = collected[:round(len(collected)*cut)]
             game = await self.fetchGame(ctx.guild.id, m, ctx)
             if isinstance(game, int):
                 return
