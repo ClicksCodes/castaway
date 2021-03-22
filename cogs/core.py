@@ -86,7 +86,7 @@ class Core(commands.Cog):
         url = str(await self.run_sync(subprocess.check_output, ["git", "config", "--get", "remote.origin.url"]))[2:-3]
         await ctx.reply(embed=discord.Embed(
             title="Want something added or changed?",
-            description=f"Help us make {self.bot.user.name} better by giving us your idea [here]({url}/issues/new?assignees={self.assignees}}&"
+            description=f"Help us make {self.bot.user.name} better by giving us your idea [here]({url}/issues/new?assignees={self.assignees}&"
                         f"labels=enhancement&template=feature_request.md&title=%5BADD%5D), thanks!",
             color=colours["b"]
         ))
