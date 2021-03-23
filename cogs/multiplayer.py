@@ -103,7 +103,6 @@ class Core(commands.Cog):
             return True
         return False
 
-
     @commands.command()
     @commands.guild_only()
     async def online(self, ctx):
@@ -113,7 +112,7 @@ class Core(commands.Cog):
         online = await self.fetchGame("MULTIPLAYER")
         if isinstance(game, int):
             return
-        if game["settings"]["online"] == False:
+        if not game["settings"]["online"]:
             await ctx.reply(embed=discord.Embed(
                 title="The ocean is silent",
                 description=f"Your game was created in offline mode, which means you can't go online. If you want to be able to, you can `{ctx.prefix}end` and start another game",
@@ -121,7 +120,7 @@ class Core(commands.Cog):
             ))
         else:
             if str(ctx.guild.id) not in online.keys():
-                online[str(ctx.guild.id)] = {"lastSeen": 0, "requesting": []}
+                online[str(ctx.guild.id)] = {"islandName": game["settings"]["name"], "lastSeen": 0, "requesting": []}
                 await self.writeGame("MULTIPLAYER", online)
             await ctx.reply(embed=discord.Embed(
                 title="Welcome aboard",
@@ -156,10 +155,50 @@ class Core(commands.Cog):
         else:
             last = datetime.datetime.now() - (datetime.datetime.fromtimestamp(smokeTime) + datetime.timedelta(seconds=60 * 60))
             lastSeen = f"\nYour smoke signal will last {humanize.naturaldelta(last)}"
-        await ctx.send(embed=discord.Embed(
+        m = await ctx.send(embed=discord.Embed(
                 title=f"{self.bot.get_emoji(emojis['smoke'][col])} Smoke",
                 description=f"You are {'not ' if not broadcasting else ''}broadcasting{lastSeen}",
                 color=colours[col]
+            ))
+        await m.add_reaction(self.bot.get_emoji(emojis["smoke"][col]))
+        try:
+            await ctx.bot.wait_for('reaction_add', timeout=60, check=lambda r, user: r.message.id == m.id and user == ctx.author)
+        except asyncio.TimeoutError:
+            return
+
+        try:
+            await m.clear_reactions()
+        except Exception as e:
+            print(e)
+
+        await asyncio.sleep(0.25)
+
+        if "campfire" in game["structures"].keys():
+            if "10" not in game["players"][str(ctx.author.id)]["inventory"] or game["players"][str(ctx.author.id)]["inventory"]["10"] < 10:
+                return await m.edit(embed=discord.Embed(
+                    title=f"{self.bot.get_emoji(emojis['smoke']['g'])} Smoke",
+                    description=f"You have no coal - It costs 10 coal to relight your campfire",
+                    color=colours["g"]
+                ))
+            if "23" not in game["players"][str(ctx.author.id)]["inventory"]:
+                return await m.edit(embed=discord.Embed(
+                    title=f"{self.bot.get_emoji(emojis['smoke']['g'])} Smoke",
+                    description=f"You have no flint and steel - You need one of these in your inventory to light your campfire",
+                    color=colours["g"]
+                ))
+
+            game = await self.fetchGame("MULTIPLAYER", m, ctx)
+            game[str(ctx.guild.id)]["lastSeen"] = datetime.datetime.timestamp(datetime.datetime.now())
+            await self.writeGame("MULTIPLAYER", game, ctx, m)
+
+            game = await self.fetchGame(ctx.guild.id, m, ctx)
+            game["players"][str(ctx.author.id)]["inventory"]["10"] -= 10
+            await self.writeGame(ctx.guild.id, game, ctx, m)
+
+            await m.edit(embed=discord.Embed(
+                title=f"{self.bot.get_emoji(emojis['smoke']['g'])} Smoke",
+                description=f"You are broadcasting\nYour smoke signal will last 1 hour",
+                color=colours["g"]
             ))
 
 

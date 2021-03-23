@@ -83,6 +83,31 @@ items = {
             "time": 1
         }
     },
+    22: {
+        "name": "flint",
+        "description": "Flint for a flint and steel",
+        "found": "Crafting",
+        "recipe": {
+            "in": {
+                13: 2
+            },
+            "out": 1,
+            "time": 30
+        }
+    },
+    23: {
+        "name": "flint and steel",
+        "description": "Lights a fire",
+        "found": "Crafting",
+        "recipe": {
+            "in": {
+                13: 1,
+                22: 1
+            },
+            "out": 1,
+            "time": 1
+        }
+    },
     40: {
         "name": "fish",
         "description": "* Not suitable for vegetarians",
@@ -171,23 +196,40 @@ items = {
             "max": 1,
             "time": 60
         }
+    },
+    51: {
+        "name": "campfire",
+        "description": "Makes your island visible to other online islands",
+        "found": "Crafting",
+        "recipe": {
+            "in": {
+                0: 50,
+                1: 50,
+                2: 10,
+                21: 25
+            },
+            "out": 1,
+            "max": 1,
+            "time": 60 * 60 * 5
+        }
     }
 }
 
 
 class Multiplier:
-    def __init__(self, item, level=1):
+    def __init__(self, item, level=1, skill=0):
         self.item = item
         self.level = level
+        self.skill = skill + 1
 
     def itemMultiplier(self):
         if int(self.item) == 50:
-            return int(self.level)**2
+            return round((int(self.level)**2) / self.skill, 2)
         else:
-            return 1
+            return round(1 / self.skill, 3)
 
     def timeMultiplier(self):
         if int(self.item) == 50:
-            return (int(self.level)**2) * 2
+            return round(((int(self.level)**2) * 2) / self.skill, 3)
         else:
-            return 1
+            return round(1 / self.skill, 3)

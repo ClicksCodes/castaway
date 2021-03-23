@@ -112,6 +112,14 @@ class Crafting(commands.Cog):
         game = await self.fetchGame(server)
         if isinstance(game, int):
             return
+        if int(item) == 51 and "campfire" in game["structures"]:
+            await m.edit(embed=discord.Embed(
+                title=f"You already have a campfire",
+                description=f"You're only allowed to make one campfire",
+                color=colours["r"]
+            ))
+            await asyncio.sleep(5)
+            return
         if str(ctx.author.id) in game["tasks"]:
             await m.edit(embed=discord.Embed(
                 title=f"Already {game['tasks'][str(ctx.author.id)]['type']}",
@@ -141,6 +149,9 @@ class Crafting(commands.Cog):
             limit = Items.items[item]["recipe"]["max"]
             amount = Items.items[item]["recipe"]["max"]
             forRec = [[str(k), int(v)] for k, v in Items.items[item]["recipe"]["in"].items()]
+            game = await self.fetchGame(server, m, ctx)
+            timeMultiplier = Items.Multiplier(item, skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).timeMultiplier()
+            waitTime = (Items.items[item]["recipe"]["time"]*limit) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1) * timeMultiplier
         else:
             limit = 0
             forRec = [[str(k), int(v)] for k, v in Items.items[item]["recipe"]["in"].items()]
@@ -155,15 +166,17 @@ class Crafting(commands.Cog):
                 if br:
                     break
                 limit += 1
-            time = (Items.items[item]["recipe"]["time"]*limit) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1)
+            game = await self.fetchGame(server, m, ctx)
+            timeMultiplier = Items.Multiplier(item, skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).timeMultiplier()
+            waitTime = (Items.items[item]["recipe"]["time"]*limit) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1) * timeMultiplier
             await m.add_reaction(self.bot.get_emoji(emojis["cross"]))
             n = ', '.join([f'{Items.items[i[0]]["name"]} x{i[1]}' for i in ingredients])
             await m.edit(embed=discord.Embed(
                 title="How many do you want to make?",
                 description=f"You can make {Items.items[int(item)]['name']} x{limit * Items.items[item]['recipe']['out']} in "
-                            f"{round(time, 2)}s ({humanize.naturaldelta(datetime.timedelta(seconds=time))})\n"
+                            f"{round(waitTime, 2)}s ({humanize.naturaldelta(datetime.timedelta(seconds=waitTime))})\n"
                             f"It costs {n} to make {Items.items[item]['recipe']['out']} {Items.items[item]['name']} at "
-                            f"{Items.items[item]['recipe']['out']} items / {Items.items[item]['recipe']['time']}s",
+                            f"{Items.items[item]['recipe']['out']} items / {humanize.naturaldelta(waitTime)}",
                 color=colours["g"]
             ).set_footer(text=f"I'm listening for your next message, {ctx.author.display_name} | Expected: Number"))
 
@@ -200,10 +213,9 @@ class Crafting(commands.Cog):
         game = await self.fetchGame(server, m, ctx)
         game["tasks"][str(ctx.author.id)] = {"type": "Crafting", "startedAt": datetime.datetime.timestamp(datetime.datetime.now())}
         await self.writeGame(server, game, ctx, m)
-        timeMultiplier = Items.Multiplier(item, game["storeSize"]).timeMultiplier()
-        await asyncio.sleep((Items.items[item]["recipe"]["time"]*amount*timeMultiplier) / (game["players"][str(user)]["skills"]["Crafting"][0] + 1))
+        await asyncio.sleep(waitTime)
         game = await self.fetchGame(server, m, ctx)
-        multiplier = Items.Multiplier(item, game["storeSize"]).itemMultiplier()
+        multiplier = Items.Multiplier(item, skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).itemMultiplier()
         if str(ctx.author.id) not in game["tasks"]:
             return
         if game["tasks"][str(ctx.author.id)]["type"] != "Crafting":
@@ -215,6 +227,8 @@ class Crafting(commands.Cog):
                 del game["players"][str(ctx.author.id)]["inventory"][i[0]]
         if int(item) == 50:
             game["storeSize"] += 1
+        elif int(item) == 51:
+            game["structures"]["campfire"] = 1
         else:
             if str(item) in game["players"][str(ctx.author.id)]["inventory"]:
                 game["players"][str(ctx.author.id)]["inventory"][str(item)] += amount * Items.items[item]['recipe']['out']
@@ -267,10 +281,10 @@ class Crafting(commands.Cog):
                 current += f"**{item['name'].capitalize()}** "
                 if "recipe" in item:
                     current += "- Recipe: `"
-                    multiplier = Items.Multiplier(item['iid'], game["storeSize"]).itemMultiplier()
-                    timeMultiplier = Items.Multiplier(item['iid'], game["storeSize"]).timeMultiplier()
+                    multiplier = Items.Multiplier(item['iid'], skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).itemMultiplier()
+                    timeMultiplier = Items.Multiplier(item['iid'], skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).timeMultiplier()
                     current += ", ".join([f"{Items.items[k]['name']} x{v * multiplier}" for k, v in item["recipe"]["in"].items()])
-                    current += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {item['recipe']['time'] * timeMultiplier}s)"
+                    current += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {humanize.naturaldelta(item['recipe']['time'] * timeMultiplier)})"
                 else:
                     current += "- *Not craftable*"
                 string.append(current)
@@ -340,12 +354,12 @@ class Crafting(commands.Cog):
         if "recipe" in item:
             recipe = "Recipe - `"
             ex = ""
-            multiplier = Items.Multiplier(iid, game["storeSize"]).itemMultiplier()
-            timeMultiplier = Items.Multiplier(iid, game["storeSize"]).timeMultiplier()
+            multiplier = Items.Multiplier(iid, skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).itemMultiplier()
+            timeMultiplier = Items.Multiplier(iid, skill=game["players"][str(ctx.author.id)]["skills"]["Crafting"][0], level=game["storeSize"]).timeMultiplier()
             if int(iid) == 50:
                 ex = f"\nUpgrades to level {game['storeSize']+1}, {((game['storeSize']+1)**2)*100} item capacity"
             recipe += ", ".join([f"{Items.items[int(k)]['name']} x{v * multiplier}" for k, v in item['recipe']['in'].items()])
-            recipe += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {item['recipe']['time'] * timeMultiplier}s) {ex}"
+            recipe += f"` -> {item['recipe']['out']} {item['name'].capitalize()} (in {humanize.naturaldelta(item['recipe']['time'] * timeMultiplier)}) {ex}"
         else:
             recipe = "*Not craftable*"
         await ctx.reply(embed=discord.Embed(
