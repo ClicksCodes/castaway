@@ -201,6 +201,29 @@ class Core(commands.Cog):
                 color=colours["g"]
             ))
 
+    @commands.command()
+    @commands.guild_only()
+    async def search(self, ctx):
+        if await self.globalChecks(ctx):
+            return
+        if await self.multiCheck(ctx):
+            return
+        online = await self.fetchGame("MULTIPLAYER")
+        islands = {}
+        for k, v in online.items():
+            if k != str(ctx.guild.id) and ((datetime.datetime.now() - datetime.datetime.fromtimestamp(v["lastSeen"])).total_seconds() < 60 * 60):
+                islands[k] = v
+        coords = online[str(ctx.guild.id)]["coords"]
+        desc = ""
+        for island in islands.values():
+            distance = round(math.sqrt((coords[0]/100-island["coords"][0]/100)**2 + (coords[1]/100-island["coords"][1]/100)**2), 2)
+            desc += f"{island['islandName']} - {distance}km\n"
+        await ctx.reply(embed=discord.Embed(
+            title=f"Nearby islands",
+            description=desc,
+            color=colours["g"]
+        ))
+
 
 def setup(bot):
     bot.add_cog(Core(bot))

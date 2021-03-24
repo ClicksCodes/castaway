@@ -129,5 +129,6 @@ class Slash(commands.Cog):
             color=colours["g"]
         ))
 
+
 def setup(bot):
     bot.add_cog(Slash(bot))

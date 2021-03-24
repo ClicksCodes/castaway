@@ -1,7 +1,14 @@
 {
   "684492926528651336": {
     "islandName": "ClicksLand",
-    "lastSeen": 1616523861.67697,
-    "requesting": []
+    "lastSeen": 1616607244.903357,
+    "requesting": [],
+    "coords": [0, 0]
+  },
+  "757216056069718018": {
+    "islandName": "Castaway testing server island (creative)",
+    "lastSeen": 1616607719.484876,
+    "requesting": [0],
+    "coords": [1, -1]
   }
 }
